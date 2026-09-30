@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Projects · MKUYU Africa</title>
-  <meta name="description" content="Explore MKUYU Africa developments across Tanzania, from master-planned estates to serviced residential land." />
+  <title>Properties to rent · MKUYU Africa</title>
+  <meta name="description" content="Properties to rent from MKUYU Africa across Tanzania. Filter by type, bedrooms and price." />
   <meta name="theme-color" content="#0b6b4d" />
-  <meta property="og:title" content="Projects · MKUYU Africa" />
-  <meta property="og:description" content="Explore MKUYU Africa developments across Tanzania, from master-planned estates to serviced residential land." />
+  <meta property="og:title" content="Properties to rent · MKUYU Africa" />
+  <meta property="og:description" content="Properties to rent from MKUYU Africa across Tanzania. Filter by type, bedrooms and price." />
   <meta property="og:type" content="website" />
   <script>document.documentElement.classList.add("js")</script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -17,7 +17,7 @@
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%230b6b4d'/><text y='72' x='50' text-anchor='middle' font-size='62' font-family='Georgia' fill='%23e8c46a'>M</text></svg>" />
   <script type="module" src="assets/js/app.js"></script>
 </head>
-<body data-page="projects">
+<body data-page="listing" data-service="rent">
   <a class="skip-link" href="#main">Skip to content</a>
 
   <header class="site-header">
@@ -28,11 +28,11 @@
       </a>
       <nav class="nav" id="primary-nav" aria-label="Primary">
         <a href="index.html">Home</a>
-        <a href="rent.html" class="nav-service">Rent</a>
+        <a href="rent.html" class="nav-service" aria-current="page">Rent</a>
         <a href="buy.html" class="nav-service">Buy</a>
         <a href="sell.html" class="nav-service">Sell</a>
         <span class="nav-divider" aria-hidden="true"></span>
-        <a href="projects.html" aria-current="page">Projects</a>
+        <a href="projects.html">Projects</a>
         <a href="about.html">About</a>
         <a href="contact.html">Contact</a>
       </nav>
@@ -46,27 +46,59 @@
   <main id="main">
     <section class="page-hero">
       <div class="wrap">
-        <span class="eyebrow">Developments</span>
-        <h1>Our projects</h1>
-        <p class="lede">Each development is planned as a place to live, not just a collection of units, with services, access and the surrounding area considered from the start.</p>
+        <span class="eyebrow">Rent</span>
+        <h1>Properties to rent</h1>
+        <p class="lede">Homes and spaces our sales team has opened for rent. When a property is rented, it leaves this list by itself.</p>
       </div>
     </section>
 
-    <section class="section">
+    <section class="section" style="padding-top:0">
       <div class="wrap">
-        <div class="grid grid--3" id="project-grid"></div>
-        <noscript><p class="notice"><strong>Note:</strong>&nbsp;this list needs JavaScript. Please <a href="contact.html">contact us</a> for current project information.</p></noscript>
-      </div>
-    </section>
+        <form class="toolbar" id="filters" role="search" aria-label="Filter properties">
+          <div class="field">
+            <label for="filter-search">Search</label>
+            <div class="input-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg><input type="search" id="filter-search" name="q" placeholder="Area, project or type…" autocomplete="off" /></div>
+          </div>
+          <div class="field">
+            <label for="filter-type">Type</label>
+            <select id="filter-type" name="type"></select>
+          </div>
+          <div class="field">
+            <label for="filter-beds">Bedrooms</label>
+            <select id="filter-beds" name="beds">
+              <option value="">Any</option>
+              <option value="1">1+</option>
+              <option value="2">2+</option>
+              <option value="3">3+</option>
+              <option value="4">4+</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="filter-sort">Sort</label>
+            <select id="filter-sort" name="sort">
+              <option value="featured">Featured</option>
+              <option value="price-asc">Price: low to high</option>
+              <option value="price-desc">Price: high to low</option>
+            </select>
+          </div>
+        </form>
 
-    <section class="section section--dark">
-      <div class="wrap">
-        <span class="eyebrow" style="color:var(--gold-400)">Our ambition</span>
-        <h2>One million homes across Tanzania</h2>
-        <p class="lede">MKUYU Africa's stated vision is to construct one million modern, affordable homes, widening access to quality housing through affordable ownership options and instalment payment plans.</p>
-        <div class="cta-actions" style="justify-content:flex-start;margin-top:2rem">
-          <a class="btn btn--gold" href="buy.html">Browse homes to buy</a>
+        <p class="result-count" id="result-count" role="status" aria-live="polite"></p>
+        <div class="grid grid--3" id="property-grid"></div>
+
+        <div class="empty" id="no-results" hidden>
+          <h3>No properties match those filters</h3>
+          <p>Try widening your search, or <a href="contact.html">tell us what you are looking for</a>.</p>
         </div>
+        <noscript><p class="notice"><strong>Note:</strong>&nbsp;the property list needs JavaScript. Please <a href="contact.html">contact us</a> for the current list.</p></noscript>
+      </div>
+    </section>
+
+    <section class="section cta-band">
+      <div class="wrap">
+        <h2>Looking to buy instead?</h2>
+        <p>Many of our homes are also for sale, with instalment options.</p>
+        <div class="cta-actions"><a class="btn btn--gold" href="buy.html">Properties to buy</a></div>
       </div>
     </section>
   </main>

@@ -50,23 +50,17 @@ and Home pages:
 4. **No photography was fabricated.** Cards fall back to a branded gradient
    with a glyph instead of a broken or invented image.
 
-## The customer-journey gap
+## Customer accounts
 
-The brief asked for a journey ending in **Sign Up → Sign In → customer
-services**. No account system was built, because:
-
-- the public site has no confirmed requirement for one, and
-- adding a fake sign-in to a static site would imply a security model that
-  does not exist.
-
-The journey is implemented up to **Enquire**, which is the real conversion
-point for a property developer. An account area should be added as its own
-authenticated surface, in its own right, once there is a real backend behind
-it.
+Sign up, log in and the Customer Portal are built, but they only work against
+the internal MKUYU system (see `docs/PUBLIC-API.md`). No fake sign-in exists:
+in preview mode every account action says plainly that nothing was sent, and
+the portal can only be viewed through clearly labelled sample customers
+(`portal.html?demo=...`).
 
 ## To go live
 
-Replace `PROJECTS` and `PROPERTIES` in `assets/js/data.js` with the real
-catalogue, drop the `sample` flags, populate `COMPANY` from an official source,
-and remove the preview notices from each page. No rendering code needs to
-change.
+Do **not** edit the sample data into real listings. The real catalogue lives in
+the internal MKUYU system, managed by the Sales Officer. Connect the site by
+setting `API_BASE` in `assets/js/config.js`, populate `COMPANY` from an official
+source, and remove the preview notices. See the README.

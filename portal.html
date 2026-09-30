@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Projects · MKUYU Africa</title>
-  <meta name="description" content="Explore MKUYU Africa developments across Tanzania, from master-planned estates to serviced residential land." />
+  <title>My portal · MKUYU Africa</title>
+  <meta name="description" content="Your MKUYU Africa customer portal: requests, contracts, payments and documents in one place." />
   <meta name="theme-color" content="#0b6b4d" />
-  <meta property="og:title" content="Projects · MKUYU Africa" />
-  <meta property="og:description" content="Explore MKUYU Africa developments across Tanzania, from master-planned estates to serviced residential land." />
+  <meta property="og:title" content="My portal · MKUYU Africa" />
+  <meta property="og:description" content="Your MKUYU Africa customer portal: requests, contracts, payments and documents in one place." />
   <meta property="og:type" content="website" />
   <script>document.documentElement.classList.add("js")</script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -17,7 +17,7 @@
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%230b6b4d'/><text y='72' x='50' text-anchor='middle' font-size='62' font-family='Georgia' fill='%23e8c46a'>M</text></svg>" />
   <script type="module" src="assets/js/app.js"></script>
 </head>
-<body data-page="projects">
+<body data-page="portal">
   <a class="skip-link" href="#main">Skip to content</a>
 
   <header class="site-header">
@@ -32,7 +32,7 @@
         <a href="buy.html" class="nav-service">Buy</a>
         <a href="sell.html" class="nav-service">Sell</a>
         <span class="nav-divider" aria-hidden="true"></span>
-        <a href="projects.html" aria-current="page">Projects</a>
+        <a href="projects.html">Projects</a>
         <a href="about.html">About</a>
         <a href="contact.html">Contact</a>
       </nav>
@@ -44,29 +44,10 @@
   </header>
 
   <main id="main">
-    <section class="page-hero">
+    <section class="section" style="padding-top:2.5rem">
       <div class="wrap">
-        <span class="eyebrow">Developments</span>
-        <h1>Our projects</h1>
-        <p class="lede">Each development is planned as a place to live, not just a collection of units, with services, access and the surrounding area considered from the start.</p>
-      </div>
-    </section>
-
-    <section class="section">
-      <div class="wrap">
-        <div class="grid grid--3" id="project-grid"></div>
-        <noscript><p class="notice"><strong>Note:</strong>&nbsp;this list needs JavaScript. Please <a href="contact.html">contact us</a> for current project information.</p></noscript>
-      </div>
-    </section>
-
-    <section class="section section--dark">
-      <div class="wrap">
-        <span class="eyebrow" style="color:var(--gold-400)">Our ambition</span>
-        <h2>One million homes across Tanzania</h2>
-        <p class="lede">MKUYU Africa's stated vision is to construct one million modern, affordable homes, widening access to quality housing through affordable ownership options and instalment payment plans.</p>
-        <div class="cta-actions" style="justify-content:flex-start;margin-top:2rem">
-          <a class="btn btn--gold" href="buy.html">Browse homes to buy</a>
-        </div>
+        <div id="portal-host" aria-live="polite"></div>
+        <noscript><p class="notice"><strong>Note:</strong>&nbsp;the customer portal needs JavaScript.</p></noscript>
       </div>
     </section>
   </main>

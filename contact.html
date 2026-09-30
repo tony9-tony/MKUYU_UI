@@ -4,15 +4,20 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Contact · MKUYU Africa</title>
-  <meta name="description" content="Send MKUYU Africa an enquiry about a property, book a viewing, or ask about instalment payment plans and the Miliki Ardhi Diaspora programme." />
+  <meta name="description" content="Send MKUYU Africa a question about renting, buying or selling property, or the Miliki Ardhi Diaspora programme." />
   <meta name="theme-color" content="#0b6b4d" />
+  <meta property="og:title" content="Contact · MKUYU Africa" />
+  <meta property="og:description" content="Send MKUYU Africa a question about renting, buying or selling property, or the Miliki Ardhi Diaspora programme." />
+  <meta property="og:type" content="website" />
+  <script>document.documentElement.classList.add("js")</script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Fraunces:opsz,wght@9..144,500;9..144,600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/css/styles.css" />
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%230b6b4d'/><text y='72' x='50' text-anchor='middle' font-size='62' font-family='Georgia' fill='%23e8c46a'>M</text></svg>" />
+  <script type="module" src="assets/js/app.js"></script>
 </head>
-<body>
+<body data-page="contact">
   <a class="skip-link" href="#main">Skip to content</a>
 
   <header class="site-header">
@@ -21,107 +26,126 @@
         <span class="brand-mark" aria-hidden="true">M</span>
         <span><span class="brand-name">MKUYU AFRICA</span><span class="brand-sub">Property · Tanzania</span></span>
       </a>
-      <button class="nav-toggle" aria-expanded="false" aria-controls="primary-nav" aria-label="Open navigation">☰</button>
       <nav class="nav" id="primary-nav" aria-label="Primary">
         <a href="index.html">Home</a>
-        <a href="properties.html">Properties</a>
+        <a href="rent.html" class="nav-service">Rent</a>
+        <a href="buy.html" class="nav-service">Buy</a>
+        <a href="sell.html" class="nav-service">Sell</a>
+        <span class="nav-divider" aria-hidden="true"></span>
         <a href="projects.html">Projects</a>
         <a href="about.html">About</a>
         <a href="contact.html" aria-current="page">Contact</a>
       </nav>
-      <div class="header-cta"><a class="btn btn--primary" href="properties.html">Browse properties</a></div>
+      <div class="header-cta">
+        <a class="btn btn--primary" href="login.html" data-account-link><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg><span>Log in</span></a>
+        <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="primary-nav" aria-label="Open navigation"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+      </div>
     </div>
   </header>
 
   <main id="main">
-    <section class="section">
+    <section class="page-hero">
       <div class="wrap">
-        <div class="grid grid--2" style="gap:3rem;align-items:start">
-          <div>
-            <span class="eyebrow">Contact</span>
-            <h2>Tell us what you are looking for</h2>
-            <p class="lede">The more you tell us about your budget, preferred location and payment arrangement, the more useful our reply can be.</p>
+        <span class="eyebrow">Contact</span>
+        <h1>Tell us what you are looking for</h1>
+        <p class="lede">The more you tell us about your budget, preferred location and plans, the more useful our reply can be.</p>
+      </div>
+    </section>
 
-            <form id="enquiry-form" novalidate style="margin-top:2rem">
-              <div class="grid grid--2" style="gap:1rem">
-                <div class="field">
-                  <label for="name">Full name <span aria-hidden="true">*</span></label>
-                  <input type="text" id="name" name="name" required autocomplete="name" />
-                </div>
-                <div class="field">
-                  <label for="email">Email <span aria-hidden="true">*</span></label>
-                  <input type="email" id="email" name="email" required autocomplete="email" />
-                </div>
-                <div class="field">
-                  <label for="phone">Phone</label>
-                  <input type="tel" id="phone" name="phone" autocomplete="tel" />
-                </div>
-                <div class="field">
-                  <label for="budget">Budget (TZS)</label>
-                  <select id="budget" name="budget">
-                    <option value="">Prefer not to say</option>
-                    <option>Under 50 m</option>
-                    <option>50 m – 100 m</option>
-                    <option>100 m – 200 m</option>
-                    <option>Over 200 m</option>
-                  </select>
-                </div>
-              </div>
-              <div class="field" style="margin-top:1rem">
-                <label for="topic">What is this about?</label>
-                <select id="topic" name="topic">
-                  <option value="">A property I have seen</option>
-                  <option value="diaspora">Miliki Ardhi Diaspora programme</option>
-                  <option value="viewing">Booking a viewing</option>
-
-            <div id="form-success" class="card" hidden tabindex="-1" style="margin-top:2rem">
-              <div class="card-body">
-                <h3>Thank you — your enquiry is ready</h3>
-                <p style="margin:0">This is a preview build, so nothing was actually transmitted. In production this form will post to your sales inbox.</p>
-              </div>
+    <section class="section">
+      <div class="wrap detail">
+        <form id="enquiry-form" class="panel" novalidate>
+          <div class="form-grid">
+            <div class="field">
+              <label for="name">Full name <span class="req" aria-hidden="true">*</span></label>
+              <input type="text" id="name" name="name" required autocomplete="name" />
+            </div>
+            <div class="field">
+              <label for="email">Email <span class="req" aria-hidden="true">*</span></label>
+              <input type="email" id="email" name="email" required autocomplete="email" />
+            </div>
+            <div class="field">
+              <label for="phone">Phone</label>
+              <input type="tel" id="phone" name="phone" autocomplete="tel" />
+            </div>
+            <div class="field">
+              <label for="topic">What is this about?</label>
+              <select id="topic" name="topic">
+                <option value="general">General question</option>
+                <option value="rent">Renting</option>
+                <option value="buy">Buying</option>
+                <option value="sell">Selling my property</option>
+                <option value="diaspora">Miliki Ardhi Diaspora programme</option>
+              </select>
+            </div>
+            <div class="field full">
+              <label for="message">Message <span class="req" aria-hidden="true">*</span></label>
+              <textarea id="message" name="message" required></textarea>
+              <p class="field-hint">Please do not send identity documents, payment details or account numbers through this form.</p>
             </div>
           </div>
+          <button class="btn btn--primary btn--block" type="submit" style="margin-top:1.2rem">Send enquiry</button>
+          <div id="form-result" hidden role="status" aria-live="polite"></div>
+        </form>
 
-          <aside>
-            <div class="card"><div class="card-body">
-              <h3>Visit us</h3>
-              <p class="card-meta">Dar es Salaam, Tanzania</p>
-              <p style="font-size:.93rem;margin:0">Contact details are published on the official MKUYU Africa channels. They are intentionally left blank here rather than invented for this preview.</p>
-            </div></div>
-            <div class="card" style="margin-top:1rem"><div class="card-body">
-              <h3>Buying from abroad?</h3>
-              <p style="font-size:.93rem">The Miliki Ardhi Diaspora programme is designed for Tanzanians living overseas who want to begin owning property in Tanzania while still earning abroad.</p>
-              <a class="btn btn--outline" href="about.html">Read more</a>
-            </div></div>
-            <div class="notice" style="margin-top:1.2rem"><strong>Before you pay anyone.</strong> Verify the title, read the sale agreement, and use an independent legal adviser. A professional broker will always produce official identification.</div>
-          </aside>
-        </div>
+        <aside class="sticky-panel">
+          <div class="card"><div class="card-body">
+            <h3>Interested in a specific property?</h3>
+            <p class="card-meta">Open it and use <strong>Request to rent</strong> or <strong>Request to buy</strong>. Your request goes straight to our sales team and you can follow it in your portal.</p>
+            <a class="btn btn--outline btn--small" href="buy.html">Browse properties</a>
+          </div></div>
+          <div class="card"><div class="card-body">
+            <h3>Visit us</h3>
+            <p class="card-meta">Dar es Salaam, Tanzania</p>
+            <p class="card-meta" style="margin:0">Phone and email are published on official MKUYU channels. They are intentionally left blank here rather than invented for this preview.</p>
+          </div></div>
+          <div class="notice"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M8.5 12l2.5 2.5 4.5-5"/></svg><span><strong>Before you pay anyone.</strong> Verify the title, read the agreement, and use an independent legal adviser. A professional broker always shows official identification.</span></div>
+        </aside>
       </div>
     </section>
   </main>
 
   <footer class="site-footer">
     <div class="wrap">
+      <div class="footer-grid">
+        <div>
+          <div class="brand" style="margin-bottom:1rem">
+            <span class="brand-mark" aria-hidden="true">M</span>
+            <span><span class="brand-name" style="color:#fff">MKUYU AFRICA</span><span class="brand-sub">Property · Tanzania</span></span>
+          </div>
+          <p>Quality homes, clear titles and instalment plans that make ownership genuinely reachable across Tanzania.</p>
+        </div>
+        <div>
+          <h4>Services</h4>
+          <ul>
+            <li><a href="rent.html">Rent a property</a></li>
+            <li><a href="buy.html">Buy a property</a></li>
+            <li><a href="sell.html">Sell your property</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Company</h4>
+          <ul>
+            <li><a href="projects.html">Projects</a></li>
+            <li><a href="about.html">About us</a></li>
+            <li><a href="contact.html">Contact</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Your account</h4>
+          <ul>
+            <li><a href="login.html">Log in</a></li>
+            <li><a href="signup.html">Create an account</a></li>
+            <li><a href="portal.html">Customer portal</a></li>
+          </ul>
+        </div>
+      </div>
       <div class="footer-bottom">
         <span>© <span data-year>2026</span> MKUYU Africa. All rights reserved.</span>
-        <a href="index.html">Home</a>
+        <span>Dar es Salaam, Tanzania</span>
       </div>
-      <p class="disclaimer"><strong>Preview build.</strong> The enquiry form is not connected to a live inbox and no information you enter is transmitted or stored.</p>
+      <p class="disclaimer"><strong>Preview build.</strong> Properties and projects shown here are sample records used to demonstrate the design, not genuine MKUYU listings. Always verify ownership documents, contract terms and payment conditions before committing to any property.</p>
     </div>
   </footer>
-
-  <script type="module" src="assets/js/app.js"></script>
 </body>
 </html>
-
-                  <option value="rental">Rental services</option>
-                  <option value="brokerage">Brokerage services</option>
-                </select>
-              </div>
-              <div class="field" style="margin-top:1rem">
-                <label for="message">Message <span aria-hidden="true">*</span></label>
-                <textarea id="message" name="message" required></textarea>
-                <p class="field-hint">Please do not send identity documents, payment details or account numbers through this form.</p>
-              </div>
-              <button class="btn btn--primary btn--block" type="submit" style="margin-top:1.2rem">Send enquiry</button>
-            </form>

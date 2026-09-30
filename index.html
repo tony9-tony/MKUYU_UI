@@ -3,40 +3,42 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>MKUYU Africa · Quality homes. Real ownership.</title>
-  <meta name="description" content="MKUYU Africa develops, sells and rents quality homes in Tanzania. Browse available properties and projects, with clear pricing and instalment payment plans." />
+  <title>MKUYU Africa · Rent, buy or sell property in Tanzania</title>
+  <meta name="description" content="Rent a home, buy a property, or sell your own through MKUYU Africa. Clear titles, written terms and instalment plans across Tanzania." />
   <meta name="theme-color" content="#0b6b4d" />
-  <meta property="og:title" content="MKUYU Africa · Quality homes. Real ownership." />
-  <meta property="og:description" content="Property development, sales and rental in Tanzania. Browse available homes and land." />
+  <meta property="og:title" content="MKUYU Africa · Rent, buy or sell property in Tanzania" />
+  <meta property="og:description" content="Rent a home, buy a property, or sell your own through MKUYU Africa. Clear titles, written terms and instalment plans across Tanzania." />
   <meta property="og:type" content="website" />
+  <script>document.documentElement.classList.add("js")</script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Fraunces:opsz,wght@9..144,500;9..144,600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/css/styles.css" />
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%230b6b4d'/><text y='72' x='50' text-anchor='middle' font-size='62' font-family='Georgia' fill='%23e8c46a'>M</text></svg>" />
+  <script type="module" src="assets/js/app.js"></script>
 </head>
-<body>
+<body data-page="home">
   <a class="skip-link" href="#main">Skip to content</a>
 
   <header class="site-header">
     <div class="wrap header-inner">
       <a class="brand" href="index.html">
         <span class="brand-mark" aria-hidden="true">M</span>
-        <span>
-          <span class="brand-name">MKUYU AFRICA</span>
-          <span class="brand-sub">Property · Tanzania</span>
-        </span>
+        <span><span class="brand-name">MKUYU AFRICA</span><span class="brand-sub">Property · Tanzania</span></span>
       </a>
-      <button class="nav-toggle" aria-expanded="false" aria-controls="primary-nav" aria-label="Open navigation">☰</button>
       <nav class="nav" id="primary-nav" aria-label="Primary">
         <a href="index.html" aria-current="page">Home</a>
-        <a href="properties.html">Properties</a>
+        <a href="rent.html" class="nav-service">Rent</a>
+        <a href="buy.html" class="nav-service">Buy</a>
+        <a href="sell.html" class="nav-service">Sell</a>
+        <span class="nav-divider" aria-hidden="true"></span>
         <a href="projects.html">Projects</a>
         <a href="about.html">About</a>
         <a href="contact.html">Contact</a>
       </nav>
       <div class="header-cta">
-        <a class="btn btn--primary" href="contact.html">Book a viewing</a>
+        <a class="btn btn--primary" href="login.html" data-account-link><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg><span>Log in</span></a>
+        <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="primary-nav" aria-label="Open navigation"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
       </div>
     </div>
   </header>
@@ -44,46 +46,55 @@
   <main id="main">
     <section class="hero">
       <div class="wrap hero-inner">
-        <div>
-          <span class="eyebrow">Property development · Sales · Rental</span>
-          <h1>Homes Tanzanians can <em>own</em>, in places built to last.</h1>
-          <p class="lede">
-            MKUYU Africa develops, sells and rents quality homes across Tanzania — with clear
-            titles, written terms and instalment plans that make ownership genuinely reachable.
-          </p>
-          <div class="hero-actions">
-            <a class="btn btn--gold" href="properties.html">Browse properties</a>
-            <a class="btn btn--ghost" href="about.html">Our story</a>
-          </div>
-          <div class="hero-stats">
-            <div><strong>1m</strong><span>Homes targeted</span></div>
-            <div><strong>TZ</strong><span>Across Tanzania</span></div>
-            <div><strong>2019</strong><span>Established</span></div>
-          </div>
+        <span class="eyebrow">Property · Tanzania</span>
+        <h1>Find a place to <em>rent</em>, a home to <em>own</em>, or a buyer for yours.</h1>
+        <p class="lede">MKUYU Africa rents, sells and develops quality property across Tanzania, with clear titles, written terms and instalment plans that make ownership genuinely reachable.</p>
+
+        <div class="service-picker">
+          <a class="service-tile" href="rent.html">
+            <span class="tile-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="15" r="4"/><path d="M11 12l9-9M16 7l3 3M14 9l2 2"/></svg></span>
+            <strong>Rent</strong>
+            <span>Homes and spaces available to rent now.</span>
+            <span class="tile-go">Browse rentals <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+          </a>
+          <a class="service-tile" href="buy.html">
+            <span class="tile-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 11l8-7 8 7v9a1 1 0 0 1-1 1h-4v-6H9v6H5a1 1 0 0 1-1-1z"/></svg></span>
+            <strong>Buy</strong>
+            <span>Homes and land for sale, with instalment options.</span>
+            <span class="tile-go">Browse properties <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+          </a>
+          <a class="service-tile" href="sell.html">
+            <span class="tile-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l4-4 5 2 5-2 4 4-8 8zM8 13l3 3M11 11l3 3"/></svg></span>
+            <strong>Sell</strong>
+            <span>Own a property? Let MKUYU help you sell it.</span>
+            <span class="tile-go">Submit your property <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+          </a>
         </div>
 
-        <div class="hero-card">
-          <h2>Miliki Ardhi Diaspora</h2>
-          <p>For Tanzanians living abroad, our programme to start owning property in Tanzania while still overseas.</p>
-          <ul>
-            <li><span class="tick" aria-hidden="true">✓</span><span>Structured purchase arrangements, not informal handovers to relatives</span></li>
-            <li><span class="tick" aria-hidden="true">✓</span><span>Instalment payment plans on applicable terms</span></li>
-            <li><span class="tick" aria-hidden="true">✓</span><span>Professional management, so your investment is not left unattended</span></li>
-          </ul>
-          <a class="btn btn--gold btn--block" style="margin-top:1.4rem" href="contact.html?topic=diaspora">Ask about the programme</a>
+        <div class="hero-stats">
+          <div><strong>1m</strong><span>Homes targeted</span></div>
+          <div><strong>TZ</strong><span>Across Tanzania</span></div>
+          <div><strong>3</strong><span>Services, one account</span></div>
         </div>
       </div>
+    </section>
 
     <section class="section">
       <div class="wrap">
-        <span class="eyebrow">Featured</span>
-        <h2>Homes currently available</h2>
-        <p class="lede">A selection from the current collection. Every listing shows its asking price in Tanzanian shillings — no hidden fees at enquiry stage.</p>
-        <div class="grid grid--3" id="home-featured" style="margin-top:2.5rem"></div>
-        <noscript>
-          <p class="notice" style="margin-top:2rem"><strong>Note:</strong> the property browser needs JavaScript. Please <a href="contact.html">contact us</a> and we will send the current list.</p>
-        </noscript>
-        <p style="margin-top:2rem"><a class="btn btn--outline" href="properties.html">See all properties</a></p>
+        <div class="section-head">
+          <div>
+            <span class="eyebrow">Featured</span>
+            <h2>Available now</h2>
+            <p class="lede">Every listing comes straight from our sales team, with its current availability.</p>
+          </div>
+          <div class="segmented" id="featured-tabs" role="tablist" aria-label="Show properties to">
+            <button type="button" role="tab" data-service="buy" aria-selected="true" aria-controls="home-featured">Buy</button>
+            <button type="button" role="tab" data-service="rent" aria-selected="false" aria-controls="home-featured">Rent</button>
+          </div>
+        </div>
+        <div class="grid grid--3" id="home-featured" role="tabpanel" aria-live="polite"></div>
+        <noscript><p class="notice" style="margin-top:2rem"><strong>Note:</strong>&nbsp;the property browser needs JavaScript. Please <a href="contact.html">contact us</a> for the current list.</p></noscript>
+        <p style="margin-top:2rem"><a class="btn btn--outline" id="featured-more" href="buy.html">See all properties to buy <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></p>
       </div>
     </section>
 
@@ -91,34 +102,46 @@
       <div class="wrap">
         <span class="eyebrow">What we do</span>
         <h2>One company, the whole journey</h2>
-        <p class="lede">From the first sketch of a development to the day you receive your title, everything is handled in-house by people accountable to you.</p>
-        <div class="grid grid--3" style="margin-top:2.5rem">
-          <div class="feature"><span class="feature-icon" aria-hidden="true">🏠</span><div><h3>Property development</h3><p>Homes and mixed developments built to a standard that holds its value.</p></div></div>
-          <div class="feature"><span class="feature-icon" aria-hidden="true">📄</span><div><h3>Property sales</h3><p>Verified titles, transparent pricing, written terms before any payment.</p></div></div>
-          <div class="feature"><span class="feature-icon" aria-hidden="true">🔑</span><div><h3>Property rental</h3><p>Professional lettings with proper agreements for owner and tenant alike.</p></div></div>
-          <div class="feature"><span class="feature-icon" aria-hidden="true">🤝</span><div><h3>Brokerage services</h3><p>Qualified, identifiable brokers — so you always know who you are dealing with.</p></div></div>
-          <div class="feature"><span class="feature-icon" aria-hidden="true">💳</span><div><h3>Flexible payment plans</h3><p>Buy gradually with instalments rather than paying everything at once.</p></div></div>
-          <div class="feature"><span class="feature-icon" aria-hidden="true">🛡️</span><div><h3>Title &amp; due diligence</h3><p>Ownership documents and contract terms explained clearly before you commit.</p></div></div>
-        </div>
+        <p class="lede">From the first sketch of a development to the day you receive your keys, everything is handled by people accountable to you.</p>
+        <div class="grid grid--3" id="service-grid" style="margin-top:2.5rem"></div>
       </div>
     </section>
 
     <section class="section">
       <div class="wrap">
         <div class="grid grid--2" style="align-items:center;gap:3rem">
-          <div>
+          <div data-reveal>
             <span class="eyebrow">How it works</span>
-            <h2>From browsing to handing over the keys</h2>
-            <p class="lede">No step of the buying journey should be a surprise. This is the process, start to finish.</p>
-            <a class="btn btn--primary" style="margin-top:1rem" href="contact.html">Start with an enquiry</a>
+            <h2>From your first click to the keys</h2>
+            <p class="lede">Renting and buying follow the same clear path. Every step is visible in your customer portal.</p>
+            <a class="btn btn--primary" style="margin-top:1rem" href="signup.html">Create your free account <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
           </div>
-          <div class="steps">
-            <div class="step"><h3>Browse the collection</h3><p>Photos, specifications and full pricing, stated openly.</p></div>
-            <div class="step"><h3>Choose and enquire</h3><p>Tell us your budget and preferred payment arrangement.</p></div>
-            <div class="step"><h3>Book a viewing</h3><p>Visit the development itself, not just a photograph of it.</p></div>
-            <div class="step"><h3>Verify and purchase</h3><p>Review the title and sale agreement with your own legal adviser.</p></div>
-            <div class="step"><h3>Handover and ownership</h3><p>Receive your title and begin any agreed instalments.</p></div>
+          <div class="steps" data-reveal>
+            <div class="step"><h3>Choose a property</h3><p>Browse what is available to rent or buy, with prices stated openly.</p></div>
+            <div class="step"><h3>Send your request</h3><p>Our sales team reviews it and contacts you to agree the terms.</p></div>
+            <div class="step"><h3>Contract and approval</h3><p>Your written contract is prepared, reviewed and approved by MKUYU.</p></div>
+            <div class="step"><h3>Sign and pay</h3><p>Sign your contract and pay as agreed, including instalments where offered.</p></div>
+            <div class="step"><h3>Move in or take ownership</h3><p>Follow completion and handover in your portal.</p></div>
           </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section--tint">
+      <div class="wrap">
+        <div class="grid grid--2" style="align-items:center;gap:3rem">
+          <div class="panel" data-reveal>
+            <span class="eyebrow">Sell with MKUYU</span>
+            <h2>Own a property? We can help you sell it.</h2>
+            <p class="lede">Tell us about your property and upload a few photos. Our sales team reviews every submission and contacts you about the next steps. Nothing is published without that review.</p>
+            <a class="btn btn--gold" href="sell.html">Submit your property <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+          </div>
+          <div class="card" data-reveal><div class="card-body">
+            <span class="eyebrow">For Tanzanians abroad</span>
+            <h3>Miliki Ardhi Diaspora</h3>
+            <p class="card-meta">Our programme to start owning property in Tanzania while still overseas, through structured, professionally managed arrangements instead of informal handovers to relatives.</p>
+            <a class="btn btn--outline btn--small" href="contact.html?topic=diaspora">Ask about the programme</a>
+          </div></div>
         </div>
       </div>
     </section>
@@ -126,16 +149,14 @@
     <section class="section cta-band">
       <div class="wrap">
         <h2>Ready to start?</h2>
-        <p>Tell us what you are looking for and your budget. We will tell you honestly what is available and what it will take to own it.</p>
+        <p>One free MKUYU account covers renting, buying and selling, and lets you follow every step.</p>
         <div class="cta-actions">
-          <a class="btn btn--gold" href="contact.html">Make an enquiry</a>
-          <a class="btn btn--ghost" href="properties.html">Browse properties first</a>
+          <a class="btn btn--gold" href="signup.html">Create an account</a>
+          <a class="btn btn--ghost" href="buy.html">Browse properties first</a>
         </div>
       </div>
     </section>
   </main>
-
-    </section>
 
   <footer class="site-footer">
     <div class="wrap">
@@ -143,68 +164,41 @@
         <div>
           <div class="brand" style="margin-bottom:1rem">
             <span class="brand-mark" aria-hidden="true">M</span>
-            <span><span class="brand-name">MKUYU AFRICA</span><span class="brand-sub">Property · Tanzania</span></span>
+            <span><span class="brand-name" style="color:#fff">MKUYU AFRICA</span><span class="brand-sub">Property · Tanzania</span></span>
           </div>
           <p>Quality homes, clear titles and instalment plans that make ownership genuinely reachable across Tanzania.</p>
         </div>
         <div>
-          <h4>Explore</h4>
+          <h4>Services</h4>
           <ul>
-            <li><a href="properties.html">Properties</a></li>
+            <li><a href="rent.html">Rent a property</a></li>
+            <li><a href="buy.html">Buy a property</a></li>
+            <li><a href="sell.html">Sell your property</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Company</h4>
+          <ul>
             <li><a href="projects.html">Projects</a></li>
             <li><a href="about.html">About us</a></li>
             <li><a href="contact.html">Contact</a></li>
           </ul>
         </div>
         <div>
-          <h4>Services</h4>
+          <h4>Your account</h4>
           <ul>
-            <li><a href="about.html#services">Property development</a></li>
-            <li><a href="about.html#services">Property sales</a></li>
-            <li><a href="about.html#services">Rental</a></li>
-            <li><a href="about.html#services">Brokerage</a></li>
-          </ul>
-        </div>
-        <div>
-          <h4>Get in touch</h4>
-          <ul>
-            <li>Dar es Salaam, Tanzania</li>
-            <li><a href="contact.html">Send an enquiry</a></li>
-            <li><a href="contact.html?topic=diaspora">Miliki Ardhi Diaspora</a></li>
+            <li><a href="login.html">Log in</a></li>
+            <li><a href="signup.html">Create an account</a></li>
+            <li><a href="portal.html">Customer portal</a></li>
           </ul>
         </div>
       </div>
       <div class="footer-bottom">
         <span>© <span data-year>2026</span> MKUYU Africa. All rights reserved.</span>
-        <span>Staff and administration systems are operated separately by MKUYU.</span>
+        <span>Dar es Salaam, Tanzania</span>
       </div>
-      <p class="disclaimer"><strong>Preview build.</strong> The properties and projects shown on this site are sample records used to demonstrate the design. They are not genuine MKUYU listings. Always verify ownership documents, contract terms and payment conditions with an independent legal adviser before committing to any property purchase.</p>
+      <p class="disclaimer"><strong>Preview build.</strong> Properties and projects shown here are sample records used to demonstrate the design, not genuine MKUYU listings. Always verify ownership documents, contract terms and payment conditions before committing to any property.</p>
     </div>
   </footer>
-
-  <script type="module">
-    import { PROPERTIES } from "./assets/js/data.js";
-    import { escapeHtml, formatTZS } from "./assets/js/app.js";
-    const host = document.getElementById("home-featured");
-    if (host) {
-      host.innerHTML = PROPERTIES.slice(0, 3).map((item) => `
-        <article class="card">
-          <div class="card-media">
-            <span class="placeholder" aria-hidden="true">${item.type === "Land" ? "◫" : "⌂"}</span>
-            <span class="card-tag">${escapeHtml(item.status)}</span>
-          </div>
-          <div class="card-body">
-            <h3><a href="property.html?p=${encodeURIComponent(item.slug)}" style="text-decoration:none;color:inherit">${escapeHtml(item.name)}</a></h3>
-            <p class="card-meta">${escapeHtml(item.location)}</p>
-            <div class="card-foot">
-              <span class="price">${escapeHtml(formatTZS(item.price))}<small>Asking price</small></span>
-              <a class="btn btn--outline" href="property.html?p=${encodeURIComponent(item.slug)}">View</a>
-            </div>
-          </div>
-        </article>`).join("");
-    }
-  </script>
-  <script type="module" src="assets/js/app.js"></script>
 </body>
 </html>
-
