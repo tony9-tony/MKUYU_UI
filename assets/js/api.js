@@ -13,10 +13,12 @@
    The endpoint contract lives in docs/PUBLIC-API.md.
    ========================================================================== */
 
-import { API_BASE, RESERVED_ON_WEBSITE, DEFAULT_CURRENCY } from "./config.js";
+import { API_BASE, CUSTOMER_ACCOUNTS, ONLINE_ENQUIRIES, RESERVED_ON_WEBSITE, DEFAULT_CURRENCY } from "./config.js";
 import * as sample from "./data.js";
 
 export const CONNECTED = Boolean(API_BASE);
+/** Customer features need the live system AND customer accounts built there. */
+export const ACCOUNTS_LIVE = CONNECTED && CUSTOMER_ACCOUNTS;
 
 export const SERVICES = ["rent", "buy"];
 export const STATUS_LABELS = { available: "Available", reserved: "Reserved", rented: "Rented", sold: "Sold" };
@@ -24,8 +26,11 @@ export const STATUS_LABELS = { available: "Available", reserved: "Reserved", ren
 /** Raised when an action needs the live system and the site is in preview mode. */
 export class NotConnectedError extends Error {
   constructor(action) {
-    super(`${action} will open once this website is connected to the MKUYU system. Nothing has been sent.`);
+    super(CONNECTED
+      ? `${action} is not open yet: customer accounts are still being set up. Nothing has been sent.`
+      : `${action} will open once this website is connected to the MKUYU system. Nothing has been sent.`);
     this.name = "NotConnectedError";
+    this.title = CONNECTED ? "Not open yet" : "Preview only";
   }
 }
 
@@ -38,13 +43,16 @@ export class ApiError extends Error {
 }
 
 async function request(path, { method = "GET", body } = {}) {
-  const init = { method, credentials: "include", headers: { Accept: "application/json" } };
+  // Public data is read without cookies; only customer calls carry the session.
+  const init = { method, credentials: path.startsWith("/customer/") ? "include" : "omit", headers: { Accept: "application/json" } };
   if (body instanceof FormData) init.body = body;
   else if (body !== undefined) {
     init.headers["Content-Type"] = "application/json";
     init.body = JSON.stringify(body);
   }
-  const response = await fetch(`${API_BASE}${path}`, init);
+  let response;
+  try { response = await fetch(`${API_BASE}${path}`, init); }
+  catch { throw new ApiError(0, "The MKUYU system could not be reached. Please check your connection and try again."); }
   const payload = await response.json().catch(() => ({}));
   if (!response.ok) throw new ApiError(response.status, payload.error);
   return payload;
@@ -143,40 +151,40 @@ export async function listProjects({ service } = {}) {
 
 /** Rent or Buy request for one property. Needs a customer login. */
 export async function submitRequest({ propertySlug, service, message, preferredContact }) {
-  if (!CONNECTED) throw new NotConnectedError("Sending a request");
+  if (!ACCOUNTS_LIVE) throw new NotConnectedError("Sending a request");
   return request("/customer/requests", { method: "POST", body: { property: propertySlug, service, message, preferred_contact: preferredContact } });
 }
 
 /** Sell submission: the customer's own property, for Sales to review. */
 export async function submitSellRequest(formData) {
-  if (!CONNECTED) throw new NotConnectedError("Submitting a property to sell");
+  if (!ACCOUNTS_LIVE) throw new NotConnectedError("Submitting a property to sell");
   return request("/customer/sell-requests", { method: "POST", body: formData });
 }
 
 export async function signUp(details) {
-  if (!CONNECTED) throw new NotConnectedError("Creating an account");
+  if (!ACCOUNTS_LIVE) throw new NotConnectedError("Creating an account");
   return request("/customer/auth/signup", { method: "POST", body: details });
 }
 
 export async function logIn(credentials) {
-  if (!CONNECTED) throw new NotConnectedError("Logging in");
+  if (!ACCOUNTS_LIVE) throw new NotConnectedError("Logging in");
   return request("/customer/auth/login", { method: "POST", body: credentials });
 }
 
 export async function logOut() {
-  if (CONNECTED) await request("/customer/auth/logout", { method: "POST" }).catch(() => {});
+  if (ACCOUNTS_LIVE) await request("/customer/auth/logout", { method: "POST" }).catch(() => {});
 }
 
 /** The signed-in customer, or null. Never throws for a visitor who is not logged in. */
 export async function currentCustomer() {
-  if (!CONNECTED) return null;
+  if (!ACCOUNTS_LIVE) return null;
   try { return await request("/customer/me"); }
   catch (error) { if (error.status === 401) return null; throw error; }
 }
 
 /** The adaptive portal: one account, sections for the services this customer uses. */
 export async function getPortal() {
-  if (!CONNECTED) throw new NotConnectedError("The customer portal");
+  if (!ACCOUNTS_LIVE) throw new NotConnectedError("The customer portal");
   return request("/customer/portal");
 }
 
@@ -187,6 +195,10 @@ export const DEMO_PORTAL_KEYS = Object.keys(sample.DEMO_PORTALS);
 
 /** General enquiry from the Contact page. No login needed. */
 export async function submitEnquiry(details) {
-  if (!CONNECTED) throw new NotConnectedError("Sending an enquiry");
+  if (!CONNECTED || !ONLINE_ENQUIRIES) {
+    const error = new NotConnectedError("Sending an enquiry online");
+    if (CONNECTED) error.message = "Online enquiries are not open yet. Nothing has been sent; please contact MKUYU directly for now.";
+    throw error;
+  }
   return request("/public/enquiries", { method: "POST", body: details });
 }

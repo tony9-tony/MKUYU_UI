@@ -1,7 +1,7 @@
 /* Rent / Buy request. Creates a request in the internal system for the Sales
    Officer to review. It never changes the property's status: a request is not
    a reservation, a rental or a sale. */
-import { CONNECTED, NotConnectedError, canRequest, currentCustomer, getProperty, submitRequest } from "../api.js";
+import { ACCOUNTS_LIVE, NotConnectedError, canRequest, currentCustomer, getProperty, submitRequest } from "../api.js";
 import { escapeHtml, icon, priceFor, propertyMedia, showFormResult, validateForm } from "../ui.js";
 
 export default async function request() {
@@ -23,8 +23,8 @@ export default async function request() {
 
   // With the live system a request belongs to a customer account.
   const here = `request.html?p=${encodeURIComponent(item.slug)}&service=${service}`;
-  const customer = CONNECTED ? await currentCustomer().catch(() => null) : null;
-  if (CONNECTED && !customer) {
+  const customer = ACCOUNTS_LIVE ? await currentCustomer().catch(() => null) : null;
+  if (ACCOUNTS_LIVE && !customer) {
     host.innerHTML = `${summary(item, service)}
       <div class="panel text-center" style="margin-top:1.5rem">
         <span class="feature-icon" style="margin:0 auto .8rem">${icon("lock")}</span>
@@ -87,7 +87,7 @@ export default async function request() {
       showFormResult(result, "success", "Request sent", "Our sales team will review it and contact you. You can follow its progress in your portal.");
     } catch (error) {
       button.disabled = false;
-      if (error instanceof NotConnectedError) showFormResult(result, "info", "Preview only", error.message);
+      if (error instanceof NotConnectedError) showFormResult(result, "info", error.title, error.message);
       else showFormResult(result, "error", "Your request was not sent", error.message || "Please try again.");
     }
   });

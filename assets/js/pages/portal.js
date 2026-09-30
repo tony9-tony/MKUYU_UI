@@ -5,7 +5,7 @@
    Every stage, amount and document comes from the internal system; the portal
    only presents it. Where a business rule is still undecided, the data says
    so (see DEMO_PORTALS in data.js) instead of the portal inventing detail. */
-import { CONNECTED, DEMO_PORTAL_KEYS, currentCustomer, demoPortal, getPortal, logOut } from "../api.js";
+import { ACCOUNTS_LIVE, DEMO_PORTAL_KEYS, currentCustomer, demoPortal, getPortal, logOut } from "../api.js";
 import { escapeHtml, formatMoney, icon, initReveal, photoPlaceholder } from "../ui.js";
 
 const SECTIONS = {
@@ -23,7 +23,7 @@ export default async function portal() {
   let data = null;
   if (demoKey && demoPortal(demoKey)) {
     data = demoPortal(demoKey);
-  } else if (CONNECTED) {
+  } else if (ACCOUNTS_LIVE) {
     const customer = await currentCustomer().catch(() => null);
     if (!customer) { window.location.replace("login.html?next=portal.html"); return; }
     try { data = await getPortal(); }
@@ -36,7 +36,7 @@ export default async function portal() {
     host.innerHTML = `<div class="panel text-center">
       <span class="feature-icon" style="margin:0 auto .8rem">${icon("user")}</span>
       <h1 style="font-size:1.9rem">Your MKUYU portal</h1>
-      <p class="lede" style="margin-inline:auto">Customer accounts open once this website is connected to the MKUYU system. Until then, see how the portal adapts to each customer:</p>
+      <p class="lede" style="margin-inline:auto">Customer accounts are still being set up. Until they open, see how the portal adapts to each customer:</p>
       <div class="cta-actions">${DEMO_PORTAL_KEYS.map((key) => `<a class="btn btn--soft" href="?demo=${key}">${escapeHtml(demoPortal(key).label)}</a>`).join("")}</div>
     </div>`;
     return;
@@ -58,7 +58,7 @@ function render(host, data, demoKey) {
         <div class="portal-brand"><img class="logo" src="assets/images/brand/mkuyu-logo-192.png" alt="MKUYU" width="40" height="40"><div><strong>${escapeHtml(data.customer?.name || "My MKUYU")}</strong><span>Customer portal</span></div></div>
         ${tabs.map((tab, index) => `<button type="button" role="tab" id="tab-${tab.key}" aria-controls="panel" aria-selected="${index === 0}" data-tab="${tab.key}">
           ${icon(tab.icon)}<span>${escapeHtml(tab.label)}</span>${tab.count ? `<span class="count">${tab.count}</span>` : ""}</button>`).join("")}
-        ${CONNECTED && !demoKey ? `<button type="button" data-logout>${icon("lock")}<span>Log out</span></button>` : ""}
+        ${ACCOUNTS_LIVE && !demoKey ? `<button type="button" data-logout>${icon("lock")}<span>Log out</span></button>` : ""}
       </nav>
       <div id="panel" role="tabpanel" class="portal-panel" tabindex="-1"></div>
     </div>`;

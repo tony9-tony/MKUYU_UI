@@ -23,7 +23,7 @@ export default function contact() {
       showFormResult(result, "success", "Thank you", "Your enquiry has reached our team. We will reply as soon as we can.");
     } catch (error) {
       button.disabled = false;
-      if (error instanceof NotConnectedError) showFormResult(result, "info", "Preview only", error.message);
+      if (error instanceof NotConnectedError) showFormResult(result, "info", error.title, error.message);
       else showFormResult(result, "error", "Your enquiry was not sent", error.message || "Please try again.");
     }
   });

@@ -9,7 +9,7 @@
 
    Legal and document requirements are still being decided, so the form asks
    only for the property, its pricing and a way to contact the owner. */
-import { CONNECTED, NotConnectedError, currentCustomer, submitSellRequest } from "../api.js";
+import { ACCOUNTS_LIVE, NotConnectedError, currentCustomer, submitSellRequest } from "../api.js";
 import { PROPERTY_TYPES } from "../data.js";
 import { escapeHtml, icon, showFormResult, validateForm } from "../ui.js";
 
@@ -28,7 +28,7 @@ export default async function sell() {
     gate.hidden = true;
     form.hidden = false;
     signedIn.innerHTML = preview
-      ? `<p class="notice">${icon("info")}<span><strong>Preview.</strong> This is the form a signed-in customer sees. Nothing is sent until the site is connected.</span></p>`
+      ? `<p class="notice">${icon("info")}<span><strong>Preview.</strong> This is the form a signed-in customer sees. Nothing is sent until customer accounts open.</span></p>`
       : `<p class="notice">${icon("user")}<span>Signed in as <strong>${escapeHtml(customer.full_name || customer.name || customer.email)}</strong>. You will follow the review in the <a href="portal.html?tab=sell">Selling section of your portal</a>.</span></p>`;
     if (customer) {
       if (customer.full_name || customer.name) form.owner_name.value ||= customer.full_name || customer.name;
@@ -37,7 +37,7 @@ export default async function sell() {
     }
   };
 
-  if (CONNECTED) {
+  if (ACCOUNTS_LIVE) {
     const customer = await currentCustomer().catch(() => null);
     if (customer) openForm(customer);
   } else {
@@ -88,7 +88,7 @@ export default async function sell() {
       result.querySelector("div").insertAdjacentHTML("beforeend", `<p style="margin-top:.8rem"><a class="btn btn--primary btn--small" href="portal.html?tab=sell">Follow it in your portal ${icon("arrow")}</a></p>`);
     } catch (error) {
       button.disabled = false;
-      if (error instanceof NotConnectedError) showFormResult(result, "info", "Preview only", error.message);
+      if (error instanceof NotConnectedError) showFormResult(result, "info", error.title, error.message);
       else if (error.status === 401) { form.hidden = true; gate.hidden = false; }
       else showFormResult(result, "error", "Your property was not submitted", error.message || "Please try again.");
     }

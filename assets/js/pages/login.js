@@ -23,7 +23,7 @@ export default function login() {
     } catch (error) {
       button.disabled = false;
       if (error instanceof NotConnectedError) {
-        showFormResult(result, "info", "Preview only", `${error.message} You can look around a sample portal instead.`);
+        showFormResult(result, "info", error.title, `${error.message} You can look around a sample portal instead.`);
         result.querySelector("div").insertAdjacentHTML("beforeend", '<p style="margin-top:.7rem"><a class="btn btn--soft btn--small" href="portal.html?demo=rent-sell">Open the sample portal</a></p>');
       } else if (error.status === 401) {
         showFormResult(result, "error", "Those details did not match", "Check your email and password and try again.");

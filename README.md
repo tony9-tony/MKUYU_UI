@@ -34,12 +34,38 @@ listings. The Sales Officer manages properties, prices, Rent/Buy availability
 and Sell submissions in the internal MKUYU system; this site only displays
 what that system reports.
 
-All data goes through one file, `assets/js/api.js`:
+All data goes through one file, `assets/js/api.js`. `assets/js/config.js`
+points it at the internal system (`API_BASE`, locally
+`http://localhost:3003/api/v1`, the staff server):
 
-| Mode | When | Data |
-|---|---|---|
-| **Preview** | `API_BASE` in `assets/js/config.js` is empty (today) | Clearly labelled sample records from `assets/js/data.js`. Forms validate, then say plainly that nothing was sent. |
-| **Connected** | `API_BASE` is set | Live data from the internal system. No page code changes. |
+| What | Status |
+|---|---|
+| Properties, projects and their photos | **Live** from the internal system's `/api/v1/public` API |
+| Customer accounts, Rent/Buy requests, Sell submissions, portal | Not built yet: `CUSTOMER_ACCOUNTS = false`; pages say "not open yet", the portal can be previewed with `portal.html?demo=...` |
+| Contact enquiries | Not built yet: `ONLINE_ENQUIRIES = false` |
+
+Set `API_BASE = ""` to run on the clearly labelled sample catalogue in
+`assets/js/data.js` instead. For testing against another local server, a
+developer can set `localStorage["mkuyu-api-base"]` on a localhost page.
+
+### How the Sales Officer publishes
+
+In the staff system: **Properties → New property** (or edit one), then the
+**Public website** section:
+
+1. Tick **Buy (for sale)**, **Rent**, or both.
+2. Enter the **sale price** and/or the **rent price** and whether it is per
+   month or year.
+3. Add a one-line **summary** and the **features** (one per line), and upload
+   photos.
+4. Tick **Show on the public website** and save. It appears at once; there is
+   no approval step. The system refuses to publish without a service or
+   without the price for it.
+
+Projects work the same way (**Projects → New project**: Rent/Buy, location,
+summary, photos, Show on the public website). A property marked Sold or
+Leased leaves the website listings by itself; unticking "Show on the public
+website" takes anything off the site.
 
 The endpoints the internal system must provide are specified in
 [`docs/PUBLIC-API.md`](docs/PUBLIC-API.md).

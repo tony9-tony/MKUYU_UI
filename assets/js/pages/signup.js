@@ -31,7 +31,7 @@ export default function signup() {
       window.location.assign(next);
     } catch (error) {
       button.disabled = false;
-      if (error instanceof NotConnectedError) showFormResult(result, "info", "Preview only", error.message);
+      if (error instanceof NotConnectedError) showFormResult(result, "info", error.title, error.message);
       else if (error.status === 409) showFormResult(result, "error", "That email already has an account", "Log in instead, or use a different email address.");
       else showFormResult(result, "error", "Your account was not created", error.message || "Please try again.");
     }
