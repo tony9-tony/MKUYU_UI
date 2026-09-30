@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Projects · MKUYU Africa</title>
+  <meta name="description" content="Explore MKUYU Africa developments across Tanzania — from master-planned estates to serviced residential land." />
+  <meta name="theme-color" content="#0b6b4d" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Fraunces:opsz,wght@9..144,500;9..144,600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/styles.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%230b6b4d'/><text y='72' x='50' text-anchor='middle' font-size='62' font-family='Georgia' fill='%23e8c46a'>M</text></svg>" />
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="site-header">
+    <div class="wrap header-inner">
+      <a class="brand" href="index.html">
+        <span class="brand-mark" aria-hidden="true">M</span>
+        <span><span class="brand-name">MKUYU AFRICA</span><span class="brand-sub">Property · Tanzania</span></span>
+      </a>
+      <button class="nav-toggle" aria-expanded="false" aria-controls="primary-nav" aria-label="Open navigation">☰</button>
+      <nav class="nav" id="primary-nav" aria-label="Primary">
+        <a href="index.html">Home</a>
+        <a href="properties.html">Properties</a>
+        <a href="projects.html" aria-current="page">Projects</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+      <div class="header-cta"><a class="btn btn--primary" href="contact.html">Book a viewing</a></div>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="section">
+      <div class="wrap">
+        <span class="eyebrow">Developments</span>
+        <h2>Our projects</h2>
+        <p class="lede">Each development is planned as a place to live, not just a collection of units — with services, access and the surrounding area considered from the start.</p>
+        <p class="notice" style="margin-top:1.5rem"><strong>Sample data.</strong> The projects below are demonstration records used to show the design, not genuine MKUYU developments.</p>
+        <div class="grid grid--3" id="project-grid" style="margin-top:2.5rem"></div>
+        <noscript><p class="notice" style="margin-top:2rem"><strong>Note:</strong> this list is rendered with JavaScript. Please <a href="contact.html">contact us</a> for current project information.</p></noscript>
+      </div>
+    </section>
+
+    <section class="section section--dark">
+      <div class="wrap">
+        <span class="eyebrow" style="color:var(--gold-400)">Our ambition</span>
+        <h2>One million homes across Tanzania</h2>
+        <p class="lede">MKUYU Africa's stated vision is to construct one million modern, affordable homes, widening access to quality housing through affordable ownership options and instalment payment plans.</p>
+        <div class="cta-actions" style="justify-content:flex-start;margin-top:2rem">
+          <a class="btn btn--gold" href="contact.html">Talk to us about ownership</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <div class="footer-bottom">
+        <span>© <span data-year>2026</span> MKUYU Africa. All rights reserved.</span>
+        <a href="index.html">Home</a>
+      </div>
+      <p class="disclaimer"><strong>Preview build.</strong> Sample records only — not genuine MKUYU developments. Verify all ownership documents and contract terms with an independent legal adviser before purchasing.</p>
+    </div>
+  </footer>
+
+  <script type="module" src="assets/js/app.js"></script>
+  <script type="module">
+    import { PROJECTS, propertiesForProject, escapeHtml } from "./assets/js/data.js";
+    const host = document.getElementById("project-grid");
+    if (host) {
+      host.innerHTML = PROJECTS.map((project) => {
+        const units = propertiesForProject(project.slug);
+        const from = units.reduce((lowest, u) => Math.min(lowest, u.price), Infinity);
+        return `<article class="card">
+          <div class="card-media">
+            <span class="placeholder" aria-hidden="true">▦</span>
+            <span class="card-tag">${escapeHtml(project.status)}</span>
+          </div>
+          <div class="card-body">
+            <h3>${escapeHtml(project.name)}</h3>
+            <p class="card-meta">${escapeHtml(project.location)}</p>
+            <p style="font-size:.93rem;margin:0">${escapeHtml(project.summary)}</p>
+            <div class="card-foot">
+              <span class="price">${units.length} ${units.length === 1 ? "listing" : "listings"}<small>${Number.isFinite(from) ? "From " + escapeHtml((from / 1e6).toFixed(1)) + " m TZS" : "Enquire for price"}</small></span>
+              <a class="btn btn--outline" href="properties.html?project=${encodeURIComponent(project.slug)}">View</a>
+            </div>
+          </div>
+        </article>`;
+      }).join("");
+    }
+  </script>
+</body>
+</html>
