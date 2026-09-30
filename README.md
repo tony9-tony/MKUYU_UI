@@ -6,13 +6,22 @@ MKUYU from **one customer account** and **one Customer Portal**.
 
 ## Run it
 
+On Windows, double-click **`Open MKUYU site.cmd`**. It starts the site and
+opens <http://localhost:5500> in your browser; close its window to stop.
+
+Or from a terminal:
+
 ```bash
 node serve.mjs
 ```
 
-Then open <http://localhost:5500>. No install, no dependencies, no build step.
-(Opening `index.html` straight from disk does not work: browsers block
-JavaScript modules on `file://` pages.)
+Then open <http://localhost:5500>. Needs Node.js; no install, no
+dependencies, no build step.
+
+**Do not open `index.html` by double-clicking it.** The address would start
+with `file:///`, and browsers block the site's JavaScript modules there
+(Edge reports a CORS error for `assets/js/app.js`). Every page detects this
+and shows a note explaining how to open it properly.
 
 ## One source of truth
 
