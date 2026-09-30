@@ -1,60 +1,68 @@
 /* ==========================================================================
    MKUYU AFRICA — Home page showcase (rotating hero)
    --------------------------------------------------------------------------
-   One entry per slide. To add MKUYU's real pictures:
+   One entry per slide; order here is the order on screen.
 
-     1. Put the image in  assets/images/hero/  (landscape, at least 2000px
-        wide, JPG or WebP; the important part of the picture near the centre
-        or right, because the text sits on the left).
-     2. Set `image` to its path, write a real `title` and `description`, and
-        remove `sample: true`.
+     image       large photo (2400px wide) in assets/images/hero/
+     imageSmall  the same photo at 1280px, for phones and small screens
+     focus       CSS object-position: the part of the photo to keep in view
+                 when the screen crops it (phones crop the sides away)
+     alt         what the photo shows, for screen readers
+     narrow      true = narrower text column, when the subject is mid-frame
 
-   A slide whose `image` is null shows a clearly labelled placeholder instead
-   of a stock photo, so nothing on the site pretends to be MKUYU when it is
-   not. Order here is the order on screen. Keep each image different.
+   The photos were cut from the design board "MKUYUHeroAssets4Photos"
+   (kept in design-source/), trimmed to 16:9 and gently enhanced.
+   A slide whose `image` is null shows a clearly labelled placeholder.
    ========================================================================== */
 
 export const SLIDE_INTERVAL_MS = 7000;
 
+const HERO = "assets/images/hero/";
+
 export const SLIDES = [
   {
     kind: "Project",
-    image: null,                       // e.g. "assets/images/hero/project-name.jpg"
-    alt: "",
+    image: HERO + "mkuyu-project-01.jpg",
+    imageSmall: HERO + "mkuyu-project-01-1280.jpg",
+    focus: "58% 50%",
+    alt: "Modern apartment building with warmly lit balconies at dusk",
     eyebrow: "Our projects",
-    title: "A MKUYU development",
-    description: "The name, location and a short description of the project will appear here, with its photograph.",
+    title: "Modern living, thoughtfully built",
+    description: "Explore MKUYU developments and the homes available in each one.",
     action: { label: "Explore projects", href: "projects.html" },
-    sample: true,
-  },
-  {
-    kind: "Managing Director",
-    image: null,                       // e.g. "assets/images/hero/managing-director.jpg"
-    alt: "",
-    eyebrow: "Leadership",
-    title: "Managing Director",
-    description: "A portrait of MKUYU's Managing Director with a short professional introduction will appear here.",
-    action: { label: "About MKUYU", href: "about.html" },
-    sample: true,
   },
   {
     kind: "Property",
-    image: null,                       // e.g. "assets/images/hero/property-name.jpg"
-    alt: "",
+    image: HERO + "featured-home-01.jpg",
+    imageSmall: HERO + "featured-home-01-1280.jpg",
+    focus: "42% 60%",
+    alt: "White contemporary villa with a lit swimming pool and lawn at sunset",
     eyebrow: "Homes for sale",
-    title: "A featured property",
-    description: "A signature MKUYU home or building, with its name and a short description, will appear here.",
-    action: { label: "Browse properties to buy", href: "buy.html" },
-    sample: true,
+    title: "Find a home worth coming back to",
+    description: "Houses, villas and apartments for sale, with prices and availability straight from our sales team.",
+    action: { label: "Browse homes to buy", href: "buy.html" },
+  },
+  {
+    kind: "Property",
+    image: HERO + "mkuyu-project-02.jpg",
+    imageSmall: HERO + "mkuyu-project-02-1280.jpg",
+    focus: "62% 50%",
+    alt: "Apartment building with glass balconies and landscaped garden in golden morning light",
+    eyebrow: "Homes to rent",
+    title: "Rent with confidence",
+    description: "Apartments and homes to rent. Choose one, leave your details, and our team will contact you. No account needed.",
+    action: { label: "Browse homes to rent", href: "rent.html" },
   },
   {
     kind: "Company",
-    image: null,                       // e.g. "assets/images/hero/mkuyu-team.jpg"
-    alt: "",
+    image: HERO + "mkuyu-team.jpg",
+    imageSmall: HERO + "mkuyu-team-1280.jpg",
+    focus: "56% 40%",
+    narrow: true,                      // keep the text left of the people
+    alt: "Property advisers reviewing figures together around a meeting table",
     eyebrow: "Sell with MKUYU",
     title: "Own a property? We can help you sell it.",
-    description: "A photograph of the MKUYU team or office will appear here. Submit your property and our sales team will review it.",
+    description: "Submit your property and our sales team will review it and guide you through the next steps.",
     action: { label: "Sell your property", href: "sell.html" },
-    sample: true,
   },
 ];

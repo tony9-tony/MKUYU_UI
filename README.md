@@ -132,7 +132,8 @@ mkuyu logo.jfif           Official logo as supplied (225px original, kept untouc
                           the site uses the prepared copies in assets/images/brand/)
 assets/images/brand/      Logo prepared for the web: mkuyu-logo.png (900px,
                           transparent, sharpened), mkuyu-logo-192.png, favicon-64.png
-assets/images/hero/       Home showcase photos go here (see "Home showcase")
+assets/images/hero/       Home showcase photos, 2400px and 1280px (see "Home showcase")
+design-source/            Design originals (large PNGs are git-ignored)
 assets/css/styles.css     Design system: obsidian, champagne bronze, bone
 assets/js/showcase.js     Home showcase slides: image, title, description, action
 assets/js/config.js       API_BASE and the switches for undecided rules
@@ -151,20 +152,28 @@ change it on every page.
 ## Home showcase
 
 The rotating hero on the Home page is driven by `assets/js/showcase.js`. Each
-slide has its own image, eyebrow, title, description and action. To add
-MKUYU's real pictures:
+slide has its own photo, eyebrow, title, description and action:
 
-1. Put each photo in `assets/images/hero/` (landscape, at least 2000px wide,
-   JPG or WebP; keep the subject centre/right, because the text sits left).
-2. In `showcase.js`, set the slide's `image` and `alt`, write the real
-   `title` and `description`, and remove `sample: true`.
+| # | Photo (`assets/images/hero/`) | Slide | Button |
+|---|---|---|---|
+| 1 | `mkuyu-project-01.jpg` | Our projects | projects.html |
+| 2 | `featured-home-01.jpg` | Homes for sale | buy.html |
+| 3 | `mkuyu-project-02.jpg` | Homes to rent | rent.html |
+| 4 | `mkuyu-team.jpg` | Sell with MKUYU | sell.html |
 
-Until then every slide is a clearly labelled placeholder ("Sample slide",
-"… photo to be supplied"); no stock photo stands in for MKUYU. The showcase
-crossfades every 7 seconds (`SLIDE_INTERVAL_MS`), has previous/next, slide
-labels with progress bars, pause/play, arrow keys and swipe, pauses while
-hovered, focused or in a hidden tab, and does not auto-rotate for visitors
-who prefer reduced motion.
+The photos were cut from MKUYU's design board
+(`design-source/MKUYUHeroAssets4Photos.png`, 30 MB, not committed), trimmed
+to 16:9 with the board's frames removed, given one gentle contrast/colour
+lift, and saved at 2400px plus a 1280px copy that phones load instead. Each
+slide has a `focus` point so phones keep the right part of the photo in
+view.
+
+To change a slide: put a landscape photo (at least 2000px wide) in
+`assets/images/hero/`, and set `image`, `imageSmall`, `alt`, `title` and
+`description` in `showcase.js`. The showcase crossfades every 7 seconds
+(`SLIDE_INTERVAL_MS`), has previous/next, slide labels with progress bars,
+pause/play, arrow keys and swipe, pauses while hovered, focused or in a
+hidden tab, and does not auto-rotate for visitors who prefer reduced motion.
 
 ## Design
 
@@ -199,10 +208,8 @@ who prefer reduced motion.
 
 | Where | What | Goes in |
 |---|---|---|
-| Home showcase | Project photo + name + short description | `assets/images/hero/`, `showcase.js` slide 1 |
-| Home showcase | Managing Director portrait + name + short introduction | slide 2 |
-| Home showcase | Featured property/building photo + name + description | slide 3 |
-| Home showcase | Team or office photo | slide 4 |
+| Home showcase | Real project names for slides 1 and 3 (titles are generic for now) | `showcase.js` |
+| Home showcase (optional) | Managing Director portrait + short introduction | a fifth slide in `showcase.js` |
 | Home, Sell section | One company photograph | `index.html` "MKUYU photo to be supplied" |
 | Properties | Photos per property | Uploaded by the Sales Officer in the internal system |
 | Projects | Photo per project | Provided by the internal system (`photo` on each project) |

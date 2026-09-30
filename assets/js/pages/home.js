@@ -26,11 +26,11 @@ const PLACEHOLDER_LOOKS = [
 function slideHTML(slide, index, total) {
   const look = PLACEHOLDER_LOOKS[index % PLACEHOLDER_LOOKS.length];
   const media = slide.image
-    ? `<div class="slide-media"><img src="${escapeHtml(slide.image)}" alt="${escapeHtml(slide.alt || slide.title)}" ${index === 0 ? 'fetchpriority="high"' : 'loading="lazy"'} decoding="async"></div>`
+    ? `<div class="slide-media"><img src="${escapeHtml(slide.image)}"${slide.imageSmall ? ` srcset="${escapeHtml(slide.imageSmall)} 1280w, ${escapeHtml(slide.image)} 2400w" sizes="100vw"` : ""}${slide.focus ? ` style="object-position:${escapeHtml(slide.focus)}"` : ""} alt="${escapeHtml(slide.alt || slide.title)}" ${index === 0 ? 'fetchpriority="high"' : 'fetchpriority="low"'} decoding="async"></div>`
     : `<div class="slide-placeholder" style="--ph-x:${look.x};--ph-y:${look.y};--ph-bg:${look.bg};--ph-size:${look.size};--ph-right:${look.right};--ph-top:${look.top};--ph-rot:${look.rot}" role="img" aria-label="${escapeHtml(slide.kind)} photo to be supplied">
          <span class="slide-placeholder-label">${icon("camera")}${escapeHtml(slide.kind)} photo to be supplied</span>
        </div>`;
-  return `<article class="slide${index === 0 ? " is-active" : ""}" id="slide-${index}" role="group" aria-roledescription="slide" aria-label="${index + 1} of ${total}: ${escapeHtml(slide.title)}">
+  return `<article class="slide${index === 0 ? " is-active" : ""}${slide.narrow ? " slide--narrow" : ""}" id="slide-${index}" role="group" aria-roledescription="slide" aria-label="${index + 1} of ${total}: ${escapeHtml(slide.title)}">
     ${media}
     ${slide.sample ? '<span class="slide-sample">Sample slide</span>' : ""}
     <div class="slide-content">

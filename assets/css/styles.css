@@ -281,6 +281,9 @@ main { animation: page-in .5s var(--ease-out) both; }
   width: min(100% - 2.5rem, var(--shell)); margin-inline: auto;
 }
 .slide-content > * { max-width: 640px; }
+.slide--narrow .slide-content > * { max-width: min(470px, 40vw); }
+.slide--narrow .slide-title { font-size: clamp(2.4rem, 4.6vw, 4rem); }
+@media (max-width: 720px) { .slide--narrow .slide-content > * { max-width: 640px; } }
 .slide .eyebrow { color: var(--accent-300); }
 .slide-title { font-family: var(--display); font-weight: 600; font-size: clamp(2.6rem, 6.2vw, 5rem); line-height: 1; color: #fff; margin: 0 0 1rem; letter-spacing: -.01em; }
 .slide-text { color: var(--on-dark-soft); font-size: clamp(1rem, 1.4vw, 1.14rem); margin: 0 0 1.8rem; }
