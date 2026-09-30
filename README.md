@@ -163,9 +163,10 @@ slide has its own photo, eyebrow, title, description and action:
 | # | Photo (`assets/images/hero/`) | Slide | Button |
 |---|---|---|---|
 | 1 | `mkuyu-project-01.jpg` | Our projects | projects.html |
-| 2 | `featured-home-01.jpg` | Homes for sale | buy.html |
-| 3 | `mkuyu-project-02.jpg` | Homes to rent | rent.html |
-| 4 | `mkuyu-team.jpg` | Sell with MKUYU | sell.html |
+| 2 | `mkuyu-md.jpg` | Leadership: the Managing Director | about.html |
+| 3 | `featured-home-01.jpg` | Homes for sale | buy.html |
+| 4 | `mkuyu-project-02.jpg` | Homes to rent | rent.html |
+| 5 | `mkuyu-team.jpg` | Sell with MKUYU | sell.html |
 
 The photos were cut from MKUYU's design board
 (`design-source/MKUYUHeroAssets4Photos.png`, 30 MB, not committed), trimmed
@@ -215,7 +216,7 @@ hidden tab, and does not auto-rotate for visitors who prefer reduced motion.
 | Where | What | Goes in |
 |---|---|---|
 | Home showcase | Real project names for slides 1 and 3 (titles are generic for now) | `showcase.js` |
-| Home showcase (optional) | Managing Director portrait + short introduction | a fifth slide in `showcase.js` |
+| Home showcase | The MD's full name and a short introduction; a larger MD photo (the supplied one is 298x167, so it is shown as a framed card, not full-screen) | `showcase.js` slide 2 |
 | Home, Sell section | One company photograph | `index.html` "MKUYU photo to be supplied" |
 | Properties | Photos per property | Uploaded by the Sales Officer in the internal system |
 | Projects | Photo per project | Provided by the internal system (`photo` on each project) |

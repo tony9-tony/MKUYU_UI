@@ -25,7 +25,9 @@ const PLACEHOLDER_LOOKS = [
 
 function slideHTML(slide, index, total) {
   const look = PLACEHOLDER_LOOKS[index % PLACEHOLDER_LOOKS.length];
-  const media = slide.image
+  const media = slide.layout === "feature" && slide.image
+    ? `<div class="slide-media slide-media--feature"${slide.backdrop ? ` style="--backdrop:url('${escapeHtml(slide.backdrop)}')"` : ""}><figure class="slide-feature"><img src="${escapeHtml(slide.image)}" alt="${escapeHtml(slide.alt || slide.title)}" ${index === 0 ? 'fetchpriority="high"' : 'fetchpriority="low"'} decoding="async"></figure></div>`
+    : slide.image
     ? `<div class="slide-media"><img src="${escapeHtml(slide.image)}"${slide.imageSmall ? ` srcset="${escapeHtml(slide.imageSmall)} 1280w, ${escapeHtml(slide.image)} 2400w" sizes="100vw"` : ""}${slide.focus ? ` style="object-position:${escapeHtml(slide.focus)}"` : ""} alt="${escapeHtml(slide.alt || slide.title)}" ${index === 0 ? 'fetchpriority="high"' : 'fetchpriority="low"'} decoding="async"></div>`
     : `<div class="slide-placeholder" style="--ph-x:${look.x};--ph-y:${look.y};--ph-bg:${look.bg};--ph-size:${look.size};--ph-right:${look.right};--ph-top:${look.top};--ph-rot:${look.rot}" role="img" aria-label="${escapeHtml(slide.kind)} photo to be supplied">
          <span class="slide-placeholder-label">${icon("camera")}${escapeHtml(slide.kind)} photo to be supplied</span>

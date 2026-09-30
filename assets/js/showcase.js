@@ -9,6 +9,9 @@
                  when the screen crops it (phones crop the sides away)
      alt         what the photo shows, for screen readers
      narrow      true = narrower text column, when the subject is mid-frame
+     layout      "feature" = the photo sits as a framed card on the right over a
+                 blurred copy of itself (for small photos that cannot fill the
+                 screen sharply); `backdrop` is the tiny copy for the blur
 
    The photos were cut from the design board "MKUYUHeroAssets4Photos"
    (kept in design-source/), trimmed to 16:9 and gently enhanced.
@@ -30,6 +33,18 @@ export const SLIDES = [
     title: "Modern living, thoughtfully built",
     description: "Explore MKUYU developments and the homes available in each one.",
     action: { label: "Explore projects", href: "projects.html" },
+  },
+  {
+    kind: "Managing Director",
+    layout: "feature",
+    image: HERO + "mkuyu-md.jpg",
+    backdrop: HERO + "mkuyu-md-backdrop.jpg",
+    narrow: true,
+    alt: "MKUYU Africa's Managing Director, standing in a suit and holding a white hard hat",
+    eyebrow: "Leadership",
+    title: "Meet our Managing Director",
+    description: "Leading MKUYU Africa and the team that helps you rent, buy and sell property with confidence.",
+    action: { label: "About MKUYU", href: "about.html" },
   },
   {
     kind: "Property",
