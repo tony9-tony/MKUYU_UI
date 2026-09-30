@@ -67,14 +67,29 @@ function render(host, data, demoKey) {
   const show = (key) => {
     host.querySelectorAll("[data-tab]").forEach((b) => b.setAttribute("aria-selected", String(b.dataset.tab === key)));
     panel.setAttribute("aria-labelledby", `tab-${key}`);
-    panel.innerHTML = key === "overview" ? overview(data, services) : data.services[key].map((item) => caseCard(key, item)).join("");
+    panel.innerHTML = key === "overview" ? overview(data, services) : sectionHead(key) + data.services[key].map((item) => caseCard(key, item)).join("");
     panel.style.animation = "none"; void panel.offsetWidth; panel.style.animation = "";
     initReveal(panel);
     panel.querySelectorAll("[data-goto]").forEach((a) => a.addEventListener("click", (event) => { event.preventDefault(); show(a.dataset.goto); panel.focus(); }));
   };
   host.querySelectorAll("[data-tab]").forEach((button) => button.addEventListener("click", () => show(button.dataset.tab)));
   host.querySelector("[data-logout]")?.addEventListener("click", async () => { await logOut(); window.location.assign("index.html"); });
-  show("overview");
+  // portal.html?tab=sell (for example, right after submitting a property)
+  const wanted = new URLSearchParams(window.location.search).get("tab");
+  show(services.includes(wanted) ? wanted : "overview");
+}
+
+/* Each service section opens with its heading and the way to start another. */
+function sectionHead(key) {
+  const more = {
+    rent: { title: "Renting", text: "Your rentals with MKUYU.", href: "rent.html", label: "Find another home to rent" },
+    buy: { title: "Buying", text: "Your purchases with MKUYU.", href: "buy.html", label: "Browse properties to buy" },
+    sell: { title: "Selling", text: "Properties you have submitted for MKUYU to sell.", href: "sell.html", label: "Submit another property" },
+  }[key];
+  return `<div class="section-head" style="margin-bottom:0">
+    <div><span class="eyebrow">My MKUYU</span><h1 style="font-size:clamp(2rem,3.6vw,2.8rem);margin:0">${escapeHtml(more.title)}</h1><p class="lede" style="margin:.3rem 0 0">${escapeHtml(more.text)}</p></div>
+    <a class="btn btn--outline btn--small" href="${more.href}">${escapeHtml(more.label)} ${icon("arrow")}</a>
+  </div>`;
 }
 
 /* ---------------- Overview ---------------- */

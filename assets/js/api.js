@@ -115,8 +115,26 @@ export async function getProperty(slug) {
   return raw ? normalizeProperty(raw) : null;
 }
 
-export async function listProjects() {
-  return CONNECTED ? request("/public/projects") : sample.PROJECTS;
+/** A project, like a property, is published by the Sales Officer for Rent,
+    Buy or both; that choice is made when its photos are uploaded. */
+export function normalizeProject(raw) {
+  return {
+    slug: String(raw.slug || raw.id),
+    name: raw.name || "Untitled project",
+    location: raw.location || "",
+    summary: raw.summary || "",
+    status: raw.status || "",
+    services: (Array.isArray(raw.services) ? raw.services : []).filter((s) => SERVICES.includes(s)),
+    photos: Array.isArray(raw.photos) ? raw.photos.filter((p) => p && p.url) : [],
+    sample: Boolean(raw.sample),
+  };
+}
+
+export async function listProjects({ service } = {}) {
+  const rows = CONNECTED
+    ? await request(`/public/projects${service ? `?service=${encodeURIComponent(service)}` : ""}`)
+    : sample.PROJECTS;
+  return rows.map(normalizeProject).filter((project) => !service || project.services.includes(service));
 }
 
 /* ---------------------------------------------------------------------------

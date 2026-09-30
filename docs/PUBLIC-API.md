@@ -71,11 +71,22 @@ One property in the same shape, **whatever its status**, so an old link can
 say "Sold — no longer available" instead of a dead page. `404` if it was never
 published or has been withdrawn.
 
-### `GET /public/projects`
+### `GET /public/projects?service=rent|buy`
 
 ```jsonc
-[{ "slug": "riverside-estate", "name": "Riverside Estate", "location": "Dar es Salaam", "summary": "…", "status": "Selling now" }]
+[{
+  "slug": "riverside-estate", "name": "Riverside Estate", "location": "Dar es Salaam",
+  "summary": "…", "status": "Selling now",
+  "services": ["buy"],                          // any of "rent", "buy"
+  "photos": [{ "url": "https://…/1.jpg", "alt": "…" }]
+}]
 ```
+
+**Required in the internal system:** when the Sales Officer uploads a
+project's photos, they must first choose whether the project is offered for
+**Rent**, **Buy** or both. That choice is `services`. The public Projects page
+filters by it (All / Rent / Buy), badges each project, and links a project to
+its homes in the matching listing.
 
 ### `POST /public/enquiries`
 
@@ -94,7 +105,7 @@ never reach the staff API, and a staff login must not work here.
 | `POST` | `/customer/auth/logout` | Ends the session. |
 | `GET`  | `/customer/me` | The signed-in customer, or `401`. |
 | `POST` | `/customer/requests` | Rent / Buy request: `{ property, service, message, preferred_contact }`. Goes to the Sales Officer. Must refuse a property that is not `available` for that service. |
-| `POST` | `/customer/sell-requests` | Sell submission, `multipart/form-data`: `title, type, location, area?, bedrooms?, bathrooms?, description, asking_price?, price_notes?, owner_name, owner_phone, owner_email?, is_owner, photos[]`. Goes to the Sales Officer for review. |
+| `POST` | `/customer/sell-requests` | **Signed-in customers only** (`401` otherwise). The public Sell page shows the form only after log in / sign up; a visitor sees a log-in gate. The customer follows the review in the Selling section of their portal. Sell submission, `multipart/form-data`: `title, type, location, area?, bedrooms?, bathrooms?, description, asking_price?, price_notes?, owner_name, owner_phone, owner_email?, is_owner, photos[]`. Goes to the Sales Officer for review. |
 | `GET`  | `/customer/portal` | The adaptive portal (below). |
 
 The site sends requests with `credentials: "include"`, so a cookie session

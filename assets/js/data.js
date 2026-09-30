@@ -45,9 +45,10 @@ export const FAQS = [
 
 /* ---- SAMPLE PROJECTS ---- */
 export const PROJECTS = [
-  { slug: "sample-riverside-estate", name: "Riverside Estate", location: "Dar es Salaam", summary: "A sample master-planned residential development shown to demonstrate the project layout.", status: "Selling now", sample: true },
-  { slug: "sample-hillside-residences", name: "Hillside Residences", location: "Arusha", summary: "A sample hillside residential project used for layout demonstration only.", status: "Selling now", sample: true },
-  { slug: "sample-mbeach-gardens", name: "Mbeach Gardens", location: "Nyerere Road, Dar es Salaam", summary: "A sample urban garden development used for layout demonstration only.", status: "Phase 2", sample: true },
+  // services: chosen by the Sales Officer when the project's photos are uploaded.
+  { slug: "sample-riverside-estate", name: "Riverside Estate", location: "Dar es Salaam", summary: "A sample master-planned residential development shown to demonstrate the project layout.", status: "Selling now", services: ["buy"], photos: [], sample: true },
+  { slug: "sample-hillside-residences", name: "Hillside Residences", location: "Arusha", summary: "A sample hillside residential project with homes to rent and to buy, used for layout demonstration only.", status: "Selling and letting", services: ["rent", "buy"], photos: [], sample: true },
+  { slug: "sample-mbeach-gardens", name: "Mbeach Gardens", location: "Nyerere Road, Dar es Salaam", summary: "A sample urban garden development used for layout demonstration only.", status: "Phase 2", services: ["buy"], photos: [], sample: true },
 ];
 
 /* ---- SAMPLE PROPERTIES ----

@@ -68,7 +68,20 @@
 
     <section class="section">
       <div class="wrap detail">
-        <form class="panel" id="sell-form" novalidate>
+        <div>
+        <div class="panel sell-gate" id="sell-gate">
+          <span class="feature-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></span>
+          <h2>Log in to submit your property</h2>
+          <p class="lede">Selling with MKUYU starts from your free account, so you can follow the review in your portal and our sales team knows who to contact.</p>
+          <div class="cta-actions" style="justify-content:flex-start">
+            <a class="btn btn--primary" href="login.html?next=sell.html">Log in</a>
+            <a class="btn btn--outline" href="signup.html?next=sell.html">Create an account</a>
+          </div>
+          <p class="field-hint" data-preview-note hidden style="margin-top:1.4rem">Preview: accounts open once the site is connected. <button type="button" class="btn btn--soft btn--small" data-preview-form>See the form as a signed-in customer would</button></p>
+        </div>
+        <noscript><p class="notice"><strong>Note:</strong>&nbsp;submitting a property needs JavaScript and a MKUYU account.</p></noscript>
+        <form class="panel" id="sell-form" novalidate hidden>
+          <div class="sell-signed-in" id="sell-signed-in"></div>
           <fieldset class="fieldset">
             <legend>About the property</legend>
             <div class="form-grid">
@@ -154,6 +167,7 @@
           <button class="btn btn--primary btn--block" type="submit">Submit for review <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
           <div id="sell-result" hidden role="status" aria-live="polite"></div>
         </form>
+        </div>
 
         <aside class="sticky-panel">
           <div class="action-panel">
