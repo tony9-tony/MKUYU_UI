@@ -86,23 +86,23 @@ let artCount = 0;
 export function propertyArt(property, variant = "card") {
   const type = String(property.type || "").toLowerCase();
   const scene = type === "land"
-    ? '<path d="M20 150 L200 120 L380 150 L200 190 Z" fill="#cfe6da"/><path d="M60 150 L200 128 L340 150 L200 176 Z" fill="none" stroke="#0b6b4d" stroke-width="2" stroke-dasharray="7 6" opacity=".55"/><circle cx="200" cy="150" r="5" fill="#d4a437"/>'
+    ? '<path d="M20 150 L200 120 L380 150 L200 190 Z" fill="#eadfce"/><path d="M60 150 L200 128 L340 150 L200 176 Z" fill="none" stroke="#1f3363" stroke-width="2" stroke-dasharray="7 6" opacity=".55"/><circle cx="200" cy="150" r="5" fill="#c8683c"/>'
     : ["apartment", "commercial", "penthouse"].includes(type)
-      ? '<rect x="140" y="52" width="120" height="128" rx="4" fill="#0b6b4d"/><rect x="118" y="92" width="40" height="88" rx="3" fill="#0a5741"/><rect x="244" y="104" width="40" height="76" rx="3" fill="#0a5741"/>' + windows(154, 66, 4, 5, 22, 20)
-      : '<path d="M112 110 L200 56 L288 110 Z" fill="#06412f"/><rect x="128" y="108" width="144" height="72" fill="#0b6b4d"/><rect x="186" y="136" width="28" height="44" rx="2" fill="#e8c46a"/><rect x="146" y="124" width="26" height="22" rx="2" fill="#e6f2ed" opacity=".9"/><rect x="228" y="124" width="26" height="22" rx="2" fill="#e6f2ed" opacity=".9"/>';
+      ? '<rect x="140" y="52" width="120" height="128" rx="4" fill="#1f3363"/><rect x="118" y="92" width="40" height="88" rx="3" fill="#17264a"/><rect x="244" y="104" width="40" height="76" rx="3" fill="#17264a"/>' + windows(154, 66, 4, 5, 22, 20)
+      : '<path d="M112 110 L200 56 L288 110 Z" fill="#0f1b33"/><rect x="128" y="108" width="144" height="72" fill="#1f3363"/><rect x="186" y="136" width="28" height="44" rx="2" fill="#e0936a"/><rect x="146" y="124" width="26" height="22" rx="2" fill="#f3eee6" opacity=".9"/><rect x="228" y="124" width="26" height="22" rx="2" fill="#f3eee6" opacity=".9"/>';
   const sky = `sky-${(artCount += 1)}`;
   return `<svg class="art art--${variant}" viewBox="0 0 400 220" preserveAspectRatio="xMidYMid slice" role="img" aria-label="${escapeHtml(property.type)} illustration">
-    <defs><linearGradient id="${sky}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f2f9f6"/><stop offset="1" stop-color="#e2f0e9"/></linearGradient></defs>
+    <defs><linearGradient id="${sky}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fbf6ef"/><stop offset="1" stop-color="#f1e6d8"/></linearGradient></defs>
     <rect width="400" height="220" fill="url(#${sky})"/>
-    <circle cx="318" cy="54" r="22" fill="#e8c46a" opacity=".85"/>
-    <path d="M0 180 Q100 160 200 176 T400 172 V220 H0 Z" fill="#cfe6da"/>
+    <circle cx="318" cy="54" r="22" fill="#e0936a" opacity=".85"/>
+    <path d="M0 180 Q100 160 200 176 T400 172 V220 H0 Z" fill="#e9dccb"/>
     ${scene}
-    <path d="M0 196 Q120 184 220 196 T400 192 V220 H0 Z" fill="#bcdccb"/>
+    <path d="M0 196 Q120 184 220 196 T400 192 V220 H0 Z" fill="#dccab4"/>
   </svg>`;
 }
 function windows(x0, y0, cols, rows, dx, dy) {
   let out = "";
-  for (let r = 0; r < rows; r += 1) for (let c = 0; c < cols; c += 1) out += `<rect x="${x0 + c * dx + (c ? 6 : 0)}" y="${y0 + r * dy}" width="16" height="12" rx="1.5" fill="#e6f2ed" opacity="${(r + c) % 3 ? ".85" : ".55"}"/>`;
+  for (let r = 0; r < rows; r += 1) for (let c = 0; c < cols; c += 1) out += `<rect x="${x0 + c * dx + (c ? 6 : 0)}" y="${y0 + r * dy}" width="16" height="12" rx="1.5" fill="#f3eee6" opacity="${(r + c) % 3 ? ".85" : ".55"}"/>`;
   return out;
 }
 
