@@ -41,7 +41,7 @@ points it at the internal system (`API_BASE`, locally
 | What | Status |
 |---|---|
 | Properties, photos, projects (categories derived from homes) | **Live** from the internal system's `/api/v1/public` API |
-| Rent / Buy requests (no account: name, phone, email, budget, contact means) | **Live**: each becomes a Lead for Sales, who hands it to Customer Service |
+| Rent / Buy requests (no account: name, phone, email, budget, contact means) | **Live**: each arrives under **Requests** in the staff system, where Sales hands it to Customer Service |
 | Contact enquiries | **Live**: become Leads (`ONLINE_ENQUIRIES = true`) |
 | Seller accounts: Sell form and the seller's portal | Not built yet: `CUSTOMER_ACCOUNTS = false`; the Sell page says so, and the portal can be previewed with `portal.html?demo=...` |
 
@@ -75,13 +75,19 @@ unticking "Show on the public website" takes it off the site.
 
 1. The visitor opens a property, clicks **Request to buy/rent**, and leaves
    name, phone, email, budget and how to be contacted (no account).
-2. It arrives in the staff system under **Leads** ("Website request"), with the
-   property, service, budget and contact means.
+2. It arrives in the staff system under **Requests** (its own menu item), with
+   the property, service, budget and contact means. Stage: **New**.
 3. The Sales & Marketing Officer clicks **Hand to Customer Service**: a task
    pre-filled with the customer's details is assigned to a Customer Service
-   officer, with Sales as reviewer.
-4. Customer Service contacts the customer by the chosen means and reports back
-   through **Assignments**.
+   officer, with Sales as reviewer. Stage: **With Customer Service**, showing
+   who has it.
+4. Customer Service contacts the customer by the chosen means and submits a
+   report in **Assignments**. Stage: **Report waiting for you**.
+5. Sales reviews and approves the report. Stage: **Customer contacted**.
+6. Sales clicks **Convert to client**. Stage: **Became a client**; the work
+   continues under Clients (contract, payments).
+
+Contact-page enquiries stay under **Leads**; Requests holds only Buy/Rent.
 
 The endpoints the internal system must provide are specified in
 [`docs/PUBLIC-API.md`](docs/PUBLIC-API.md).

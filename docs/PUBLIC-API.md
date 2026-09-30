@@ -6,7 +6,7 @@ prices and availability.
 
 ```
 Sales Officer → Internal MKUYU System → /api/v1/public → Public website
-Visitor request → Lead for Sales → Sales hands it to Customer Service → CS contacts the customer
+Visitor request → Requests (Sales) → Customer Service contacts the customer → report → client
 ```
 
 The website has **no property database of its own**. Everything it displays
@@ -79,10 +79,11 @@ Projects that currently have listed homes, derived from those homes:
 
 `services` and the cover photo come from the project's published homes.
 
-## Writes (no login) → Leads for Sales
+## Writes (no login) → Requests and Leads for Sales
 
-Both create a **Lead** in the internal system, visible under *Leads* to Sales
-(and anyone with the Leads module), with a *Hand to Customer Service* action
+Both create a lead record in the internal system (Leads module). Buy/Rent
+requests (`source: website`) appear under *Requests*, and contact enquiries
+under *Leads*; each has a *Hand to Customer Service* action
 that assigns a Customer Service officer to contact the customer.
 
 ### `POST /public/requests`
