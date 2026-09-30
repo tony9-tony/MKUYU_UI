@@ -51,7 +51,6 @@
         <a href="contact.html" aria-current="page">Contact</a>
       </nav>
       <div class="header-cta">
-        <a class="btn btn--primary" href="login.html" data-account-link><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg><span>Log in</span></a>
         <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="primary-nav" aria-label="Open navigation"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
       </div>
     </div>
@@ -75,12 +74,20 @@
               <input type="text" id="name" name="name" required autocomplete="name" />
             </div>
             <div class="field">
-              <label for="email">Email <span class="req" aria-hidden="true">*</span></label>
-              <input type="email" id="email" name="email" required autocomplete="email" />
+              <label for="phone">Phone <span class="req" aria-hidden="true">*</span></label>
+              <input type="tel" id="phone" name="phone" required autocomplete="tel" />
             </div>
             <div class="field">
-              <label for="phone">Phone</label>
-              <input type="tel" id="phone" name="phone" autocomplete="tel" />
+              <label for="email">Email</label>
+              <input type="email" id="email" name="email" autocomplete="email" />
+            </div>
+            <div class="field">
+              <label for="contact-preferred">Contact me by</label>
+              <select id="contact-preferred" name="preferred_contact">
+                <option value="phone">Phone call</option>
+                <option value="whatsapp">WhatsApp</option>
+                <option value="email">Email</option>
+              </select>
             </div>
             <div class="field">
               <label for="topic">What is this about?</label>
@@ -95,6 +102,7 @@
             <div class="field full">
               <label for="message">Message <span class="req" aria-hidden="true">*</span></label>
               <textarea id="message" name="message" required></textarea>
+              <input type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" class="trap" />
               <p class="field-hint">Please do not send identity documents, payment details or account numbers through this form.</p>
             </div>
           </div>
@@ -105,7 +113,7 @@
         <aside class="sticky-panel">
           <div class="card"><div class="card-body">
             <h3>Interested in a specific property?</h3>
-            <p class="card-meta">Open it and use <strong>Request to rent</strong> or <strong>Request to buy</strong>. Your request goes straight to our sales team and you can follow it in your portal.</p>
+            <p class="card-meta">Open it and use <strong>Request to rent</strong> or <strong>Request to buy</strong>. No account needed: your request goes straight to our sales team.</p>
             <a class="btn btn--outline btn--small" href="buy.html">Browse properties</a>
           </div></div>
           <div class="card"><div class="card-body">
@@ -141,14 +149,6 @@
             <li><a href="projects.html">Projects</a></li>
             <li><a href="about.html">About us</a></li>
             <li><a href="contact.html">Contact</a></li>
-          </ul>
-        </div>
-        <div>
-          <h4>Your account</h4>
-          <ul>
-            <li><a href="login.html">Log in</a></li>
-            <li><a href="signup.html">Create an account</a></li>
-            <li><a href="portal.html">Customer portal</a></li>
           </ul>
         </div>
       </div>

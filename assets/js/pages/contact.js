@@ -1,5 +1,6 @@
-/* General enquiry. No account needed. Property requests go through the
-   property page instead, so they reach the Sales Officer as a proper request. */
+/* General enquiry. No account needed; it reaches Sales as a Lead. Property
+   requests go through the property page instead, so the Lead names the
+   property and the service. */
 import { NotConnectedError, submitEnquiry } from "../api.js";
 import { showFormResult, validateForm } from "../ui.js";
 
@@ -18,9 +19,9 @@ export default function contact() {
     const button = form.querySelector("button[type=submit]");
     button.disabled = true;
     try {
-      await submitEnquiry(Object.fromEntries(new FormData(form)));
+      const sent = await submitEnquiry(Object.fromEntries(new FormData(form)));
       form.querySelectorAll(".form-grid, button[type=submit]").forEach((el) => { el.hidden = true; });
-      showFormResult(result, "success", "Thank you", "Your enquiry has reached our team. We will reply as soon as we can.");
+      showFormResult(result, "success", `Thank you · ${sent.reference}`, "Your enquiry has reached our team. We will contact you the way you chose, as soon as we can.");
     } catch (error) {
       button.disabled = false;
       if (error instanceof NotConnectedError) showFormResult(result, "info", error.title, error.message);

@@ -149,10 +149,11 @@ export async function listProjects({ service } = {}) {
    Customer actions (need the live system and, where noted, a login)
    --------------------------------------------------------------------------- */
 
-/** Rent or Buy request for one property. Needs a customer login. */
-export async function submitRequest({ propertySlug, service, message, preferredContact }) {
-  if (!ACCOUNTS_LIVE) throw new NotConnectedError("Sending a request");
-  return request("/customer/requests", { method: "POST", body: { property: propertySlug, service, message, preferred_contact: preferredContact } });
+/** Rent or Buy request for one property. No account: the visitor's details
+    go straight to Sales as a Lead. Returns { reference }. */
+export async function submitRequest({ propertySlug, service, name, phone, email, budget, preferredContact, message, website }) {
+  if (!CONNECTED || !ONLINE_ENQUIRIES) throw new NotConnectedError("Sending a request");
+  return request("/public/requests", { method: "POST", body: { property: propertySlug, service, name, phone, email, budget, preferred_contact: preferredContact, message, website } });
 }
 
 /** Sell submission: the customer's own property, for Sales to review. */

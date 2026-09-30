@@ -97,13 +97,13 @@ export default async function property() {
       <p class="action-status"><span class="dot dot--${escapeHtml(item.status)}"></span>${escapeHtml(statusText)}</p>
       ${open
         ? `<a class="btn btn--primary btn--block" href="request.html?p=${encodeURIComponent(item.slug)}&service=${service}">Request to ${SERVICE_WORD[service]} ${icon("arrow")}</a>
-           <p class="action-note">${icon("lock")}<span>A free MKUYU account lets you follow your request from start to finish.</span></p>`
+           <p class="action-note">${icon("user")}<span>No account needed. Leave your details and our team contacts you by phone, WhatsApp or email.</span></p>`
         : `<button class="btn btn--primary btn--block" type="button" disabled>Not available to request</button>
            <p class="action-note"><a href="${service}.html">See other properties to ${SERVICE_WORD[service]}</a></p>`}
       <ul class="action-list">
         <li>${icon("check")}<span>Our sales team reviews every request and contacts you</span></li>
         <li>${icon("check")}<span>Terms, contract and payments are agreed in writing</span></li>
-        <li>${icon("check")}<span>Track every step in your customer portal</span></li>
+        <li>${icon("check")}<span>Our team keeps you informed at every step</span></li>
       </ul>`;
     panel.querySelectorAll("[data-service]").forEach((tab) => tab.addEventListener("click", () => {
       service = tab.dataset.service;

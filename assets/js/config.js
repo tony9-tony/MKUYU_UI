@@ -29,15 +29,15 @@ function devOverride() {
   } catch { return null; }
 }
 
-/* Customer accounts (sign up, log in, portal, Rent/Buy requests, Sell
-   submissions) are not built in the internal system yet. While this is false
-   the site says so plainly, and the portal can still be previewed through the
-   sample customers (portal.html?demo=...). */
+/* Accounts are only for SELLERS (Sell form + their portal). Renting and buying
+   need no account: a request is name, phone, email and budget, sent straight
+   to Sales as a Lead. Seller accounts are not built in the internal system
+   yet; while this is false the Sell page says so plainly, and the portal can
+   be previewed through the sample customers (portal.html?demo=...). */
 export const CUSTOMER_ACCOUNTS = false;
 
-/* The Contact page's enquiry form. Off until the internal system accepts
-   website enquiries (they should become Leads for the Sales Officer). */
-export const ONLINE_ENQUIRIES = false;
+/* Rent/Buy requests and Contact enquiries: live, as Leads for Sales. */
+export const ONLINE_ENQUIRIES = true;
 
 /* --------------------------------------------------------------------------
    UNDECIDED business rules. Each is kept as a single switch so the final

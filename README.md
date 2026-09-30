@@ -40,9 +40,13 @@ points it at the internal system (`API_BASE`, locally
 
 | What | Status |
 |---|---|
-| Properties, projects and their photos | **Live** from the internal system's `/api/v1/public` API |
-| Customer accounts, Rent/Buy requests, Sell submissions, portal | Not built yet: `CUSTOMER_ACCOUNTS = false`; pages say "not open yet", the portal can be previewed with `portal.html?demo=...` |
-| Contact enquiries | Not built yet: `ONLINE_ENQUIRIES = false` |
+| Properties, photos, projects (categories derived from homes) | **Live** from the internal system's `/api/v1/public` API |
+| Rent / Buy requests (no account: name, phone, email, budget, contact means) | **Live**: each becomes a Lead for Sales, who hands it to Customer Service |
+| Contact enquiries | **Live**: become Leads (`ONLINE_ENQUIRIES = true`) |
+| Seller accounts: Sell form and the seller's portal | Not built yet: `CUSTOMER_ACCOUNTS = false`; the Sell page says so, and the portal can be previewed with `portal.html?demo=...` |
+
+There is **no Log in button**: renting and buying need no account. Accounts
+are only for sellers, reached from the Sell page.
 
 Set `API_BASE = ""` to run on the clearly labelled sample catalogue in
 `assets/js/data.js` instead. For testing against another local server, a
@@ -62,10 +66,22 @@ In the staff system: **Properties → New property** (or edit one), then the
    no approval step. The system refuses to publish without a service or
    without the price for it.
 
-Projects work the same way (**Projects → New project**: Rent/Buy, location,
-summary, photos, Show on the public website). A property marked Sold or
-Leased leaves the website listings by itself; unticking "Show on the public
-website" takes anything off the site.
+A **project is only a category** (name and status): each property chooses its
+project, and a project appears on the website while it has published homes.
+A property marked Sold or Leased leaves the website listings by itself;
+unticking "Show on the public website" takes it off the site.
+
+### What happens to a visitor's request
+
+1. The visitor opens a property, clicks **Request to buy/rent**, and leaves
+   name, phone, email, budget and how to be contacted (no account).
+2. It arrives in the staff system under **Leads** ("Website request"), with the
+   property, service, budget and contact means.
+3. The Sales & Marketing Officer clicks **Hand to Customer Service**: a task
+   pre-filled with the customer's details is assigned to a Customer Service
+   officer, with Sales as reviewer.
+4. Customer Service contacts the customer by the chosen means and reports back
+   through **Assignments**.
 
 The endpoints the internal system must provide are specified in
 [`docs/PUBLIC-API.md`](docs/PUBLIC-API.md).
