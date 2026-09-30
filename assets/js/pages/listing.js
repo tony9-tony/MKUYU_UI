@@ -1,27 +1,31 @@
 /* Rent and Buy listings. The service comes from <body data-service="rent|buy">.
    Only properties the internal system reports as open for that service are
-   shown; rented and sold properties drop out by themselves (api.isListed). */
+   shown; rented and sold properties drop out by themselves (api.isListed).
+   Filters live in the URL, so a filtered view can be shared or bookmarked. */
 import { listProperties } from "../api.js";
 import { PROPERTY_TYPES } from "../data.js";
-import { escapeHtml, initReveal, propertyCard } from "../ui.js";
+import { escapeHtml, icon, initReveal, propertyCard, skeletonCards } from "../ui.js";
 
 export default async function listing() {
   const service = document.body.dataset.service === "rent" ? "rent" : "buy";
   const grid = document.getElementById("property-grid");
   const count = document.getElementById("result-count");
   const empty = document.getElementById("no-results");
+  const chips = document.getElementById("type-chips");
   const search = document.getElementById("filter-search");
-  const type = document.getElementById("filter-type");
   const beds = document.getElementById("filter-beds");
   const sort = document.getElementById("filter-sort");
+  const reset = document.getElementById("filter-reset");
   if (!grid) return;
 
-  type.innerHTML = `<option value="">All types</option>${PROPERTY_TYPES.map((t) => `<option>${escapeHtml(t)}</option>`).join("")}`;
   const params = new URLSearchParams(window.location.search);
-  if (params.get("q")) search.value = params.get("q");
-  if (params.get("type")) type.value = params.get("type");
+  let type = PROPERTY_TYPES.includes(params.get("type")) ? params.get("type") : "";
+  search.value = params.get("q") || "";
+  if (["1", "2", "3", "4"].includes(params.get("beds"))) beds.value = params.get("beds");
+  if (["price-asc", "price-desc"].includes(params.get("sort"))) sort.value = params.get("sort");
 
   grid.setAttribute("aria-busy", "true");
+  grid.innerHTML = skeletonCards(6);
   count.textContent = "Loading properties…";
   let all = [];
   try {
@@ -29,6 +33,7 @@ export default async function listing() {
   } catch (error) {
     console.error(error);
     grid.removeAttribute("aria-busy");
+    grid.innerHTML = "";
     count.textContent = "";
     empty.hidden = false;
     empty.querySelector("h3").textContent = "Listings could not be loaded";
@@ -39,11 +44,28 @@ export default async function listing() {
 
   const price = (p) => (service === "rent" ? p.price.rent?.amount : p.price.sale) || 0;
 
+  function renderChips() {
+    const counts = Object.fromEntries(PROPERTY_TYPES.map((t) => [t, all.filter((p) => p.type === t).length]));
+    chips.innerHTML = [["", "All", all.length], ...PROPERTY_TYPES.map((t) => [t, t, counts[t]])]
+      .map(([value, label, n]) => `<button type="button" class="chip" data-type="${escapeHtml(value)}" aria-pressed="${value === type}" ${n || !value ? "" : "disabled"}>${escapeHtml(label)}<span class="n">${n}</span></button>`)
+      .join("");
+  }
+
+  function syncUrl() {
+    const next = new URLSearchParams();
+    if (search.value.trim()) next.set("q", search.value.trim());
+    if (type) next.set("type", type);
+    if (beds.value) next.set("beds", beds.value);
+    if (sort.value !== "featured") next.set("sort", sort.value);
+    const query = next.toString();
+    history.replaceState(null, "", query ? `?${query}` : window.location.pathname);
+  }
+
   function render() {
     const term = search.value.trim().toLowerCase();
     const minBeds = Number(beds.value || 0);
     let rows = all.filter((p) => {
-      if (type.value && p.type !== type.value) return false;
+      if (type && p.type !== type) return false;
       if (minBeds && p.bedrooms < minBeds) return false;
       if (!term) return true;
       return `${p.title} ${p.location} ${p.type} ${p.project?.name || ""}`.toLowerCase().includes(term);
@@ -54,16 +76,30 @@ export default async function listing() {
 
     grid.innerHTML = rows.map((p) => propertyCard(p, { service })).join("");
     empty.hidden = rows.length > 0;
-    count.textContent = rows.length === all.length
-      ? `${all.length} ${all.length === 1 ? "property" : "properties"} available to ${service}`
-      : `Showing ${rows.length} of ${all.length} properties available to ${service}`;
+    const filtered = rows.length !== all.length;
+    reset.hidden = !filtered;
+    count.textContent = filtered
+      ? `Showing ${rows.length} of ${all.length} properties available to ${service}`
+      : `${all.length} ${all.length === 1 ? "property" : "properties"} available to ${service}`;
+    chips.querySelectorAll(".chip").forEach((chip) => chip.setAttribute("aria-pressed", String(chip.dataset.type === type)));
+    syncUrl();
     initReveal(grid);
   }
 
-  for (const control of [search, type, beds, sort]) {
-    control.addEventListener("input", render);
-    control.addEventListener("change", render);
-  }
-  document.getElementById("filters")?.addEventListener("submit", (event) => event.preventDefault());
+  renderChips();
+  chips.addEventListener("click", (event) => {
+    const chip = event.target.closest(".chip");
+    if (!chip || chip.disabled) return;
+    type = chip.dataset.type;
+    render();
+  });
+  let debounce;
+  search.addEventListener("input", () => { clearTimeout(debounce); debounce = setTimeout(render, 150); });
+  for (const control of [beds, sort]) control.addEventListener("change", render);
+  document.getElementById("filters")?.addEventListener("submit", (event) => { event.preventDefault(); render(); });
+  const clearAll = () => { search.value = ""; beds.value = ""; sort.value = "featured"; type = ""; render(); search.focus(); };
+  reset.addEventListener("click", clearAll);
+  empty.querySelector("[data-clear]")?.addEventListener("click", clearAll);
+  empty.querySelector(".icon-slot")?.insertAdjacentHTML("afterbegin", icon("search"));
   render();
 }

@@ -72,45 +72,36 @@ const PATHS = {
   grid: '<rect x="4" y="4" width="7" height="7" rx="1"/><rect x="13" y="4" width="7" height="7" rx="1"/><rect x="4" y="13" width="7" height="7" rx="1"/><rect x="13" y="13" width="7" height="7" rx="1"/>',
   menu: '<path d="M4 7h16M4 12h16M4 17h16"/>',
   close: '<path d="M6 6l12 12M18 6L6 18"/>',
+  camera: '<path d="M4 8h3l2-3h6l2 3h3a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/><circle cx="12" cy="13.5" r="3.5"/>',
+  prev: '<path d="M15 5l-7 7 7 7"/>',
+  next: '<path d="M9 5l7 7-7 7"/>',
+  pause: '<path d="M9 5v14M15 5v14"/>',
+  play: '<path d="M7 5l12 7-12 7z"/>',
+  expand: '<path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5M9 9l-5-5M15 9l5-5M9 15l-5 5M15 15l5 5"/>',
+  images: '<rect x="3" y="5" width="15" height="13" rx="1.5"/><path d="M21 8v12H7M3 15l4-4 4 4 3-3 4 4"/>',
 };
 
 export function icon(name, className = "icon") {
   return `<svg class="${className}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${PATHS[name] || ""}</svg>`;
 }
 
-/* ---------------- Property artwork ----------------
-   No photography is fabricated. Until the Sales Officer uploads real photos,
-   a property shows a branded illustration of its type. */
+/* ---------------- Photos and placeholders ----------------
+   Real photographs come from the internal system (the Sales Officer uploads
+   them). Nothing is invented: until a photo exists, the frame shows a clearly
+   labelled placeholder rather than a stock image or an illustration. */
 
-let artCount = 0;
-export function propertyArt(property, variant = "card") {
-  const type = String(property.type || "").toLowerCase();
-  const scene = type === "land"
-    ? '<path d="M20 150 L200 120 L380 150 L200 190 Z" fill="#eadfce"/><path d="M60 150 L200 128 L340 150 L200 176 Z" fill="none" stroke="#1f3363" stroke-width="2" stroke-dasharray="7 6" opacity=".55"/><circle cx="200" cy="150" r="5" fill="#c8683c"/>'
-    : ["apartment", "commercial", "penthouse"].includes(type)
-      ? '<rect x="140" y="52" width="120" height="128" rx="4" fill="#1f3363"/><rect x="118" y="92" width="40" height="88" rx="3" fill="#17264a"/><rect x="244" y="104" width="40" height="76" rx="3" fill="#17264a"/>' + windows(154, 66, 4, 5, 22, 20)
-      : '<path d="M112 110 L200 56 L288 110 Z" fill="#0f1b33"/><rect x="128" y="108" width="144" height="72" fill="#1f3363"/><rect x="186" y="136" width="28" height="44" rx="2" fill="#e0936a"/><rect x="146" y="124" width="26" height="22" rx="2" fill="#f3eee6" opacity=".9"/><rect x="228" y="124" width="26" height="22" rx="2" fill="#f3eee6" opacity=".9"/>';
-  const sky = `sky-${(artCount += 1)}`;
-  return `<svg class="art art--${variant}" viewBox="0 0 400 220" preserveAspectRatio="xMidYMid slice" role="img" aria-label="${escapeHtml(property.type)} illustration">
-    <defs><linearGradient id="${sky}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fbf6ef"/><stop offset="1" stop-color="#f1e6d8"/></linearGradient></defs>
-    <rect width="400" height="220" fill="url(#${sky})"/>
-    <circle cx="318" cy="54" r="22" fill="#e0936a" opacity=".85"/>
-    <path d="M0 180 Q100 160 200 176 T400 172 V220 H0 Z" fill="#e9dccb"/>
-    ${scene}
-    <path d="M0 196 Q120 184 220 196 T400 192 V220 H0 Z" fill="#dccab4"/>
-  </svg>`;
-}
-function windows(x0, y0, cols, rows, dx, dy) {
-  let out = "";
-  for (let r = 0; r < rows; r += 1) for (let c = 0; c < cols; c += 1) out += `<rect x="${x0 + c * dx + (c ? 6 : 0)}" y="${y0 + r * dy}" width="16" height="12" rx="1.5" fill="#f3eee6" opacity="${(r + c) % 3 ? ".85" : ".55"}"/>`;
-  return out;
+/** variant: "card" | "large" | "thumb" */
+export function photoPlaceholder(label = "Photo coming soon", variant = "card") {
+  return `<div class="ph ph--${variant}" role="img" aria-label="${escapeHtml(label)}">
+    <div class="ph-inner">${icon("camera")}<strong>${escapeHtml(label)}</strong></div>
+  </div>`;
 }
 
 export function propertyMedia(property, variant = "card") {
   const photo = property.photos[0];
   return photo
     ? `<img src="${escapeHtml(photo.url)}" alt="${escapeHtml(photo.alt || property.title)}" loading="lazy" decoding="async">`
-    : propertyArt(property, variant);
+    : photoPlaceholder("Photo coming soon", variant);
 }
 
 /* ---------------- Badges ---------------- */
@@ -158,6 +149,69 @@ export function propertyCard(property, { service } = {}) {
       </div>
     </div>
   </article>`;
+}
+
+/** Placeholder cards shown while listings load. */
+export function skeletonCards(count = 3) {
+  return Array.from({ length: count }, () => `<div class="pcard skeleton" aria-hidden="true">
+    <div class="pcard-media"></div>
+    <div class="pcard-body">
+      <span class="sk-line" style="width:30%"></span><span class="sk-line" style="width:75%;height:16px"></span>
+      <span class="sk-line" style="width:55%"></span><span class="sk-line" style="width:90%;margin-top:.6rem"></span>
+      <div class="pcard-foot"><span class="sk-line" style="width:40%;height:18px"></span></div>
+    </div>
+  </div>`).join("");
+}
+
+/* ---------------- Lightbox (modal gallery) ---------------- */
+
+/** Opens photos full-screen in a <dialog>: arrow keys, Esc, swipe, focus kept inside. */
+export function openLightbox(photos, start = 0, title = "") {
+  if (!photos.length) return;
+  let index = start;
+  const dialog = document.createElement("dialog");
+  dialog.className = "lightbox";
+  dialog.setAttribute("aria-label", `${title} photos`);
+  dialog.innerHTML = `
+    <div class="lightbox-top"><span data-counter aria-live="polite"></span>
+      <button class="icon-btn" type="button" data-close aria-label="Close gallery">${icon("close")}</button></div>
+    <div class="lightbox-stage">
+      <img alt="">
+      ${photos.length > 1 ? `<button class="icon-btn lightbox-prev" type="button" data-step="-1" aria-label="Previous photo">${icon("prev")}</button>
+      <button class="icon-btn lightbox-next" type="button" data-step="1" aria-label="Next photo">${icon("next")}</button>` : ""}
+    </div>
+    <p class="lightbox-caption"></p>`;
+  const img = dialog.querySelector("img");
+  const show = (i) => {
+    index = (i + photos.length) % photos.length;
+    const photo = photos[index];
+    img.src = photo.url;
+    img.alt = photo.alt || `${title} — photo ${index + 1}`;
+    img.style.animation = "none"; void img.offsetWidth; img.style.animation = "";
+    dialog.querySelector("[data-counter]").textContent = `${index + 1} / ${photos.length}`;
+    dialog.querySelector(".lightbox-caption").textContent = photo.alt || title;
+  };
+  dialog.addEventListener("click", (event) => {
+    const step = event.target.closest("[data-step]");
+    if (step) show(index + Number(step.dataset.step));
+    else if (event.target.closest("[data-close]") || event.target === dialog) dialog.close();
+  });
+  dialog.addEventListener("keydown", (event) => {
+    if (event.key === "ArrowRight") show(index + 1);
+    if (event.key === "ArrowLeft") show(index - 1);
+  });
+  let startX = null;
+  dialog.addEventListener("pointerdown", (event) => { startX = event.clientX; });
+  dialog.addEventListener("pointerup", (event) => {
+    if (startX !== null && Math.abs(event.clientX - startX) > 50) show(index + (event.clientX < startX ? 1 : -1));
+    startX = null;
+  });
+  const opener = document.activeElement;
+  dialog.addEventListener("close", () => { dialog.remove(); opener?.focus?.(); });
+  document.body.appendChild(dialog);
+  show(start);
+  dialog.showModal();
+  dialog.querySelector("[data-close]").focus();
 }
 
 /* ---------------- Forms ---------------- */
@@ -231,7 +285,10 @@ function initNav() {
 function initHeaderShadow() {
   const header = document.querySelector(".site-header");
   if (!header) return;
-  const update = () => header.classList.toggle("is-scrolled", window.scrollY > 8);
+  // <body data-header="overlay"> (Home): the header floats over the showcase
+  // and turns solid once the visitor scrolls past the top.
+  header.classList.toggle("is-overlay", document.body.dataset.header === "overlay");
+  const update = () => header.classList.toggle("is-scrolled", window.scrollY > 24);
   update();
   window.addEventListener("scroll", update, { passive: true });
 }

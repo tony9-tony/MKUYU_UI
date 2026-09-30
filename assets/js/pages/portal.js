@@ -6,7 +6,7 @@
    only presents it. Where a business rule is still undecided, the data says
    so (see DEMO_PORTALS in data.js) instead of the portal inventing detail. */
 import { CONNECTED, DEMO_PORTAL_KEYS, currentCustomer, demoPortal, getPortal, logOut } from "../api.js";
-import { escapeHtml, formatMoney, icon, initReveal, propertyArt } from "../ui.js";
+import { escapeHtml, formatMoney, icon, initReveal, photoPlaceholder } from "../ui.js";
 
 const SECTIONS = {
   rent: { label: "Renting", icon: "key", start: "Rent a home", startText: "Browse homes available to rent.", href: "rent.html" },
@@ -55,6 +55,7 @@ function render(host, data, demoKey) {
       ${DEMO_PORTAL_KEYS.map((key) => `<a class="btn btn--small ${key === demoKey ? "btn--primary" : "btn--soft"}" href="?demo=${key}" ${key === demoKey ? 'aria-current="page"' : ""}>${escapeHtml(demoPortal(key).label)}</a>`).join("")}</div>` : ""}
     <div class="portal">
       <nav class="portal-nav" role="tablist" aria-label="Portal sections">
+        <div class="portal-brand"><img class="logo" src="assets/images/brand/mkuyu-logo-192.png" alt="MKUYU" width="40" height="40"><div><strong>${escapeHtml(data.customer?.name || "My MKUYU")}</strong><span>Customer portal</span></div></div>
         ${tabs.map((tab, index) => `<button type="button" role="tab" id="tab-${tab.key}" aria-controls="panel" aria-selected="${index === 0}" data-tab="${tab.key}">
           ${icon(tab.icon)}<span>${escapeHtml(tab.label)}</span>${tab.count ? `<span class="count">${tab.count}</span>` : ""}</button>`).join("")}
         ${CONNECTED && !demoKey ? `<button type="button" data-logout>${icon("lock")}<span>Log out</span></button>` : ""}
@@ -115,7 +116,9 @@ function overview(data, services) {
 /* ---------------- One case (a rental, a purchase, a sale) ---------------- */
 
 function caseCard(key, item) {
-  const art = propertyArt({ type: item.property.type || "" }, "thumb");
+  const art = item.property.photo?.url
+    ? `<img src="${escapeHtml(item.property.photo.url)}" alt="" loading="lazy" style="width:100%;height:100%;object-fit:cover">`
+    : photoPlaceholder("Photo coming soon", "thumb");
   return `<article class="case" data-reveal>
     <header class="case-head">
       <div class="case-art">${art}</div>

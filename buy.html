@@ -5,16 +5,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Properties to buy · MKUYU Africa</title>
   <meta name="description" content="Properties to buy from MKUYU Africa across Tanzania. Filter by type, bedrooms and price." />
-  <meta name="theme-color" content="#0f1b33" />
+  <meta name="theme-color" content="#16130f" />
   <meta property="og:title" content="Properties to buy · MKUYU Africa" />
   <meta property="og:description" content="Properties to buy from MKUYU Africa across Tanzania. Filter by type, bedrooms and price." />
   <meta property="og:type" content="website" />
   <script>document.documentElement.classList.add("js")</script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/css/styles.css" />
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%230f1b33'/><text y='72' x='50' text-anchor='middle' font-size='62' font-family='Georgia' fill='%23e0936a'>M</text></svg>" />
+  <link rel="icon" type="image/png" sizes="64x64" href="assets/images/brand/favicon-64.png" />
+  <link rel="apple-touch-icon" href="assets/images/brand/mkuyu-logo-192.png" />
+  <meta property="og:image" content="assets/images/brand/mkuyu-logo.png" />
   <script type="module" src="assets/js/app.js"></script>
 </head>
 <body data-page="listing" data-service="buy">
@@ -22,9 +24,9 @@
 
   <header class="site-header">
     <div class="wrap header-inner">
-      <a class="brand" href="index.html">
-        <span class="brand-mark" aria-hidden="true">M</span>
-        <span><span class="brand-name">MKUYU AFRICA</span><span class="brand-sub">Property · Tanzania</span></span>
+      <a class="brand" href="index.html" aria-label="MKUYU Africa, home">
+        <img class="logo" src="assets/images/brand/mkuyu-logo-192.png" alt="" width="46" height="46" />
+        <span class="brand-text"><span class="brand-name">MKUYU AFRICA</span><span class="brand-sub">Property · Tanzania</span></span>
       </a>
       <nav class="nav" id="primary-nav" aria-label="Primary">
         <a href="index.html">Home</a>
@@ -60,10 +62,6 @@
             <div class="input-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg><input type="search" id="filter-search" name="q" placeholder="Area, project or type…" autocomplete="off" /></div>
           </div>
           <div class="field">
-            <label for="filter-type">Type</label>
-            <select id="filter-type" name="type"></select>
-          </div>
-          <div class="field">
             <label for="filter-beds">Bedrooms</label>
             <select id="filter-beds" name="beds">
               <option value="">Any</option>
@@ -83,12 +81,17 @@
           </div>
         </form>
 
-        <p class="result-count" id="result-count" role="status" aria-live="polite"></p>
+        <div class="chips" id="type-chips" role="group" aria-label="Property type"></div>
+        <div class="result-row">
+          <p class="result-count" id="result-count" role="status" aria-live="polite"></p>
+          <button type="button" class="btn btn--soft btn--small" id="filter-reset" hidden>Clear filters</button>
+        </div>
         <div class="grid grid--3" id="property-grid"></div>
 
         <div class="empty" id="no-results" hidden>
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>
           <h3>No properties match those filters</h3>
-          <p>Try widening your search, or <a href="contact.html">tell us what you are looking for</a>.</p>
+          <p>Try widening your search, <button type="button" class="btn btn--soft btn--small" data-clear>clear the filters</button>, or <a href="contact.html">tell us what you are looking for</a>.</p>
         </div>
         <noscript><p class="notice"><strong>Note:</strong>&nbsp;the property list needs JavaScript. Please <a href="contact.html">contact us</a> for the current list.</p></noscript>
       </div>
@@ -107,10 +110,8 @@
     <div class="wrap">
       <div class="footer-grid">
         <div>
-          <div class="brand" style="margin-bottom:1rem">
-            <span class="brand-mark" aria-hidden="true">M</span>
-            <span><span class="brand-name" style="color:#fff">MKUYU AFRICA</span><span class="brand-sub">Property · Tanzania</span></span>
-          </div>
+          <img class="logo" src="assets/images/brand/mkuyu-logo-192.png" alt="MKUYU" width="64" height="64" loading="lazy" />
+          <p class="brand-name" style="margin:0 0 .6rem">MKUYU AFRICA</p>
           <p>Quality homes, clear titles and instalment plans that make ownership genuinely reachable across Tanzania.</p>
         </div>
         <div>

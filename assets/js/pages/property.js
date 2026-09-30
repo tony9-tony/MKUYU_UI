@@ -2,7 +2,7 @@
    layer; the request action is only offered while the internal system reports
    the property as available for that service. */
 import { STATUS_LABELS, canRequest, getProperty, listProperties } from "../api.js";
-import { escapeHtml, icon, initReveal, priceFor, propertyCard, propertyMedia, serviceBadges, statusBadge } from "../ui.js";
+import { escapeHtml, icon, initReveal, openLightbox, priceFor, propertyCard, propertyMedia, serviceBadges, statusBadge } from "../ui.js";
 
 const SERVICE_WORD = { rent: "rent", buy: "buy" };
 
@@ -41,14 +41,18 @@ export default async function property() {
 
   host.innerHTML = `
     <div>
-      <div class="gallery-main" id="gallery-main">
-        ${propertyMedia(item, "detail")}
-        <div class="pcard-badges">${serviceBadges(item)}${statusBadge(item)}</div>
+      <div class="gallery">
+        <div class="gallery-main" id="gallery-main">
+          ${propertyMedia(item, "large")}
+          <div class="pcard-badges">${serviceBadges(item)}${statusBadge(item)}</div>
+          ${item.photos.length ? `<button type="button" class="gallery-open" aria-label="Open photo gallery (${item.photos.length} ${item.photos.length === 1 ? "photo" : "photos"})"></button>
+            <span class="gallery-count">${icon("images")}${item.photos.length}</span>` : ""}
+        </div>
+        ${item.photos.length > 1 ? `<div class="gallery-thumbs">${item.photos.map((photo, index) => `
+          <button type="button" data-photo="${index}" aria-current="${index === 0}" aria-label="Show photo ${index + 1}">
+            <img src="${escapeHtml(photo.url)}" alt="" loading="lazy"></button>`).join("")}</div>` : ""}
+        ${item.photos.length ? "" : '<p class="gallery-note">Photos appear here once our sales team uploads them.</p>'}
       </div>
-      ${item.photos.length > 1 ? `<div class="gallery-thumbs" role="list">${item.photos.map((photo, index) => `
-        <button type="button" role="listitem" data-photo="${index}" aria-current="${index === 0}" aria-label="Show photo ${index + 1}">
-          <img src="${escapeHtml(photo.url)}" alt="" loading="lazy"></button>`).join("")}</div>` : ""}
-      ${item.photos.length ? "" : '<p class="gallery-note">Photos appear here once our sales team uploads them.</p>'}
 
       <div class="detail-head">
         <span class="eyebrow">${escapeHtml(item.type)}${item.project ? ` · ${escapeHtml(item.project.name)}` : ""}</span>
@@ -110,12 +114,15 @@ export default async function property() {
   }
   renderPanel();
 
+  let shown = 0;
   host.querySelectorAll("[data-photo]").forEach((button) => button.addEventListener("click", () => {
-    const photo = item.photos[Number(button.dataset.photo)];
+    shown = Number(button.dataset.photo);
+    const photo = item.photos[shown];
     const main = document.getElementById("gallery-main");
     main.querySelector("img").replaceWith(Object.assign(document.createElement("img"), { src: photo.url, alt: photo.alt || item.title }));
     host.querySelectorAll("[data-photo]").forEach((b) => b.setAttribute("aria-current", String(b === button)));
   }));
+  host.querySelector(".gallery-open")?.addEventListener("click", () => openLightbox(item.photos, shown, item.title));
 
   initReveal(host);
   renderSimilar(item, service);

@@ -77,7 +77,13 @@ The endpoints the internal system must provide are specified in
 
 ```
 serve.mjs                 Local preview server (Node, no dependencies)
-assets/css/styles.css     Design system: midnight navy, copper, ivory
+mkuyu logo.jfif           Official logo as supplied (225px original, kept untouched;
+                          the site uses the prepared copies in assets/images/brand/)
+assets/images/brand/      Logo prepared for the web: mkuyu-logo.png (900px,
+                          transparent, sharpened), mkuyu-logo-192.png, favicon-64.png
+assets/images/hero/       Home showcase photos go here (see "Home showcase")
+assets/css/styles.css     Design system: obsidian, champagne bronze, bone
+assets/js/showcase.js     Home showcase slides: image, title, description, action
 assets/js/config.js       API_BASE and the switches for undecided rules
 assets/js/api.js          The only data layer (catalogue, requests, auth, portal)
 assets/js/data.js         Preview-only sample data, every record marked sample
@@ -91,23 +97,64 @@ docs/DATA-SOURCE.md       Where the company facts came from
 The HTML pages share an identical header and footer. When changing either,
 change it on every page.
 
+## Home showcase
+
+The rotating hero on the Home page is driven by `assets/js/showcase.js`. Each
+slide has its own image, eyebrow, title, description and action. To add
+MKUYU's real pictures:
+
+1. Put each photo in `assets/images/hero/` (landscape, at least 2000px wide,
+   JPG or WebP; keep the subject centre/right, because the text sits left).
+2. In `showcase.js`, set the slide's `image` and `alt`, write the real
+   `title` and `description`, and remove `sample: true`.
+
+Until then every slide is a clearly labelled placeholder ("Sample slide",
+"… photo to be supplied"); no stock photo stands in for MKUYU. The showcase
+crossfades every 7 seconds (`SLIDE_INTERVAL_MS`), has previous/next, slide
+labels with progress bars, pause/play, arrow keys and swipe, pauses while
+hovered, focused or in a hidden tab, and does not auto-rotate for visitors
+who prefer reduced motion.
+
 ## Design
 
-- **Own identity, separate from the staff system** (which is green): midnight
-  navy primary (`#0f1b33`), copper accent (`#b4532a`), warm ivory/sand
-  backgrounds. All key text pairs meet WCAG AA contrast. The tokens are at
-  the top of `styles.css`.
-- **Type:** Playfair Display for headings and prices, Manrope for text.
-- **Signature details:** copper-ruled eyebrows, midnight hero surfaces with
-  a faint architectural grid, navy "For sale" / copper "For rent" badges.
+- **Own identity, separate from the staff system** (which is green), built
+  around the black-and-grey MKUYU logo: obsidian primary (`#16130f`),
+  champagne bronze accent (`#a67c52`, text-safe `#8a6340`), warm bone/linen
+  backgrounds. No blue, no green. Tokens are at the top of `styles.css`.
+- **Type:** Cormorant Garamond for display headlines, Manrope for everything
+  else, including prices and card titles.
+- **Official logo** in the header, footer, login/sign-up and the portal, never
+  stretched (square, `object-fit: contain`). The original 225px JPEG was
+  upscaled 4x and its edges re-sharpened into a transparent PNG without
+  changing the design; a crop artefact (a thin black strip down its left and
+  right edges) was removed.
+- **Watermark:** the same logo, very large and faint (about 5% opacity), fixed
+  behind every page; it never takes clicks and sits below all content.
+- **Modern details:** transparent header over the Home showcase that turns
+  solid on scroll, Rent/Buy/Sell hero search, property-type chips with live
+  counts, filters kept in the URL, skeleton loading cards, a full-screen photo
+  lightbox (keyboard and swipe), page transitions in browsers that support
+  them, and a dismissible preview note.
 - **Property cards:** the whole card is one link. On hover (mouse devices) the
-  card rises 6px over 0.35s with an ease-out curve, its shadow deepens and the
-  image zooms 4%; it glides back when the cursor leaves. Keyboard focus gets
-  the same lift plus a copper focus ring.
-- **Motion** is limited to card/button lifts, a gentle page fade-in and
-  scroll reveals, and is switched off under `prefers-reduced-motion`.
-- **No fabricated photos.** Until the Sales Officer uploads real photos, a
-  property shows a branded illustration of its type.
+  card rises 6px over 0.35s with an ease-out curve, its shadow deepens, the
+  image zooms 4% and "View details" fills; it glides back when the cursor
+  leaves. Keyboard focus gets the same lift and a bronze focus ring.
+- **Motion** is purposeful only, and switched off under
+  `prefers-reduced-motion`.
+- **No fabricated photos.** Property and project photos come from the internal
+  system; until one exists the frame says "Photo coming soon".
+
+## Images still needed from MKUYU
+
+| Where | What | Goes in |
+|---|---|---|
+| Home showcase | Project photo + name + short description | `assets/images/hero/`, `showcase.js` slide 1 |
+| Home showcase | Managing Director portrait + name + short introduction | slide 2 |
+| Home showcase | Featured property/building photo + name + description | slide 3 |
+| Home showcase | Team or office photo | slide 4 |
+| Home, Sell section | One company photograph | `index.html` "MKUYU photo to be supplied" |
+| Properties | Photos per property | Uploaded by the Sales Officer in the internal system |
+| Projects | Photo per project | Provided by the internal system (`photo` on each project) |
 
 ## Accessibility
 

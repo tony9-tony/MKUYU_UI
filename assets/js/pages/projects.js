@@ -1,6 +1,6 @@
 /* Projects, with how many homes in each are currently listed to rent or buy. */
 import { listProjects, listProperties } from "../api.js";
-import { escapeHtml, formatMoney, icon, initReveal, propertyArt } from "../ui.js";
+import { escapeHtml, formatMoney, icon, initReveal, photoPlaceholder } from "../ui.js";
 
 export default async function projects() {
   const host = document.getElementById("project-grid");
@@ -17,7 +17,7 @@ export default async function projects() {
     const units = listed.filter((p) => p.project?.slug === project.slug);
     const from = units.map((p) => p.price.sale).filter(Boolean).sort((a, b) => a - b)[0];
     return `<article class="pcard" id="${escapeHtml(project.slug)}" data-reveal>
-      <div class="pcard-media">${propertyArt({ type: "apartment" })}<div class="pcard-badges"><span class="badge badge--status">${escapeHtml(project.status)}</span></div>
+      <div class="pcard-media">${project.photo?.url ? `<img src="${escapeHtml(project.photo.url)}" alt="${escapeHtml(project.photo.alt || project.name)}" loading="lazy" decoding="async">` : photoPlaceholder("Project photo coming soon")}<div class="pcard-badges"><span class="badge badge--status">${escapeHtml(project.status)}</span></div>
         ${project.sample ? '<span class="pcard-sample">Sample</span>' : ""}</div>
       <div class="pcard-body">
         <p class="pcard-type">Development</p>
