@@ -77,7 +77,7 @@ The endpoints the internal system must provide are specified in
 
 ```
 serve.mjs                 Local preview server (Node, no dependencies)
-assets/css/styles.css     Design system: white, MKUYU green, gold
+assets/css/styles.css     Design system: midnight navy, copper, ivory
 assets/js/config.js       API_BASE and the switches for undecided rules
 assets/js/api.js          The only data layer (catalogue, requests, auth, portal)
 assets/js/data.js         Preview-only sample data, every record marked sample
@@ -93,12 +93,17 @@ change it on every page.
 
 ## Design
 
-- **Palette:** white surfaces, MKUYU green (`#0b6b4d` → `#06412f`), gold
-  (`#d4a437`). **Type:** Fraunces for headings, DM Sans for text.
+- **Own identity, separate from the staff system** (which is green): midnight
+  navy primary (`#0f1b33`), copper accent (`#b4532a`), warm ivory/sand
+  backgrounds. All key text pairs meet WCAG AA contrast. The tokens are at
+  the top of `styles.css`.
+- **Type:** Playfair Display for headings and prices, Manrope for text.
+- **Signature details:** copper-ruled eyebrows, midnight hero surfaces with
+  a faint architectural grid, navy "For sale" / copper "For rent" badges.
 - **Property cards:** the whole card is one link. On hover (mouse devices) the
   card rises 6px over 0.35s with an ease-out curve, its shadow deepens and the
   image zooms 4%; it glides back when the cursor leaves. Keyboard focus gets
-  the same lift plus a gold focus ring.
+  the same lift plus a copper focus ring.
 - **Motion** is limited to card/button lifts, a gentle page fade-in and
   scroll reveals, and is switched off under `prefers-reduced-motion`.
 - **No fabricated photos.** Until the Sales Officer uploads real photos, a
