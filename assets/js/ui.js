@@ -5,7 +5,7 @@
    innerHTML, so catalogue text can never inject markup.
    ========================================================================== */
 
-import { STATUS_LABELS, currentCustomer } from "./api.js";
+import { STATUS_LABELS, currentCustomer, stateFor } from "./api.js";
 
 export function escapeHtml(value) {
   return String(value ?? "").replace(/[&<>"']/g, (char) => ({
@@ -112,9 +112,25 @@ export function serviceBadges(property) {
     : '<span class="badge badge--buy">For sale</span>').join("");
 }
 
-export function statusBadge(property) {
-  if (property.status === "available") return "";
-  return `<span class="badge badge--status badge--${escapeHtml(property.status)}">${escapeHtml(STATUS_LABELS[property.status])}</span>`;
+/**
+ * The state of each category: nothing while open, otherwise SOLD / RENTED /
+ * RESERVED. On the Buy or Rent page only that page's category is shown;
+ * elsewhere every category that is not open (e.g. "Sold" and "Rented").
+ */
+export function statusBadge(property, service) {
+  const services = service ? [service] : property.services;
+  return services.map((s) => {
+    const state = stateFor(property, s);
+    if (state === "available") return "";
+    const label = state === "reserved" && !service && property.services.length > 1 ? `Reserved for ${s === "rent" ? "rent" : "sale"}` : STATUS_LABELS[state];
+    return `<span class="badge badge--status badge--${escapeHtml(state)}">${escapeHtml(label)}</span>`;
+  }).join("");
+}
+
+/** True when the category shown (or every category) is sold or rented. */
+function isClosed(property, service) {
+  const services = service ? [service] : property.services;
+  return services.length > 0 && services.every((s) => ["sold", "rented"].includes(stateFor(property, s)));
 }
 
 /* ---------------- Property card ---------------- */
@@ -131,10 +147,10 @@ export function propertyCard(property, { service } = {}) {
     property.bathrooms ? `<li>${icon("bath")}<span>${property.bathrooms} <span class="sr-label">bathrooms</span><abbr title="bathrooms" aria-hidden="true">ba</abbr></span></li>` : "",
     property.area ? `<li>${icon("area")}<span>${property.area.toLocaleString("en-US")} m²</span></li>` : "",
   ].join("");
-  return `<article class="pcard" data-reveal>
+  return `<article class="pcard${isClosed(property, service) ? " pcard--closed" : ""}" data-reveal>
     <div class="pcard-media">
       ${propertyMedia(property)}
-      <div class="pcard-badges">${serviceBadges(property)}${statusBadge(property)}</div>
+      <div class="pcard-badges">${serviceBadges(property)}${statusBadge(property, service)}</div>
       ${property.sample ? '<span class="pcard-sample">Sample</span>' : ""}
     </div>
     <div class="pcard-body">

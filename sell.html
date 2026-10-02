@@ -61,40 +61,34 @@
       <div class="wrap">
         <span class="eyebrow">Sell</span>
         <h1>Sell your property with MKUYU</h1>
-        <p class="lede">Tell us about the property you own. Our sales team reviews every submission before anything is published, and contacts you about the next steps.</p>
+        <p class="lede">Tell us about the property you own. Our team reviews every submission and contacts you about the next steps. No account needed.</p>
       </div>
     </section>
 
     <section class="section">
       <div class="wrap detail">
         <div>
-        <div class="panel sell-gate" id="sell-gate">
-          <span class="feature-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></span>
-          <h2>Log in to submit your property</h2>
-          <p class="lede">Selling with MKUYU starts from your free account, so you can follow the review in your portal and our sales team knows who to contact.</p>
-          <div class="cta-actions" style="justify-content:flex-start">
-            <a class="btn btn--primary" href="login.html?next=sell.html">Log in</a>
-            <a class="btn btn--outline" href="signup.html?next=sell.html">Create an account</a>
-          </div>
-          <p class="field-hint" data-preview-note hidden style="margin-top:1.4rem">Preview: accounts open once the site is connected. <button type="button" class="btn btn--soft btn--small" data-preview-form>See the form as a signed-in customer would</button></p>
-        </div>
-        <noscript><p class="notice"><strong>Note:</strong>&nbsp;submitting a property needs JavaScript and a MKUYU account.</p></noscript>
-        <form class="panel" id="sell-form" novalidate hidden>
-          <div class="sell-signed-in" id="sell-signed-in"></div>
+        <noscript><p class="notice"><strong>Note:</strong>&nbsp;the Sell form needs JavaScript. You can also call or visit MKUYU.</p></noscript>
+        <form class="panel" id="sell-form" novalidate>
+          <p class="card-meta">No account needed. Tell us about your property and how to reach you; our team will contact you. Nothing is published and nothing is agreed until MKUYU has reviewed it with you.</p>
           <fieldset class="fieldset">
             <legend>About the property</legend>
             <div class="form-grid">
-              <div class="field full">
-                <label for="sell-title">Property title <span class="req" aria-hidden="true">*</span></label>
-                <input id="sell-title" name="title" required maxlength="120" placeholder="e.g. 3 bedroom house in Kimara" />
-              </div>
               <div class="field">
                 <label for="sell-type">Property type <span class="req" aria-hidden="true">*</span></label>
-                <select id="sell-type" name="type" required><option value="">Choose a type</option></select>
+                <select id="sell-type" name="property_type" required>
+                  <option value="">Choose a type</option>
+                  <option value="house">House</option>
+                  <option value="apartment">Apartment</option>
+                  <option value="villa">Villa</option>
+                  <option value="land">Land / plot</option>
+                  <option value="commercial">Commercial</option>
+                  <option value="other">Other</option>
+                </select>
               </div>
               <div class="field">
                 <label for="sell-location">Location <span class="req" aria-hidden="true">*</span></label>
-                <input id="sell-location" name="location" required maxlength="160" placeholder="Area, city" />
+                <input id="sell-location" name="location" required maxlength="120" placeholder="Area, town" />
               </div>
               <div class="field">
                 <label for="sell-area">Size (m²)</label>
@@ -102,43 +96,28 @@
               </div>
               <div class="field">
                 <label for="sell-bedrooms">Bedrooms</label>
-                <input id="sell-bedrooms" name="bedrooms" type="number" min="0" inputmode="numeric" />
+                <input id="sell-bedrooms" name="bedrooms" type="number" min="0" max="50" inputmode="numeric" />
               </div>
-              <div class="field">
-                <label for="sell-bathrooms">Bathrooms</label>
-                <input id="sell-bathrooms" name="bathrooms" type="number" min="0" inputmode="numeric" />
-              </div>
-              <div class="field full">
-                <label for="sell-description">Description <span class="req" aria-hidden="true">*</span></label>
-                <textarea id="sell-description" name="description" required minlength="20" placeholder="Condition, features, access, anything a buyer should know."></textarea>
-              </div>
-            </div>
-          </fieldset>
-
-          <fieldset class="fieldset">
-            <legend>Pricing</legend>
-            <div class="form-grid">
               <div class="field">
                 <label for="sell-price">Asking price (TZS)</label>
                 <input id="sell-price" name="asking_price" type="number" min="1" inputmode="numeric" />
                 <p class="field-hint">Leave blank if you would like our team's advice.</p>
               </div>
               <div class="field">
-                <label for="sell-price-notes">Pricing notes</label>
-                <input id="sell-price-notes" name="price_notes" maxlength="200" placeholder="e.g. negotiable, open to instalments" />
+                <label for="sell-deed">Title deed</label>
+                <select id="sell-deed" name="title_deed">
+                  <option value="">Prefer to discuss</option>
+                  <option value="yes">Yes, I have a title deed</option>
+                  <option value="in_progress">In progress</option>
+                  <option value="no">No</option>
+                </select>
+              </div>
+              <div class="field full">
+                <label for="sell-message">About the property</label>
+                <textarea id="sell-message" name="message" maxlength="1000" placeholder="Condition, features, access, and a good time to visit."></textarea>
+                <p class="field-hint">Please do not send identity documents, title deeds or bank details here. If they are needed, our team will tell you how to share them securely.</p>
               </div>
             </div>
-          </fieldset>
-
-          <fieldset class="fieldset">
-            <legend>Photos</legend>
-            <label class="dropzone" id="sell-dropzone" for="sell-photos">
-              <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16V4M7 9l5-5 5 5M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/></svg>
-              <strong>Add photos</strong>
-              <span data-count>Up to 10 photos · JPG or PNG</span>
-              <input id="sell-photos" name="photos" type="file" accept="image/jpeg,image/png" multiple />
-            </label>
-            <div class="thumbs" id="sell-thumbs"></div>
           </fieldset>
 
           <fieldset class="fieldset">
@@ -146,24 +125,32 @@
             <div class="form-grid">
               <div class="field full">
                 <label for="sell-name">Full name <span class="req" aria-hidden="true">*</span></label>
-                <input id="sell-name" name="owner_name" required autocomplete="name" />
+                <input id="sell-name" name="name" required maxlength="80" autocomplete="name" />
               </div>
               <div class="field">
                 <label for="sell-phone">Phone <span class="req" aria-hidden="true">*</span></label>
-                <input id="sell-phone" name="owner_phone" type="tel" required autocomplete="tel" />
+                <input id="sell-phone" name="phone" type="tel" required autocomplete="tel" placeholder="+255 7XX XXX XXX" />
               </div>
               <div class="field">
                 <label for="sell-email">Email</label>
-                <input id="sell-email" name="owner_email" type="email" autocomplete="email" />
+                <input id="sell-email" name="email" type="email" autocomplete="email" />
+              </div>
+              <div class="field">
+                <label for="sell-contact">Contact me by</label>
+                <select id="sell-contact" name="preferred_contact">
+                  <option value="phone">Phone call</option>
+                  <option value="whatsapp">WhatsApp</option>
+                  <option value="email">Email</option>
+                </select>
               </div>
               <div class="field full">
                 <label class="check"><input type="checkbox" name="is_owner" required /> <span>I own this property or am authorised to sell it.</span></label>
               </div>
+              <input type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" class="trap" />
             </div>
-            <p class="field-hint">Please do not upload identity documents or title deeds here. If they are needed, our team will tell you how to share them securely.</p>
           </fieldset>
 
-          <button class="btn btn--primary btn--block" type="submit">Submit for review <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+          <button class="btn btn--primary btn--block" type="submit">Send to MKUYU <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
           <div id="sell-result" hidden role="status" aria-live="polite"></div>
         </form>
         </div>
@@ -172,14 +159,15 @@
           <div class="action-panel">
             <h2 style="font-size:1.35rem">How selling works</h2>
             <div class="steps" style="margin-top:1.2rem">
-              <div class="step"><h3>Submit your property</h3><p>Details, pricing and photos, from your MKUYU account.</p></div>
-              <div class="step"><h3>Sales review</h3><p>Our Sales Officer reviews it and contacts you.</p></div>
-              <div class="step"><h3>Next steps</h3><p>Our team explains what follows before anything is agreed.</p></div>
+              <div class="step"><h3>Send your details</h3><p>No account needed: the property and how to reach you.</p></div>
+              <div class="step"><h3>Sales review</h3><p>Our Sales team reviews your submission.</p></div>
+              <div class="step"><h3>We contact you</h3><p>Customer Service calls you, explains how selling with MKUYU works and arranges a visit.</p></div>
+              <div class="step"><h3>Agreement</h3><p>Once MKUYU accepts the property, we agree the terms with you in a Sell contract.</p></div>
             </div>
             <ul class="action-list">
-              <li><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg><span>Nothing is published without review</span></li>
-              <li><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg><span>Follow the review in your customer portal</span></li>
-              <li><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg><span>One account for renting, buying and selling</span></li>
+              <li><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg><span>No account or login needed</span></li>
+              <li><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg><span>Nothing is published without your agreement</span></li>
+              <li><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg><span>Keep your reference number for when you call us</span></li>
             </ul>
           </div>
         </aside>

@@ -38,7 +38,7 @@ export const SERVICES = [
 
 export const FAQS = [
   { q: "Can I buy a home in instalments?", a: "Instalment payment plans are available on applicable terms. The arrangement is agreed in writing in your contract, so there is no ambiguity about what is owed and when." },
-  { q: "Do I need an account to rent or buy?", a: "No. Browse freely, choose a property and leave your name, phone, email and budget. Our team contacts you the way you prefer. An account is only needed if you want MKUYU to sell your own property." },
+  { q: "Do I need an account to rent, buy or sell?", a: "No. To rent or buy, choose a property and leave your name, phone, email and budget. To sell, fill in the Sell form with your property and contact details. Our team contacts you the way you prefer." },
   { q: "Can I sell my own property through MKUYU?", a: "Yes. Submit it through the Sell page. Our sales team reviews every submission before anything is published, and will contact you about the next steps." },
   { q: "Do you work with Tanzanians living abroad?", a: "Yes. The Miliki Ardhi Diaspora programme exists specifically to help Tanzanians in the diaspora start owning property in Tanzania while still overseas." },
 ];

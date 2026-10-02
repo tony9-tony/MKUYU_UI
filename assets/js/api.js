@@ -66,6 +66,13 @@ async function request(path, { method = "GET", body } = {}) {
 export function normalizeProperty(raw) {
   const services = (Array.isArray(raw.services) ? raw.services : []).filter((s) => SERVICES.includes(s));
   const status = STATUS_LABELS[raw.status] ? raw.status : "available";
+  // State per category: the Buy page and the Rent page each show their own.
+  // A source without per-category states (the sample catalogue) derives them.
+  const given = raw.availability || {};
+  const availability = {
+    buy: services.includes("buy") ? (["available", "reserved", "sold"].includes(given.buy) ? given.buy : status === "sold" ? "sold" : status === "reserved" ? "reserved" : "available") : null,
+    rent: services.includes("rent") ? (["available", "reserved", "rented"].includes(given.rent) ? given.rent : status === "rented" ? "rented" : status === "reserved" ? "reserved" : "available") : null,
+  };
   return {
     id: raw.id,
     slug: String(raw.slug || raw.id),
@@ -73,6 +80,7 @@ export function normalizeProperty(raw) {
     type: raw.type || "Property",
     services,
     status,
+    availability,
     currency: raw.currency || DEFAULT_CURRENCY,
     price: { sale: Number(raw.price?.sale) || 0, rent: raw.price?.rent ? { amount: Number(raw.price.rent.amount) || 0, period: raw.price.rent.period || "" } : null },
     location: raw.location || "",
@@ -89,17 +97,26 @@ export function normalizeProperty(raw) {
   };
 }
 
-/** Whether a property belongs in the public listing for `service`. */
+/** A property's state for one service: available, reserved, sold or rented. */
+export function stateFor(property, service) {
+  return property.availability?.[service] || "available";
+}
+
+/**
+ * Whether a property belongs in the public listing for `service`. Sold and
+ * rented properties stay listed, marked SOLD / RENTED for that category, so
+ * visitors see what MKUYU has sold and rented. Without a service (the home
+ * page), only properties still open in some category are shown.
+ */
 export function isListed(property, service) {
-  if (service && !property.services.includes(service)) return false;
-  if (property.status === "available") return true;
-  if (property.status === "reserved") return RESERVED_ON_WEBSITE === "show";
-  return false; // rented and sold never appear as available
+  const visible = (state) => state !== "reserved" || RESERVED_ON_WEBSITE === "show";
+  if (service) return property.services.includes(service) && visible(stateFor(property, service));
+  return property.services.some((s) => stateFor(property, s) === "available" || (stateFor(property, s) === "reserved" && RESERVED_ON_WEBSITE === "show"));
 }
 
 /** Whether a visitor may start a request for `service` on this property. */
 export function canRequest(property, service) {
-  return property.status === "available" && property.services.includes(service);
+  return property.services.includes(service) && stateFor(property, service) === "available";
 }
 
 /* ---------------------------------------------------------------------------
@@ -132,7 +149,8 @@ export function normalizeProject(raw) {
     location: raw.location || "",
     summary: raw.summary || "",
     status: raw.status || "",
-    services: (Array.isArray(raw.services) ? raw.services : []).filter((s) => SERVICES.includes(s)),
+    // Projects are for sale only: renting is about a single property.
+    services: (Array.isArray(raw.services) ? raw.services : []).filter((s) => s === "buy"),
     photos: Array.isArray(raw.photos) ? raw.photos.filter((p) => p && p.url) : [],
     sample: Boolean(raw.sample),
   };
@@ -157,9 +175,13 @@ export async function submitRequest({ propertySlug, service, name, phone, email,
 }
 
 /** Sell submission: the customer's own property, for Sales to review. */
-export async function submitSellRequest(formData) {
-  if (!ACCOUNTS_LIVE) throw new NotConnectedError("Submitting a property to sell");
-  return request("/customer/sell-requests", { method: "POST", body: formData });
+export async function submitSellRequest({ name, phone, email, preferredContact, propertyType, location, area, bedrooms, askingPrice, titleDeed, message, website }) {
+  if (!CONNECTED || !ONLINE_ENQUIRIES) throw new NotConnectedError("Sending your property");
+  return request("/public/sell", { method: "POST", body: {
+    name, phone, email, preferred_contact: preferredContact, property_type: propertyType, location,
+    area: area || null, bedrooms: bedrooms === "" ? null : bedrooms, asking_price: askingPrice || null,
+    title_deed: titleDeed || null, message, website,
+  } });
 }
 
 export async function signUp(details) {

@@ -27,8 +27,8 @@ or sends goes through `assets/js/api.js` to `API_BASE` in
 - **Projects are categories.** A project has no photos, price or publishing of
   its own; a property chooses its project. The website shows a project while
   it has published homes.
-- **No accounts for renting or buying.** Visitors leave their details. Accounts
-  are only for sellers (not built yet; `CUSTOMER_ACCOUNTS = false`).
+- **No accounts at all.** Renting, buying and selling all work by leaving
+  details. A seller's agreement is a Sell contract made by Sales internally.
 
 ## Reads (no login)
 
@@ -111,11 +111,33 @@ requests from one phone/IP.
 The Contact page: `{ name, phone, email?, topic, preferred_contact, message,
 website }`. `201 { "reference": "W-44" }`.
 
+### `POST /public/sell`
+
+A property owner offers their property. No login.
+
+```jsonc
+{
+  "name": "Neema Mollel", "phone": "+255 754 321 987", "email": "",   // email optional
+  "preferred_contact": "whatsapp",                                     // phone | whatsapp | email
+  "property_type": "house",          // house | apartment | villa | land | commercial | other
+  "location": "Mbezi Beach, Dar es Salaam",
+  "area": 450, "bedrooms": 4,        // optional
+  "asking_price": 350000000,         // optional, TZS
+  "title_deed": "yes",               // optional: yes | no | in_progress
+  "message": "Family house with garden.",
+  "website": ""                      // spam trap
+}
+```
+
+`201 { "reference": "W-45" }`. It becomes a Sell request under *Requests*;
+no client or account is created until MKUYU accepts the seller.
+
 ## Cross-origin
 
-The website is served separately, so `server.js` lets any origin `GET`
-`/api/v1/public/*` and `POST` `/api/v1/public/requests` and
-`/api/v1/public/enquiries`, without credentials. Every other API route keeps
+The website is served separately. Only the origins in `PUBLIC_SITE_ORIGINS`
+(`.env`, comma separated; plus the local preview addresses in development)
+may call it from a browser: `server.js` lets them `GET`
+`/api/v1/public/*` and `POST` `/api/v1/public/requests`, `/api/v1/public/enquiries` and `/api/v1/public/sell`, without credentials. Every other API route keeps
 its login and same-origin rules.
 
 ## Still undecided (the website is built to take either answer)
@@ -124,6 +146,5 @@ its login and same-origin rules.
 |---|---|
 | Is Reserved shown publicly? | `RESERVED_ON_WEBSITE` in `config.js` (hidden) |
 | TZS only, or TZS + USD | `currency` per property; default in `config.js` |
-| Seller accounts: sign-up, verification, what the seller's portal shows | `CUSTOMER_ACCOUNTS`; to be designed |
-| Sell: agency agreement, fees, documents, payout | To be designed with the seller portal |
+| Sell: agency agreement, fees, documents, payout | Agreed in the Sell contract made by Sales |
 | Contract signing, document downloads, online payment | Not built |

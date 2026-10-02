@@ -1,8 +1,9 @@
 /* Rent and Buy listings. The service comes from <body data-service="rent|buy">.
-   Only properties the internal system reports as open for that service are
-   shown; rented and sold properties drop out by themselves (api.isListed).
+   Every property offered for that service is shown with its state for it:
+   open ones first, then those SOLD (Buy page) or RENTED (Rent page), marked
+   with a badge and closed to requests (api.isListed / api.stateFor).
    Filters live in the URL, so a filtered view can be shared or bookmarked. */
-import { listProperties } from "../api.js";
+import { canRequest, listProperties } from "../api.js";
 import { PROPERTY_TYPES } from "../data.js";
 import { escapeHtml, icon, initReveal, propertyCard, skeletonCards } from "../ui.js";
 
@@ -78,9 +79,13 @@ export default async function listing() {
     empty.hidden = rows.length > 0;
     const filtered = rows.length !== all.length;
     reset.hidden = !filtered;
+    // Sold / rented ones are listed too, so the count says how many are open.
+    const openCount = (list) => list.filter((p) => canRequest(p, service)).length;
+    const word = service === "rent" ? "rented" : "sold";
+    const closedNote = (list) => { const closed = list.length - openCount(list); return closed ? ` · ${closed} ${word}` : ""; };
     count.textContent = filtered
-      ? `Showing ${rows.length} of ${all.length} properties available to ${service}`
-      : `${all.length} ${all.length === 1 ? "property" : "properties"} available to ${service}`;
+      ? `Showing ${rows.length} of ${all.length} properties · ${openCount(rows)} available to ${service}${closedNote(rows)}`
+      : `${openCount(all)} ${openCount(all) === 1 ? "property" : "properties"} available to ${service}${closedNote(all)}`;
     chips.querySelectorAll(".chip").forEach((chip) => chip.setAttribute("aria-pressed", String(chip.dataset.type === type)));
     syncUrl();
     initReveal(grid);

@@ -1,6 +1,7 @@
-/* General enquiry. No account needed; it reaches Sales as a Lead. Property
-   requests go through the property page instead, so the Lead names the
-   property and the service. */
+/* General enquiry. No account needed; it reaches MKUYU Customer Care, who
+   answer it (it appears under Requests in the staff system). Property
+   requests go through the property page instead, so Sales sees the property
+   and the service. */
 import { NotConnectedError, submitEnquiry } from "../api.js";
 import { showFormResult, validateForm } from "../ui.js";
 
@@ -21,7 +22,7 @@ export default function contact() {
     try {
       const sent = await submitEnquiry(Object.fromEntries(new FormData(form)));
       form.querySelectorAll(".form-grid, button[type=submit]").forEach((el) => { el.hidden = true; });
-      showFormResult(result, "success", `Thank you · ${sent.reference}`, "Your enquiry has reached our team. We will contact you the way you chose, as soon as we can.");
+      showFormResult(result, "success", `Thank you · ${sent.reference}`, "Your message has reached MKUYU Customer Care. We will contact you the way you chose, as soon as we can.");
     } catch (error) {
       button.disabled = false;
       if (error instanceof NotConnectedError) showFormResult(result, "info", error.title, error.message);

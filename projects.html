@@ -69,10 +69,9 @@
       <div class="wrap">
         <div class="section-head" style="margin-bottom:1.6rem">
           <p class="result-count" id="project-count" role="status" aria-live="polite"></p>
-          <div class="segmented" id="project-tabs" role="tablist" aria-label="Show projects with homes to">
+          <!-- Projects are developments FOR SALE; renting is a single property, so there is no Rent tab. -->
+          <div class="segmented" id="project-tabs" role="tablist" aria-label="Show projects" hidden>
             <button type="button" role="tab" data-service="" aria-selected="true" aria-controls="project-grid">All</button>
-            <button type="button" role="tab" data-service="rent" aria-selected="false" aria-controls="project-grid">Rent</button>
-            <button type="button" role="tab" data-service="buy" aria-selected="false" aria-controls="project-grid">Buy</button>
           </div>
         </div>
         <div class="grid grid--3" id="project-grid"></div>

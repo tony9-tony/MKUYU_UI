@@ -8,6 +8,7 @@
 
 import { CONNECTED } from "./api.js";
 import { icon, initChrome } from "./ui.js";
+import { initChatbot } from "./chatbot.js";
 
 /* A small, dismissible note while the site runs on sample data. Dismissal is
    remembered for this browser tab only. */
@@ -38,6 +39,8 @@ function previewBar() {
 document.addEventListener("DOMContentLoaded", async () => {
   previewBar();
   initChrome();
+  // The public assistant is on every page; it only reads public information.
+  initChatbot();
   const page = document.body.dataset.page;
   if (!page) return;
   try {

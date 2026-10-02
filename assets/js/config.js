@@ -29,11 +29,10 @@ function devOverride() {
   } catch { return null; }
 }
 
-/* Accounts are only for SELLERS (Sell form + their portal). Renting and buying
-   need no account: a request is name, phone, email and budget, sent straight
-   to Sales as a Lead. Seller accounts are not built in the internal system
-   yet; while this is false the Sell page says so plainly, and the portal can
-   be previewed through the sample customers (portal.html?demo=...). */
+/* No customer accounts: Rent, Buy and Sell all work without logging in.
+   A Rent/Buy request or a Sell submission goes straight to Sales in the
+   internal system; a seller's agreement is a Sell contract made there.
+   The sample portal (portal.html?demo=...) is a preview only. */
 export const CUSTOMER_ACCOUNTS = false;
 
 /* Rent/Buy requests and Contact enquiries: live, as Leads for Sales. */

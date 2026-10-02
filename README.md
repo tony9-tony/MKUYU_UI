@@ -1,8 +1,10 @@
 # MKUYU Africa — public website
 
 The public face of MKUYU Africa, the Tanzanian property company. Visitors can
-**Rent**, **Buy**, or **Sell** property, and follow everything they do with
-MKUYU from **one customer account** and **one Customer Portal**.
+**Rent**, **Buy**, or **Sell** property. None of them needs an account: a
+visitor leaves their details and the MKUYU team takes it from there. An
+**Ask MKUYU** assistant on every page answers questions from public
+information only.
 
 ## Run it
 
@@ -43,10 +45,10 @@ points it at the internal system (`API_BASE`, locally
 | Properties, photos, projects (categories derived from homes) | **Live** from the internal system's `/api/v1/public` API |
 | Rent / Buy requests (no account: name, phone, email, budget, contact means) | **Live**: each arrives under **Requests** in the staff system, where Sales hands it to Customer Service |
 | Contact enquiries | **Live**: become Leads (`ONLINE_ENQUIRIES = true`) |
-| Seller accounts: Sell form and the seller's portal | Not built yet: `CUSTOMER_ACCOUNTS = false`; the Sell page says so, and the portal can be previewed with `portal.html?demo=...` |
+| Sell submissions (no account: property type, location, size, asking price, contact) | **Live**: `POST /public/sell`; each arrives under **Requests** as a Sell request |
+| Seller portal | Not needed: a seller's agreement is a **Sell contract** made by Sales in the internal system. `portal.html?demo=...` is only a preview |
 
-There is **no Log in button**: renting and buying need no account. Accounts
-are only for sellers, reached from the Sell page.
+There is **no Log in button**: renting, buying and selling need no account.
 
 Set `API_BASE = ""` to run on the clearly labelled sample catalogue in
 `assets/js/data.js` instead. For testing against another local server, a
@@ -89,6 +91,28 @@ unticking "Show on the public website" takes it off the site.
 
 Contact-page enquiries stay under **Leads**; Requests holds only Buy/Rent.
 
+### What happens to a Sell submission
+
+1. The owner fills in the **Sell** form: property type, location, size,
+   bedrooms, asking price, title-deed status and how to be contacted. No
+   account.
+2. It arrives under **Requests** as **Sell**, with the property details.
+3. Sales hands it to **Customer Service**, who contacts the owner, explains
+   how selling with MKUYU works and reports the outcome (e.g. a site visit).
+4. When Sales accepts it, the owner becomes a **Seller Client**, and
+   **Create Sell contract** opens the contract wizard already set to Sell for
+   that seller. There is no seller portal: the contract is the agreement.
+
+### Ask MKUYU (assistant)
+
+`assets/js/chatbot.js`, loaded on every page by `app.js`. It answers in
+English or Swahili from **public information only**: the company facts and
+FAQs in `data.js`, how Rent / Buy / Sell work, and published listings and
+projects read through the public API. It has no access to the internal
+system (staff, passwords, contracts, payments, reports, customers); such
+questions are answered with where to go instead. It sends nothing a visitor
+types to any server.
+
 The endpoints the internal system must provide are specified in
 [`docs/PUBLIC-API.md`](docs/PUBLIC-API.md).
 
@@ -122,7 +146,7 @@ The endpoints the internal system must provide are specified in
 | Home | `index.html` | Rent / Buy / Sell entry tiles, featured listings with a Buy/Rent switch |
 | Rent | `rent.html` | Search, type, bedrooms, price sort |
 | Buy | `buy.html` | Same listing page, Buy service |
-| Sell | `sell.html` | Submit your own property, with photos, for Sales review |
+| Sell | `sell.html` | Submit your own property for Sales review (no account; photos are collected by the team later) |
 | Property details | `property.html?p=<slug>` | Gallery, facts, features, live availability, Rent/Buy switch when both apply |
 | Request | `request.html?p=<slug>&service=rent\|buy` | Needs a customer login once connected |
 | Log in / Sign up | `login.html`, `signup.html` | Customer accounts only; staff use the internal system |
