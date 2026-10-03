@@ -16,7 +16,11 @@
      The endpoints the site expects are documented in docs/PUBLIC-API.md.
    ========================================================================== */
 
-export const API_BASE = devOverride() ?? "http://localhost:3003/api/v1";
+// On this computer the site talks to the staff server directly. Opened from
+// anywhere else (a phone through ngrok, or the live domain) it uses the same
+// address it was loaded from: serve.mjs passes /api/ on to the staff server.
+const LOCAL = ["localhost", "127.0.0.1"].includes(window.location.hostname);
+export const API_BASE = devOverride() ?? (LOCAL ? "http://localhost:3003/api/v1" : `${window.location.origin}/api/v1`);
 
 /* Developers only: on a localhost page, localStorage "mkuyu-api-base" points
    the site at another server (for example a test server). Ignored everywhere
