@@ -103,7 +103,9 @@ function unitTile(unit, service) {
   const target = services.find((s) => !["sold", "rented"].includes(stateFor(unit, s))) || services[0];
   const closed = services.every((s) => ["sold", "rented"].includes(stateFor(unit, s)));
   const facts = [unit.type, unit.bedrooms ? `${unit.bedrooms} bed` : "", unit.area ? `${unit.area.toLocaleString("en-US")} m²` : ""].filter(Boolean).join(" · ");
+  const photo = unit.photos[0];
   return `<a class="unit-tile${closed ? " unit-tile--closed" : ""}" href="${escapeHtml(detailsHref(unit, target))}">
+    ${photo ? `<span class="unit-thumb"><img src="${escapeHtml(photo.url)}" alt="" loading="lazy" decoding="async">${photo.illustration ? '<span class="unit-illus">Illustration</span>' : ""}</span>` : ""}
     <span class="unit-number">${escapeHtml(unit.unit || unit.title)}</span>
     <span class="unit-facts">${escapeHtml(facts)}</span>
     <ul class="unit-offers">${lines}</ul>
@@ -178,7 +180,7 @@ async function projectDetail(slug) {
     }
     const order = [...floors.keys()].sort((a, b) => (a === null ? 1 : b === null ? -1 : b - a));
     host.className = "floor-list";
-    host.innerHTML = order.map((floor) => `<section class="floor" data-reveal>
+    host.innerHTML = order.map((floor) => `<section class="floor"${floor === null ? "" : ` id="floor-${floor}"`} data-reveal>
         <header class="floor-head"><h2>${escapeHtml(floorName(floor))}</h2><span>${floors.get(floor).length} ${floors.get(floor).length === 1 ? "unit" : "units"}</span></header>
         <div class="floor-units">${floors.get(floor).map((unit) => unitTile(unit, service)).join("")}</div>
       </section>`).join("");

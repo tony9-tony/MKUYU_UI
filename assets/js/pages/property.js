@@ -56,7 +56,8 @@ export default async function property() {
         ${many ? `<div class="gallery-thumbs">${item.photos.map((photo, index) => `
           <button type="button" data-photo="${index}" aria-current="${index === 0}" aria-label="Show photo ${index + 1}">
             <img src="${escapeHtml(photo.url)}" alt="" loading="lazy"></button>`).join("")}</div>` : ""}
-        ${item.photos.length ? "" : '<p class="gallery-note">Photos appear here once our sales team uploads them.</p>'}
+        ${!item.photos.length ? '<p class="gallery-note">Photos appear here once our sales team uploads them.</p>'
+          : item.photos[0].illustration ? `<p class="gallery-note">The first picture is an illustration of this kind of space${item.photos.length > 1 ? `; the others are photos of ${escapeHtml(item.project?.name || "the building")}` : ""}. Photos of this ${item.unit ? "unit" : "property"} will be added by our sales team.</p>` : ""}
       </div>
 
       <div class="detail-head">
@@ -139,6 +140,8 @@ export default async function property() {
     });
     const position = document.getElementById("gallery-index");
     if (position) position.textContent = String(shown + 1);
+    const tag = main.querySelector(".illus-tag");
+    if (tag) tag.hidden = !photo.illustration;
   }
   host.querySelectorAll("[data-photo]").forEach((button) => button.addEventListener("click", () => show(Number(button.dataset.photo))));
   host.querySelectorAll(".gallery-nav").forEach((button) => button.addEventListener("click", (event) => {
@@ -162,6 +165,7 @@ export default async function property() {
   host.querySelector(".gallery-open")?.addEventListener("click", () => openLightbox(item.photos, shown, item.title));
 
   initReveal(host);
+
   renderSimilar(item, service);
 }
 

@@ -99,9 +99,14 @@ export function photoPlaceholder(label = "Photo coming soon", variant = "card") 
 
 export function propertyMedia(property, variant = "card") {
   const photo = property.photos[0];
-  return photo
-    ? `<img src="${escapeHtml(photo.url)}" alt="${escapeHtml(photo.alt || property.title)}" loading="lazy" decoding="async">`
-    : photoPlaceholder("Photo coming soon", variant);
+  if (!photo) return photoPlaceholder("Photo coming soon", variant);
+  const img = `<img src="${escapeHtml(photo.url)}" alt="${escapeHtml(photo.alt || property.title)}" loading="lazy" decoding="async">`;
+  return photo.illustration ? img + illustrationTag() : img;
+}
+
+/** A small "Illustration" label on a picture that is not a photo of the listing. */
+export function illustrationTag() {
+  return '<span class="illus-tag" style="position:absolute;right:.7rem;bottom:.7rem;z-index:2;background:rgba(22,19,15,.72);color:#fff;font-size:.68rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:.25rem .55rem;border-radius:999px;pointer-events:none">Illustration</span>';
 }
 
 /* ---------------- Badges ---------------- */

@@ -62,6 +62,21 @@ async function request(path, { method = "GET", body } = {}) {
    Property display rules
    --------------------------------------------------------------------------- */
 
+/* A listing without photos of its own shows a picture of its kind (a room,
+   a house, a villa, a penthouse, a shop or a plot), marked as an illustration,
+   followed by any photos of its building. */
+const TYPE_PICTURES = { apartment: "apartment", penthouse: "penthouse", villa: "villa", house: "house", commercial: "commercial", land: "land" };
+export function typePicture(type) {
+  const key = TYPE_PICTURES[String(type || "").toLowerCase()] || "house";
+  return { url: `assets/images/types/${key}.svg`, alt: `Illustration of ${key === "commercial" ? "a shop or office space" : key === "land" ? "a plot of land" : `a ${key}`}`, illustration: true };
+}
+function photosFor(raw) {
+  const all = Array.isArray(raw.photos) ? raw.photos.filter((p) => p && p.url) : [];
+  const own = all.filter((p) => !p.shared);
+  if (own.length) return own;
+  return [typePicture(raw.type), ...all];
+}
+
 /** One consistent shape, whatever the source sends. */
 export function normalizeProperty(raw) {
   const services = (Array.isArray(raw.services) ? raw.services : []).filter((s) => SERVICES.includes(s));
@@ -92,7 +107,7 @@ export function normalizeProperty(raw) {
     bathrooms: Number(raw.bathrooms) || 0,
     area: Number(raw.area) || 0,
     featured: Boolean(raw.featured),
-    photos: Array.isArray(raw.photos) ? raw.photos.filter((p) => p && p.url) : [],
+    photos: photosFor(raw),
     summary: raw.summary || "",
     description: raw.description || "",
     features: Array.isArray(raw.features) ? raw.features : [],

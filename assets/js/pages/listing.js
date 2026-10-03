@@ -9,19 +9,20 @@
    picks a unit and sends a request for it. */
 import { canRequest, listProperties } from "../api.js";
 import { PROPERTY_TYPES } from "../data.js";
-import { escapeHtml, formatMoney, icon, initReveal, periodLabel, photoPlaceholder, propertyCard, skeletonCards } from "../ui.js";
+import { escapeHtml, formatMoney, icon, illustrationTag, initReveal, periodLabel, photoPlaceholder, propertyCard, skeletonCards } from "../ui.js";
 
 /** One card for a building: its open units for this service, from the lowest price. */
 function buildingCard(project, units, service) {
   const open = units.filter((unit) => canRequest(unit, service));
   const prices = open.map((unit) => (service === "rent" ? unit.price.rent?.amount : unit.price.sale)).filter(Boolean).sort((a, b) => a - b);
   const floors = new Set(units.map((unit) => unit.floor).filter((floor) => floor !== null)).size;
-  const photo = units.flatMap((unit) => unit.photos)[0];
+  const pictures = units.flatMap((unit) => unit.photos);
+  const photo = pictures.find((p) => !p.illustration) || pictures[0];
   const period = service === "rent" ? units.find((unit) => unit.price.rent)?.price.rent.period : "";
   const href = `projects.html?p=${encodeURIComponent(project.slug)}&service=${service}`;
   return `<article class="pcard pcard--building${open.length ? "" : " pcard--closed"}" data-reveal>
     <div class="pcard-media">
-      ${photo ? `<img src="${escapeHtml(photo.url)}" alt="${escapeHtml(project.name)}" loading="lazy" decoding="async">` : photoPlaceholder("Building photo coming soon")}
+      ${photo ? `<img src="${escapeHtml(photo.url)}" alt="${escapeHtml(project.name)}" loading="lazy" decoding="async">${photo.illustration ? illustrationTag() : ""}` : photoPlaceholder("Building photo coming soon")}
       <div class="pcard-badges"><span class="badge badge--${service}">${service === "rent" ? "For rent" : "For sale"}</span><span class="badge badge--status">Building</span></div>
     </div>
     <div class="pcard-body">
