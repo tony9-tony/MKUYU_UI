@@ -132,6 +132,21 @@ A property owner offers their property. No login.
 `201 { "reference": "W-45" }`. It becomes a Sell request under *Requests*;
 no client or account is created until MKUYU accepts the seller.
 
+### `POST /public/chat` (AI assistant)
+
+```json
+{ "message": "Ninawezaje kununua kwa awamu?", "lang": "sw", "history": [{ "role": "user", "content": "habari" }, { "role": "assistant", "content": "Karibu!" }] }
+```
+
+`200 { "reply": "plain text", "refused": false }` · `400` empty or longer than 500 characters ·
+`429` too many questions (60 an hour per address, `ASSISTANT_PER_HOUR`) · `503 { "fallback": true }` the AI is off or unreachable.
+
+Answered by a local model through Ollama (Qwen by default) on the internal system's server. The server
+gives the model ONLY `backend/src/public/assistant-knowledge.md` (public facts) and the published
+listings; internal questions are refused before the model is asked, and invented phone numbers,
+e-mails and links are removed from the reply. The website shows the reply as escaped text and uses its
+built-in answers whenever this returns an error. `GET /public/chat/status` → `{ "ai": true|false }`.
+
 ## Cross-origin
 
 The website is served separately. Only the origins in `PUBLIC_SITE_ORIGINS`

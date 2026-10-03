@@ -225,3 +225,28 @@ export async function submitEnquiry(details) {
   }
   return request("/public/enquiries", { method: "POST", body: details });
 }
+
+/**
+ * Asks the AI assistant (a local model on the MKUYU server). The server gives
+ * the model public information only. Throws when the assistant is off or
+ * unavailable; the chatbot then answers with its own built-in replies.
+ */
+export async function askAssistant(message, history, lang) {
+  if (!CONNECTED) throw new NotConnectedError("The AI assistant");
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 60000);
+  try {
+    const response = await fetch(`${API_BASE}/public/chat`, {
+      method: "POST",
+      credentials: "omit",
+      headers: { Accept: "application/json", "Content-Type": "application/json" },
+      body: JSON.stringify({ message, history, lang }),
+      signal: controller.signal,
+    });
+    const payload = await response.json().catch(() => ({}));
+    if (!response.ok || typeof payload.reply !== "string") throw new ApiError(response.status, payload.error);
+    return payload.reply;
+  } finally {
+    clearTimeout(timer);
+  }
+}

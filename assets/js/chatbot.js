@@ -12,10 +12,17 @@
    It has no access to the internal staff system: no staff, accounts,
    passwords, contracts, payments, reports, documents or customer records.
    Questions about those are answered with where to go instead. Everything it
-   shows is escaped, and nothing a visitor types is sent anywhere.
+   shows is escaped.
+
+   AI answers: free questions are answered by a local AI model (Qwen through
+   Ollama) on the MKUYU server, via POST /api/v1/public/chat. The SERVER gives
+   the model only the public facts and the published listings, so the model
+   cannot know anything internal. Listing searches, projects and internal
+   questions stay rule-based, and when the AI is off or slow the built-in
+   answers below are used, so a visitor always gets a reply.
    ========================================================================== */
 
-import { CONNECTED, listProjects, listProperties } from "./api.js";
+import { CONNECTED, askAssistant, listProjects, listProperties } from "./api.js";
 import { COMPANY, FAQS } from "./data.js";
 import { detailsHref, escapeHtml, priceFor } from "./ui.js";
 
@@ -77,14 +84,45 @@ const contactLine = (lang) => {
     : t(`Tuma ujumbe kupitia <a href="contact.html">ukurasa wa Mawasiliano</a> na timu ya MKUYU itakujibu. Ofisi: ${escapeHtml(COMPANY.address)}.`, `Send a message through the <a href="contact.html">Contact page</a> and the MKUYU team will reply. Office: ${escapeHtml(COMPANY.address)}.`, lang);
 };
 
-// PLANNED (not built yet): connect the assistant to a language model (Qwen, or
-// a local model served by Ollama). This function is the single place to do it:
-// keep the "internal" refusal and the listing answers above as they are, and
-// send only the visitor's question plus the PUBLIC facts (COMPANY, FAQS and the
-// published listings) to the model - through the internal system's server, never
-// from the browser straight to the model, so no key or model address is exposed.
+// ---- AI answers ----------------------------------------------------------------
+// Only through the MKUYU server (never browser -> model), which hands the model
+// public facts only. Plain text comes back; it is escaped here, and page names
+// such as buy.html become links.
+const PAGES = ["rent.html", "buy.html", "sell.html", "projects.html", "contact.html", "about.html"];
+const AI_INTENTS = new Set(["unknown", "about", "instalment", "diaspora", "account", "sell"]);
+const history = [];
+let aiDown = false;
+
+function aiHtml(reply) {
+  let html = escapeHtml(reply).replace(/\n{2,}/g, "</p><p>").replace(/\n/g, "<br>");
+  html = html.replace(/\bproperty\.html\?id=(\d+)/g, '<a href="property.html?id=$1">property.html?id=$1</a>');
+  for (const page of PAGES) html = html.split(page).join(`<a href="${page}">${page}</a>`);
+  return `<p>${html}</p>`;
+}
+
+async function aiAnswer(text, lang) {
+  if (!CONNECTED || aiDown) return null;
+  try {
+    const reply = await askAssistant(text, history.slice(-6), lang);
+    history.push({ role: "user", content: text }, { role: "assistant", content: reply });
+    return { html: aiHtml(reply), chips: ["rent", "buy", "contact"] };
+  } catch (error) {
+    // Off or unreachable: stop trying for this visit and use the built-in answers.
+    if (![400, 429].includes(error?.status)) aiDown = true;
+    return null;
+  }
+}
+
 async function answer(text, lang) {
   const intent = intentOf(text);
+  if (AI_INTENTS.has(intent)) {
+    const ai = await aiAnswer(text, lang);
+    if (ai) return ai;
+  }
+  return ruleAnswer(intent, text, lang);
+}
+
+async function ruleAnswer(intent, text, lang) {
   switch (intent) {
     case "internal":
       return { html: t(
