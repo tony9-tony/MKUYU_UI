@@ -85,6 +85,9 @@ export function normalizeProperty(raw) {
     price: { sale: Number(raw.price?.sale) || 0, rent: raw.price?.rent ? { amount: Number(raw.price.rent.amount) || 0, period: raw.price.rent.period || "" } : null },
     location: raw.location || "",
     project: raw.project || null,
+    // A unit in a building: floor (0 = ground) and unit number, when given.
+    floor: raw.floor === null || raw.floor === undefined || raw.floor === "" ? null : Number(raw.floor),
+    unit: raw.unit ? String(raw.unit) : "",
     bedrooms: Number(raw.bedrooms) || 0,
     bathrooms: Number(raw.bathrooms) || 0,
     area: Number(raw.area) || 0,
@@ -140,17 +143,20 @@ export async function getProperty(slug) {
   return raw ? normalizeProperty(raw) : null;
 }
 
-/** A project, like a property, is published by the Sales Officer for Rent,
-    Buy or both; that choice is made when its photos are uploaded. */
+/** A project is an estate (separate homes or plots) or a building (floors and
+    numbered units). Its units can be offered to rent, to buy, or both, so a
+    project appears on whichever side its open units are offered for. */
 export function normalizeProject(raw) {
   return {
     slug: String(raw.slug || raw.id),
     name: raw.name || "Untitled project",
+    kind: raw.kind === "building" ? "building" : "estate",
     location: raw.location || "",
     summary: raw.summary || "",
     status: raw.status || "",
-    // Projects are for sale only: renting is about a single property.
-    services: (Array.isArray(raw.services) ? raw.services : []).filter((s) => s === "buy"),
+    services: (Array.isArray(raw.services) ? raw.services : []).filter((s) => SERVICES.includes(s)),
+    units: Number(raw.units) || 0,
+    floors: Number(raw.floors) || 0,
     photos: Array.isArray(raw.photos) ? raw.photos.filter((p) => p && p.url) : [],
     sample: Boolean(raw.sample),
   };
@@ -161,6 +167,22 @@ export async function listProjects({ service } = {}) {
     ? await request(`/public/projects${service ? `?service=${encodeURIComponent(service)}` : ""}`)
     : sample.PROJECTS;
   return rows.map(normalizeProject).filter((project) => !service || project.services.includes(service));
+}
+
+/** One project with all its published units (sold and rented ones included). */
+export async function getProject(slug) {
+  if (CONNECTED) {
+    try {
+      const raw = await request(`/public/projects/${encodeURIComponent(slug)}`);
+      return { ...normalizeProject(raw), properties: (raw.properties || []).map(normalizeProperty) };
+    } catch (error) {
+      if (error.status === 404) return null;
+      throw error;
+    }
+  }
+  const raw = sample.PROJECTS.find((project) => project.slug === slug);
+  if (!raw) return null;
+  return { ...normalizeProject(raw), properties: sample.PROPERTIES.filter((p) => p.project?.slug === slug).map(normalizeProperty) };
 }
 
 /* ---------------------------------------------------------------------------

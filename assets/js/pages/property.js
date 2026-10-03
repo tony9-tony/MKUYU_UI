@@ -36,6 +36,7 @@ export default async function property() {
     item.bathrooms ? ["bath", "Bathrooms", item.bathrooms] : null,
     item.area ? ["area", "Area", `${item.area.toLocaleString("en-US")} m²`] : null,
     item.project ? ["grid", "Project", item.project.name, true] : null,
+    item.unit ? ["key", "Unit", `${item.unit}${item.floor !== null ? ` · ${item.floor === 0 ? "Ground floor" : `Floor ${item.floor}`}` : ""}`] : null,
     // One line per category, so "For sale: Sold · For rent: Available" is clear.
     ...item.services.map((s) => ["clock", item.services.length > 1 ? (s === "rent" ? "For rent" : "For sale") : "Status", STATUS_LABELS[stateFor(item, s)]]),
   ].filter(Boolean);
@@ -71,7 +72,7 @@ export default async function property() {
         <ul class="feature-list">${item.features.map((f) => `<li>${icon("check")}<span>${escapeHtml(f)}</span></li>`).join("")}</ul></section>` : ""}
       ${item.project ? `<section class="detail-block" data-reveal data-project-info><h2>Part of ${escapeHtml(item.project.name)}</h2>
         <p class="card-meta">This property belongs to one of our developments.</p>
-        <a class="btn btn--soft btn--small" href="projects.html#${encodeURIComponent(item.project.slug)}">About the project ${icon("arrow")}</a></section>` : ""}
+        <a class="btn btn--soft btn--small" href="projects.html?p=${encodeURIComponent(item.project.slug)}">About the project ${icon("arrow")}</a></section>` : ""}
     </div>
 
     <aside class="sticky-panel">
@@ -85,8 +86,7 @@ export default async function property() {
 
   const panel = document.getElementById("action-panel");
   function renderPanel() {
-    // A project belongs to the sale side; renting is about this property only.
-    host.querySelectorAll("[data-project-info]").forEach((element) => { element.hidden = service === "rent"; });
+    // A project can have units to rent and to buy, so its details show on both sides.
     const price = priceFor(item, service);
     const open = canRequest(item, service);
     // The state of THIS category: a house can be rented and still for sale.

@@ -2,10 +2,40 @@
    Every property offered for that service is shown with its state for it:
    open ones first, then those SOLD (Buy page) or RENTED (Rent page), marked
    with a badge and closed to requests (api.isListed / api.stateFor).
-   Filters live in the URL, so a filtered view can be shared or bookmarked. */
+   Filters live in the URL, so a filtered view can be shared or bookmarked.
+
+   Units in a BUILDING are grouped into one card for the building. Opening it
+   shows the building floor by floor (projects.html?p=<id>), where the visitor
+   picks a unit and sends a request for it. */
 import { canRequest, listProperties } from "../api.js";
 import { PROPERTY_TYPES } from "../data.js";
-import { escapeHtml, icon, initReveal, propertyCard, skeletonCards } from "../ui.js";
+import { escapeHtml, formatMoney, icon, initReveal, periodLabel, photoPlaceholder, propertyCard, skeletonCards } from "../ui.js";
+
+/** One card for a building: its open units for this service, from the lowest price. */
+function buildingCard(project, units, service) {
+  const open = units.filter((unit) => canRequest(unit, service));
+  const prices = open.map((unit) => (service === "rent" ? unit.price.rent?.amount : unit.price.sale)).filter(Boolean).sort((a, b) => a - b);
+  const floors = new Set(units.map((unit) => unit.floor).filter((floor) => floor !== null)).size;
+  const photo = units.flatMap((unit) => unit.photos)[0];
+  const period = service === "rent" ? units.find((unit) => unit.price.rent)?.price.rent.period : "";
+  const href = `projects.html?p=${encodeURIComponent(project.slug)}&service=${service}`;
+  return `<article class="pcard pcard--building${open.length ? "" : " pcard--closed"}" data-reveal>
+    <div class="pcard-media">
+      ${photo ? `<img src="${escapeHtml(photo.url)}" alt="${escapeHtml(project.name)}" loading="lazy" decoding="async">` : photoPlaceholder("Building photo coming soon")}
+      <div class="pcard-badges"><span class="badge badge--${service}">${service === "rent" ? "For rent" : "For sale"}</span><span class="badge badge--status">Building</span></div>
+    </div>
+    <div class="pcard-body">
+      <p class="pcard-type">Building${floors ? ` · ${floors} ${floors === 1 ? "floor" : "floors"}` : ""}</p>
+      <h3 class="pcard-title"><a class="pcard-link" href="${href}">${escapeHtml(project.name)}</a></h3>
+      <p class="pcard-loc">${icon("pin")}<span>${escapeHtml(units[0]?.location || "")}</span></p>
+      <p class="pcard-summary">${open.length} of ${units.length} ${units.length === 1 ? "unit" : "units"} available to ${service}. Choose your floor and unit.</p>
+      <div class="pcard-foot">
+        <p class="pcard-price">${prices[0] ? `From ${escapeHtml(formatMoney(prices[0]))}` : "Enquire"}<small>${service === "rent" ? escapeHtml(periodLabel(period) || "Rent") : "Sale price"}</small></p>
+        <span class="pcard-cta" aria-hidden="true">Choose a unit ${icon("arrow")}</span>
+      </div>
+    </div>
+  </article>`;
+}
 
 export default async function listing() {
   const service = document.body.dataset.service === "rent" ? "rent" : "buy";
@@ -75,7 +105,17 @@ export default async function listing() {
     else if (sort.value === "price-desc") rows = [...rows].sort((a, b) => price(b) - price(a));
     else rows = [...rows].sort((a, b) => Number(b.featured) - Number(a.featured));
 
-    grid.innerHTML = rows.map((p) => propertyCard(p, { service })).join("");
+    // Units of a building become one building card, placed first.
+    const buildings = new Map();
+    const singles = [];
+    for (const p of rows) {
+      if (p.project?.kind === "building") {
+        if (!buildings.has(p.project.slug)) buildings.set(p.project.slug, { project: p.project, units: [] });
+        buildings.get(p.project.slug).units.push(p);
+      } else singles.push(p);
+    }
+    grid.innerHTML = [...buildings.values()].map(({ project, units }) => buildingCard(project, units, service)).join("")
+      + singles.map((p) => propertyCard(p, { service })).join("");
     empty.hidden = rows.length > 0;
     const filtered = rows.length !== all.length;
     reset.hidden = !filtered;

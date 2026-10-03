@@ -70,14 +70,24 @@ The picture file, only while its property is published.
 
 ### `GET /public/projects?service=rent|buy`
 
-Projects that currently have listed homes, derived from those homes:
+Projects that currently have open homes or units, derived from them:
 
 ```jsonc
-[{ "slug": "7", "name": "Riverside Estate", "location": "Dar es Salaam",
-   "summary": "", "status": "", "services": ["buy"], "photos": [{ "url": "…", "alt": "…" }] }]
+[{ "slug": "7", "name": "Mkuyu Tower", "kind": "building", "location": "Upanga, Dar es Salaam",
+   "summary": "", "status": "", "services": ["buy", "rent"], "units": 10, "floors": 4,
+   "photos": [{ "url": "…", "alt": "…" }] }]
 ```
 
-`services` and the cover photo come from the project's published homes.
+`kind` is `estate` (separate homes or plots) or `building` (floors and numbered units).
+`services` are the services its open units are offered for, so a building with flats to rent is
+listed under `?service=rent`. The cover photo comes from one of its published units.
+
+### `GET /public/projects/:slug`
+
+One project as above, plus `properties`: every published unit (sold and rented ones too, marked),
+in the same shape as `/public/properties`, ordered by floor and unit number. Each property also
+carries `floor` (0 = ground floor, `null` when not set) and `unit` (the unit number, `null` when
+not set). `404` when the project has nothing published.
 
 ## Writes (no login) → Requests and Leads for Sales
 

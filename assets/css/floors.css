@@ -1,0 +1,21 @@
+/* A building on the Projects page, floor by floor (projects.html?p=<id>).
+   Kept in its own file; it uses the tokens defined in styles.css. */
+.floor-list { display: grid; gap: 1.6rem; }
+.floor { border: 1px solid var(--line); border-radius: 18px; background: var(--surface); padding: 1.2rem 1.3rem 1.4rem; }
+.floor-head { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; border-bottom: 1px solid var(--line); padding-bottom: .7rem; margin-bottom: 1rem; }
+.floor-head h2 { font-size: clamp(1.5rem, 2.4vw, 1.9rem); margin: 0; }
+.floor-head span { color: var(--muted); font-size: .9rem; white-space: nowrap; }
+.floor-units { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: .8rem; }
+.unit-tile { display: grid; gap: .35rem; align-content: start; padding: .9rem 1rem; border: 1px solid var(--line); border-radius: 14px; text-decoration: none; color: var(--ink); background: #fbf9f6; transition: border-color .2s, box-shadow .2s, transform .2s; min-width: 0; }
+.unit-tile:hover, .unit-tile:focus-visible { border-color: var(--brand-900); box-shadow: 0 8px 22px rgba(22, 19, 15, .08); transform: translateY(-2px); }
+.unit-tile--closed { opacity: .62; }
+.unit-number { font-family: var(--display); font-weight: 600; font-size: 1.6rem; line-height: 1; color: var(--brand-900); }
+.unit-facts { color: var(--muted); font-size: .85rem; }
+.unit-offers { list-style: none; margin: .3rem 0 0; padding: 0; display: grid; gap: .3rem; }
+.unit-offer { display: flex; flex-wrap: wrap; align-items: center; gap: .2rem .5rem; font-size: .88rem; }
+.unit-service { font-weight: 700; font-size: .72rem; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-soft); min-width: 4.6rem; }
+.unit-price { font-weight: 600; font-variant-numeric: tabular-nums; }
+.unit-state { font-size: .72rem; font-weight: 700; padding: .1rem .5rem; border-radius: 999px; background: #ebe7e1; color: #57504a; }
+.unit-offer--reserved .unit-state { background: var(--warn-50, #fdf3dc); color: var(--warn); }
+.unit-offer--sold .unit-price, .unit-offer--rented .unit-price { text-decoration: line-through; color: var(--muted); }
+@media (prefers-reduced-motion: reduce) { .unit-tile { transition: none; } .unit-tile:hover { transform: none; } }

@@ -26,6 +26,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/css/styles.css" />
+  <link rel="stylesheet" href="assets/css/floors.css" />
   <link rel="icon" type="image/png" sizes="64x64" href="assets/images/brand/favicon-64.png" />
   <link rel="apple-touch-icon" href="assets/images/brand/mkuyu-logo-192.png" />
   <meta property="og:image" content="assets/images/brand/mkuyu-logo.png" />
@@ -69,10 +70,8 @@
       <div class="wrap">
         <div class="section-head" style="margin-bottom:1.6rem">
           <p class="result-count" id="project-count" role="status" aria-live="polite"></p>
-          <!-- Projects are developments FOR SALE; renting is a single property, so there is no Rent tab. -->
-          <div class="segmented" id="project-tabs" role="tablist" aria-label="Show projects" hidden>
-            <button type="button" role="tab" data-service="" aria-selected="true" aria-controls="project-grid">All</button>
-          </div>
+          <!-- A project's units can be to rent, to buy or both; the tabs are filled in by projects.js. -->
+          <div class="segmented" id="project-tabs" role="tablist" aria-label="Show projects" hidden></div>
         </div>
         <div class="grid grid--3" id="project-grid"></div>
         <noscript><p class="notice"><strong>Note:</strong>&nbsp;this list needs JavaScript. Please <a href="contact.html">contact us</a> for current project information.</p></noscript>
