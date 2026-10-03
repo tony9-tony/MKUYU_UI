@@ -97,7 +97,7 @@ function unitTile(unit, service) {
   const services = service ? unit.services.filter((s) => s === service) : unit.services;
   const lines = services.map((s) => {
     const state = stateFor(unit, s);
-    const amount = s === "rent" ? (unit.price.rent ? `${formatMoney(unit.price.rent.amount)} ${periodLabel(unit.price.rent.period)}` : "Price on request") : (unit.price.sale ? formatMoney(unit.price.sale) : "Price on request");
+    const amount = s === "rent" ? (unit.price.rent ? `${formatMoney(unit.price.rent.amount)} / ${String(periodLabel(unit.price.rent.period)).replace(/^per /, "")}` : "Price on request") : (unit.price.sale ? formatMoney(unit.price.sale) : "Price on request");
     return `<li class="unit-offer unit-offer--${state}"><span class="unit-service">${s === "rent" ? "To rent" : "To buy"}</span><span class="unit-price">${escapeHtml(amount)}</span>${state !== "available" ? `<span class="unit-state">${STATE_LABEL[state]}</span>` : ""}</li>`;
   }).join("");
   const target = services.find((s) => !["sold", "rented"].includes(stateFor(unit, s))) || services[0];

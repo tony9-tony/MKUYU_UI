@@ -1,5 +1,5 @@
 /* Home: rotating showcase, Rent / Buy / Sell search, featured listings. */
-import { listProperties } from "../api.js";
+import { canRequest, listProjects, listProperties } from "../api.js";
 import { SERVICES } from "../data.js";
 import { SLIDES, SLIDE_INTERVAL_MS } from "../showcase.js";
 import { escapeHtml, icon, initReveal, propertyCard, skeletonCards } from "../ui.js";
@@ -8,7 +8,28 @@ export default async function home() {
   initShowcase();
   initHeroSearch();
   renderServices();
+  initLiveStats();
   await initFeatured();
+}
+
+/* Live numbers from the sales team: open homes to buy and to rent, and projects. */
+async function initLiveStats() {
+  const host = document.getElementById("live-stats");
+  if (!host) return;
+  try {
+    const [buy, rent, projects] = await Promise.all([listProperties({ service: "buy" }), listProperties({ service: "rent" }), listProjects()]);
+    const openBuy = buy.filter((p) => canRequest(p, "buy")).length;
+    const openRent = rent.filter((p) => canRequest(p, "rent")).length;
+    if (!openBuy && !openRent) return;
+    const chip = (href, n, word) => `<a href="${href}"><strong>${n}</strong> ${word}</a>`;
+    host.innerHTML = `<span class="live-dot" aria-hidden="true"></span><span>Available today:</span>
+      ${openBuy ? chip("buy.html", openBuy, openBuy === 1 ? "home to buy" : "homes to buy") : ""}
+      ${openRent ? chip("rent.html", openRent, openRent === 1 ? "home to rent" : "homes to rent") : ""}
+      ${projects.length ? chip("projects.html", projects.length, projects.length === 1 ? "project" : "projects") : ""}`;
+    host.hidden = false;
+  } catch {
+    /* The numbers are a bonus; the page works without them. */
+  }
 }
 
 /* ==========================================================================
@@ -26,7 +47,7 @@ const PLACEHOLDER_LOOKS = [
 function slideHTML(slide, index, total) {
   const look = PLACEHOLDER_LOOKS[index % PLACEHOLDER_LOOKS.length];
   const media = slide.layout === "feature" && slide.image
-    ? `<div class="slide-media slide-media--feature"${slide.backdrop ? ` style="--backdrop:url('${escapeHtml(slide.backdrop)}')"` : ""}><figure class="slide-feature"><img src="${escapeHtml(slide.image)}" alt="${escapeHtml(slide.alt || slide.title)}" ${index === 0 ? 'fetchpriority="high"' : 'fetchpriority="low"'} decoding="async"></figure></div>`
+    ? `<div class="slide-media slide-media--feature"${slide.backdrop ? ` style="--backdrop:url('${escapeHtml(new URL(slide.backdrop, window.location.href).href)}')"` : ""}><figure class="slide-feature"><img src="${escapeHtml(slide.image)}" alt="${escapeHtml(slide.alt || slide.title)}" ${index === 0 ? 'fetchpriority="high"' : 'fetchpriority="low"'} decoding="async"></figure></div>`
     : slide.image
     ? `<div class="slide-media"><img src="${escapeHtml(slide.image)}"${slide.imageSmall ? ` srcset="${escapeHtml(slide.imageSmall)} 1280w, ${escapeHtml(slide.image)} 2400w" sizes="100vw"` : ""}${slide.focus ? ` style="object-position:${escapeHtml(slide.focus)}"` : ""} alt="${escapeHtml(slide.alt || slide.title)}" ${index === 0 ? 'fetchpriority="high"' : 'fetchpriority="low"'} decoding="async"></div>`
     : `<div class="slide-placeholder" style="--ph-x:${look.x};--ph-y:${look.y};--ph-bg:${look.bg};--ph-size:${look.size};--ph-right:${look.right};--ph-top:${look.top};--ph-rot:${look.rot}" role="img" aria-label="${escapeHtml(slide.kind)} photo to be supplied">

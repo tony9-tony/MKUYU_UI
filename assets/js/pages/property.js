@@ -86,7 +86,23 @@ export default async function property() {
     </aside>`;
 
   const panel = document.getElementById("action-panel");
+  // On a phone the price panel sits far down the page: a bar at the bottom
+  // keeps the price and the Request button within reach while it is out of view.
+  const bar = document.createElement("div");
+  bar.className = "request-bar";
+  document.body.append(bar);
+  if ("IntersectionObserver" in window) new IntersectionObserver(([entry]) => bar.classList.toggle("is-shown", !entry.isIntersecting)).observe(panel);
+  else bar.classList.add("is-shown");
+  function renderBar() {
+    const price = priceFor(item, service);
+    const open = canRequest(item, service);
+    bar.hidden = !open;
+    document.body.classList.toggle("has-request-bar", open);
+    if (open) bar.innerHTML = `<div><strong>${escapeHtml(price.amount)}</strong><small>${escapeHtml(price.note || "")}</small></div>
+      <a class="btn btn--primary" href="request.html?p=${encodeURIComponent(item.slug)}&service=${service}">Request to ${SERVICE_WORD[service]} ${icon("arrow")}</a>`;
+  }
   function renderPanel() {
+    renderBar();
     // A project can have units to rent and to buy, so its details show on both sides.
     const price = priceFor(item, service);
     const open = canRequest(item, service);
@@ -165,6 +181,7 @@ export default async function property() {
   host.querySelector(".gallery-open")?.addEventListener("click", () => openLightbox(item.photos, shown, item.title));
 
   initReveal(host);
+
 
   renderSimilar(item, service);
 }
