@@ -132,8 +132,8 @@ The endpoints the internal system must provide are specified in
     available, and the request button is disabled.
 - **A request is not a reservation.** Sending a Rent/Buy request never changes
   a property's status; the request form says so.
-- **One account, adaptive portal.** The portal shows a section only for the
-  services a customer uses (Rent, Buy, Sell, or any mix).
+- **Portal is a preview only.** `portal.html` shows how a future customer
+  area could look (Rent, Buy, Sell, or any mix); customers need no account today.
 - **Nothing undecided is invented.** Sign-up verification, online payment,
   document downloads, handover details and the Sell workflow after review are
   shown as "being finalised by MKUYU" until they are decided. See the table at
@@ -148,8 +148,8 @@ The endpoints the internal system must provide are specified in
 | Buy | `buy.html` | Same listing page, Buy service |
 | Sell | `sell.html` | Submit your own property for Sales review (no account; photos are collected by the team later) |
 | Property details | `property.html?p=<slug>` | Gallery, facts, features, live availability, Rent/Buy switch when both apply |
-| Request | `request.html?p=<slug>&service=rent\|buy` | Needs a customer login once connected |
-| Log in / Sign up | `login.html`, `signup.html` | Customer accounts only; staff use the internal system |
+| Request | `request.html?p=<slug>&service=rent\|buy` | No account: name, phone, email, budget and how to be contacted |
+| Log in / Sign up | `login.html`, `signup.html` | Not linked from the site (no accounts today); kept for a possible future customer account. Staff use the internal system |
 | Customer Portal | `portal.html` | Samples to review: `?demo=rent-sell`, `?demo=buy`, `?demo=new` |
 | Projects, About, Contact | `projects.html`, `about.html`, `contact.html` | |
 | (old link) | `properties.html` | Redirects to Buy |
