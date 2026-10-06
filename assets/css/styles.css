@@ -1236,12 +1236,12 @@ td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
 @media (min-width: 901px) { .portal-side { max-height: calc(100vh - var(--header-h) - 36px); overflow-y: auto; scrollbar-width: thin; } }
 
 /* Verified tick badge (diaspora identity verified by MKUYU) */
-.verified-badge { display: inline-flex; align-items: center; gap: .25rem; padding: .12rem .5rem .12rem .3rem; border-radius: 999px; background: var(--success); color: #fff; font-size: .68rem; font-weight: 800; letter-spacing: .02em; line-height: 1.4; vertical-align: middle; white-space: nowrap; }
-.verified-badge .icon { width: 13px; height: 13px; stroke-width: 2.6; }
-.portal-brand .verified-badge { margin-top: .3rem; color: #fff; font-size: .66rem; }
-.portal-brand .verified-badge span { color: #fff; font-size: inherit; display: inline; }
-.portal-user .verified-badge span { display: inline; }
-@media (max-width: 640px) { .portal-user .verified-badge span { display: none; } .portal-user .verified-badge { padding: .2rem; } }
+.verified-badge { display: inline-flex; align-items: center; gap: .3rem; color: var(--success); font-weight: 700; font-size: .85rem; line-height: 1; vertical-align: middle; white-space: nowrap; }
+.verified-seal { width: 1.15em; height: 1.15em; flex: none; display: inline-block; filter: drop-shadow(0 1px 1px rgba(21, 94, 59, .25)); }
+.verified-badge .verified-text { color: var(--success); font-size: .85em; }
+strong > .verified-badge, .portal-user-name + .verified-badge { margin-left: .3rem; font-size: 1.05rem; position: relative; top: -1px; }
+.portal-brand strong { display: inline-flex; align-items: center; flex-wrap: wrap; }
+.portal-greeting .verified-badge { font-size: 1rem; }
 .verified-line { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; margin: .7rem 0 0; font-size: .9rem; color: var(--success); font-weight: 600; }
 .portal-greeting .verified-badge { margin-bottom: .6rem; }
 

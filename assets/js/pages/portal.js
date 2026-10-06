@@ -52,7 +52,11 @@ const PANEL_SECTIONS = ["browse", "requests", "messages", "verify", "account"];
 
 let currentVerification = { verified: true, nationality_confirmed: true };
 /** The tick shown next to a verified customer's name. */
-const verifiedTick = (v) => v?.verified ? `<span class="verified-badge" title="Identity verified by MKUYU">${icon("check")}<span>Verified</span></span>` : "";
+const SEAL_PATH = "M23.30 12.00 L23.19 12.59 L22.88 13.14 L22.41 13.65 L21.86 14.10 L21.32 14.50 L20.85 14.88 L20.52 15.27 L20.34 15.71 L20.30 16.23 L20.36 16.82 L20.46 17.49 L20.53 18.20 L20.50 18.88 L20.33 19.50 L19.99 19.99 L19.50 20.33 L18.88 20.50 L18.20 20.53 L17.49 20.46 L16.83 20.36 L16.23 20.30 L15.71 20.34 L15.27 20.52 L14.88 20.85 L14.50 21.32 L14.10 21.86 L13.65 22.41 L13.14 22.88 L12.59 23.19 L12.00 23.30 L11.41 23.19 L10.86 22.88 L10.35 22.41 L9.90 21.86 L9.50 21.32 L9.12 20.85 L8.73 20.52 L8.29 20.34 L7.77 20.30 L7.18 20.36 L6.51 20.46 L5.80 20.53 L5.12 20.50 L4.50 20.33 L4.01 19.99 L3.67 19.50 L3.50 18.88 L3.47 18.20 L3.54 17.49 L3.64 16.82 L3.70 16.23 L3.66 15.71 L3.48 15.27 L3.15 14.88 L2.68 14.50 L2.14 14.10 L1.59 13.65 L1.12 13.14 L0.81 12.59 L0.70 12.00 L0.81 11.41 L1.12 10.86 L1.59 10.35 L2.14 9.90 L2.68 9.50 L3.15 9.12 L3.48 8.73 L3.66 8.29 L3.70 7.77 L3.64 7.17 L3.54 6.51 L3.47 5.80 L3.50 5.12 L3.67 4.50 L4.01 4.01 L4.50 3.67 L5.12 3.50 L5.80 3.47 L6.51 3.54 L7.17 3.64 L7.77 3.70 L8.29 3.66 L8.73 3.48 L9.12 3.15 L9.50 2.68 L9.90 2.14 L10.35 1.59 L10.86 1.12 L11.41 0.81 L12.00 0.70 L12.59 0.81 L13.14 1.12 L13.65 1.59 L14.10 2.14 L14.50 2.68 L14.88 3.15 L15.27 3.48 L15.71 3.66 L16.23 3.70 L16.83 3.64 L17.49 3.54 L18.20 3.47 L18.88 3.50 L19.50 3.67 L19.99 4.01 L20.33 4.50 L20.50 5.12 L20.53 5.80 L20.46 6.51 L20.36 7.17 L20.30 7.77 L20.34 8.29 L20.52 8.73 L20.85 9.12 L21.32 9.50 L21.86 9.90 L22.41 10.35 L22.88 10.86 L23.19 11.41Z";
+/** The green verified seal, like the tick next to a verified account name. */
+const verifiedTick = (v, { label = true } = {}) => v?.verified
+  ? `<span class="verified-badge" role="img" aria-label="Verified" title="Identity verified by MKUYU"><svg class="verified-seal" viewBox="0 0 24 24" aria-hidden="true"><path d="${SEAL_PATH}" fill="currentColor"/><path d="M7.4 12.4l3.1 3.1 6.1-6.5" fill="none" stroke="#fff" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/></svg>${label ? `<span class="verified-text">Verified</span>` : ""}</span>`
+  : "";
 
 function render(host, data, demoKey) {
   currentVerification = data.verification || { verified: true, nationality_confirmed: true };
@@ -78,7 +82,7 @@ function render(host, data, demoKey) {
     <div class="portal">
       <aside class="portal-side">
         <nav class="portal-nav" aria-label="Portal sections">
-          <div class="portal-brand"><span class="avatar" aria-hidden="true">${escapeHtml(initials(name))}</span><div><strong>${escapeHtml(name)}</strong>${verifiedTick(data.verification || { verified: true })}<span>${data.diaspora ? "Diaspora customer" : "Customer"}${data.customer?.country ? ` · ${escapeHtml(data.customer.country)}` : ""}</span></div></div>
+          <div class="portal-brand"><span class="avatar" aria-hidden="true">${escapeHtml(initials(name))}</span><div><strong>${escapeHtml(name)}${verifiedTick(data.verification || { verified: true }, { label: false })}</strong><span>${data.diaspora ? "Diaspora customer" : "Customer"}${data.customer?.country ? ` · ${escapeHtml(data.customer.country)}` : ""}</span></div></div>
           ${groups.filter((g) => g.tabs.length).map((g) => `<div class="portal-nav-group"><span class="portal-nav-label">${escapeHtml(g.label)}</span>
             ${g.tabs.map((tab) => `<a href="#${tab.key}" id="tab-${tab.key}" data-tab="${tab.key}" class="${tab.alert ? "is-alert" : ""}">
               ${icon(tab.icon)}<span>${escapeHtml(tab.label)}</span>${tab.count ? `<span class="count">${tab.count}</span>` : tab.alert ? `<span class="dot" aria-label="Action needed"></span>` : ""}</a>`).join("")}</div>`).join("")}
@@ -135,7 +139,7 @@ function fillHeader(data, demoKey) {
   const slot = document.querySelector("[data-portal-user]");
   if (!slot) return;
   const name = data.customer?.name || "";
-  slot.innerHTML = `${name ? `<span class="portal-user"><span class="avatar avatar--small" aria-hidden="true">${escapeHtml(initials(name))}</span><span class="portal-user-name">${escapeHtml(name)}</span>${verifiedTick(data.verification || { verified: true })}</span>` : ""}
+  slot.innerHTML = `${name ? `<span class="portal-user"><span class="avatar avatar--small" aria-hidden="true">${escapeHtml(initials(name))}</span><span class="portal-user-name">${escapeHtml(name)}</span>${verifiedTick(data.verification || { verified: true }, { label: false })}</span>` : ""}
     ${ACCOUNTS_LIVE && !demoKey ? `<button type="button" class="btn btn--soft btn--small" data-logout>${icon("lock")}<span>Log out</span></button>` : ""}`;
   slot.querySelector("[data-logout]")?.addEventListener("click", async (event) => {
     event.currentTarget.disabled = true;
