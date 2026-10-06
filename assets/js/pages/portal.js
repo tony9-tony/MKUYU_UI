@@ -508,12 +508,39 @@ function chatThreadHtml(messages, desk) {
   return html;
 }
 
+
+/* A phone ring: two soft tones every two seconds, only while a call is waiting.
+   Browsers allow sound only after the person has clicked or typed once on the page. */
+let ringCtx = null, ringTimer = null, ringTitle = null;
+function unlockRing() { try { ringCtx = ringCtx || new (window.AudioContext || window.webkitAudioContext)(); ringCtx.resume?.(); } catch { /* no audio */ } }
+["pointerdown", "keydown"].forEach((name) => document.addEventListener(name, unlockRing, { once: true, passive: true }));
+function ringBeep() {
+  if (!ringCtx || ringCtx.state !== "running") return;
+  [0, 0.28].forEach((delay, i) => {
+    const osc = ringCtx.createOscillator(), gain = ringCtx.createGain(), t = ringCtx.currentTime + delay;
+    osc.frequency.value = i ? 523 : 659; osc.type = "sine";
+    gain.gain.setValueAtTime(0.0001, t); gain.gain.exponentialRampToValueAtTime(0.18, t + 0.03); gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.24);
+    osc.connect(gain).connect(ringCtx.destination); osc.start(t); osc.stop(t + 0.26);
+  });
+}
+function startRing(label) {
+  if (ringTitle === null) ringTitle = document.title;
+  document.title = `📞 ${label}`;
+  if (ringTimer) return;
+  ringBeep(); ringTimer = setInterval(ringBeep, 2000);
+}
+function stopRing() {
+  clearInterval(ringTimer); ringTimer = null;
+  if (ringTitle !== null) { document.title = ringTitle; ringTitle = null; }
+}
+
 /** The video call banner: someone is calling, you are calling, or a call is going on. */
 let currentCallId = null;
 function renderCallBanner(call) {
   let bar = document.getElementById("call-banner");
-  if (!call) { bar?.remove(); currentCallId = null; return; }
+  if (!call) { bar?.remove(); currentCallId = null; stopRing(); return; }
   const ringingForMe = call.status === "ringing" && !call.mine;
+  if (ringingForMe) startRing("Diaspora Desk is calling you"); else stopRing();
   const key = `${call.id}:${call.status}`;
   if (bar && bar.dataset.key === key) return;
   if (!bar) { bar = document.createElement("div"); bar.id = "call-banner"; bar.setAttribute("role", "alert"); document.body.appendChild(bar); }
