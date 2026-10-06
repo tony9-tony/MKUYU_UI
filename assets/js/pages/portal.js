@@ -5,7 +5,7 @@
    Every stage, amount and document comes from the internal system; the portal
    only presents it. Where a business rule is still undecided, the data says
    so (see DEMO_PORTALS in data.js) instead of the portal inventing detail. */
-import { ACCOUNTS_LIVE, DEMO_PORTAL_KEYS, canRequest, currentCustomer, getAgreement, signAgreement, customerFileUrl, demoPortal, getPortal, getMessages, getPortalRequests, getVerification, sendMessage, listProperties, logOut, requestCode, resetPassword, submitPortalRequest, uploadVerificationDocument } from "../api.js";
+import { ACCOUNTS_LIVE, DEMO_PORTAL_KEYS, canRequest, currentCustomer, getAgreement, signAgreement, customerFileUrl, demoPortal, getPortal, getMessages, getPortalRequests, getVerification, pollMessages, sendMessage, listProperties, logOut, requestCode, resetPassword, submitPortalRequest, uploadVerificationDocument } from "../api.js";
 import { escapeHtml, formatMoney, icon, initReveal, photoPlaceholder } from "../ui.js";
 
 const SECTIONS = {
@@ -96,6 +96,7 @@ function render(host, data, demoKey) {
     </nav>`;
 
   const panel = host.querySelector("#panel");
+  watchMessagesBadge(demoKey);
   const show = (key, { scroll = true } = {}) => {
     if (!keys.includes(key)) key = "overview";
     host.querySelectorAll("[data-tab]").forEach((a) => {
@@ -434,6 +435,58 @@ async function verifyPanel(panel, show, { uploaded = null } = {}) {
 
 /* ---------------- Messages with the Diaspora Desk ---------------- */
 let messagesTimer = null;
+let badgeTimer = null;
+
+const dayLabel = (iso) => {
+  const d = new Date(iso);
+  const start = (x) => new Date(x.getFullYear(), x.getMonth(), x.getDate()).getTime();
+  const diff = Math.round((start(new Date()) - start(d)) / 86400000);
+  return diff === 0 ? "Today" : diff === 1 ? "Yesterday" : d.toLocaleDateString([], { day: "numeric", month: "long", year: d.getFullYear() === new Date().getFullYear() ? undefined : "numeric" });
+};
+const clock = (iso) => new Date(iso).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+const sameDay = (a, b) => new Date(a).toDateString() === new Date(b).toDateString();
+
+/** One message bubble. Consecutive messages from the same side are grouped. */
+function chatBubble(m, prev, next) {
+  const mine = m.from !== "staff";
+  const groupedWithPrev = prev && prev.from === m.from && sameDay(prev.at, m.at) && new Date(m.at) - new Date(prev.at) < 5 * 60000;
+  const groupedWithNext = next && next.from === m.from && sameDay(next.at, m.at) && new Date(next.at) - new Date(m.at) < 5 * 60000;
+  const tick = mine ? `<span class="chat-tick${m.read ? " is-seen" : ""}" title="${m.read ? "Seen by the desk" : "Sent"}">${m.pending ? "…" : m.read ? "✓✓" : "✓"}</span>` : "";
+  return `<div class="chat-row ${mine ? "is-me" : "is-desk"}${groupedWithPrev ? " is-grouped" : ""}${groupedWithNext ? " is-chained" : ""}" data-mid="${m.id}">
+    ${!mine ? `<span class="chat-avatar${groupedWithNext ? " is-hidden" : ""}" aria-hidden="true">${escapeHtml(initials(m.name || "Desk"))}</span>` : ""}
+    <div class="chat-bubble">${!mine && !groupedWithPrev ? `<span class="chat-who">${escapeHtml(m.name || "Diaspora Desk")}</span>` : ""}<span class="chat-text">${escapeHtml(m.body).replace(/\n/g, "<br>")}</span>
+      <span class="chat-time">${escapeHtml(clock(m.at))}${tick}</span></div></div>`;
+}
+
+function chatThreadHtml(messages) {
+  if (!messages.length) return `<div class="chat-empty"><span class="chat-empty-ic">${icon("chat")}</span><strong>Start the conversation</strong><span>Ask about a property, your documents or your agreement. The Diaspora Desk answers here.</span></div>`;
+  let html = "";
+  messages.forEach((m, i) => {
+    if (!i || !sameDay(messages[i - 1].at, m.at)) html += `<div class="chat-day"><span>${escapeHtml(dayLabel(m.at))}</span></div>`;
+    html += chatBubble(m, messages[i - 1], messages[i + 1]);
+  });
+  return html;
+}
+
+/** The unread count on the Messages tab, kept fresh while the portal is open. */
+function setMessagesBadge(n) {
+  document.querySelectorAll('[data-tab="messages"]').forEach((a) => {
+    let count = a.querySelector(".count");
+    if (n > 0) {
+      if (!count) { count = document.createElement("span"); count.className = "count"; a.appendChild(count); }
+      count.textContent = String(n);
+    } else count?.remove();
+  });
+}
+function watchMessagesBadge(demoKey) {
+  clearInterval(badgeTimer);
+  if (demoKey) return;
+  badgeTimer = setInterval(async () => {
+    if (document.hidden || window.location.hash === "#messages") return;
+    try { setMessagesBadge((await pollMessages(0, true)).unread || 0); } catch { /* next time */ }
+  }, 10000);
+}
+
 async function messagesPanel(panel, data, demoKey) {
   clearInterval(messagesTimer);
   const deskName = data.desk?.name;
@@ -442,49 +495,86 @@ async function messagesPanel(panel, data, demoKey) {
       <p class="lede" style="margin:0">In a real account you write here and the desk answers in the same place.</p></div>`;
     return;
   }
-  const draw = (messages, keepText = "") => {
-    panel.innerHTML = `
-      <div class="portal-greeting"><span class="eyebrow">Messages</span><h1>Talk to the Diaspora Desk</h1>
-        <p class="lede" style="margin:0">Ask anything about a property, your documents or your agreement${deskName ? `. ${escapeHtml(deskName)} and the team` : ". The team"} will answer here, and we e-mail you when they do.</p></div>
-      <section class="msg-box" data-messages>
-        <div class="msg-thread" data-thread role="log" aria-live="polite">${messages.length ? messages.map((m) => `<div class="msg ${m.from === "staff" ? "msg--desk" : "msg--me"}"><div class="msg-bubble">${escapeHtml(m.body).replace(/\n/g, "<br>")}</div><span class="msg-meta">${escapeHtml(m.name)} · ${escapeHtml(new Date(m.at).toLocaleString([], { dateStyle: "medium", timeStyle: "short" }))}</span></div>`).join("") : `<p class="field-hint">No messages yet. Write your first question below.</p>`}</div>
-        <form class="msg-form" data-send novalidate>
-          <label class="visually-hidden" for="msg-text">Your message</label>
-          <textarea id="msg-text" name="body" rows="3" maxlength="2000" placeholder="Write to the Diaspora Desk…"></textarea>
-          <button class="btn btn--primary" type="submit">Send</button>
-          <div data-result hidden role="status" aria-live="polite"></div>
-        </form>
-      </section>`;
-    const thread = panel.querySelector("[data-thread]");
-    thread.scrollTop = thread.scrollHeight;
-    const form = panel.querySelector("[data-send]");
-    form.body.value = keepText;
-    form.addEventListener("submit", async (event) => {
-      event.preventDefault();
-      const text = form.body.value.trim();
-      if (!text) return;
-      const button = form.querySelector("button");
-      button.disabled = true;
-      try { await sendMessage(text); draw((await getMessages()).messages); panel.querySelector("#msg-text")?.focus(); }
-      catch (error) {
-        const out = form.querySelector("[data-result]");
-        out.hidden = false;
-        out.innerHTML = `<p class="notice">${icon("info")}<span>${escapeHtml(error.message || "Could not send. Try again.")}</span></p>`;
-        button.disabled = false;
-      }
-    });
+  let messages = (await getMessages()).messages;
+  setMessagesBadge(0);
+  panel.innerHTML = `
+    <section class="chat" data-messages>
+      <header class="chat-head">
+        <span class="chat-avatar chat-avatar--lg" aria-hidden="true">${escapeHtml(initials(deskName || "Diaspora Desk"))}</span>
+        <div><strong>Diaspora Desk</strong><span>${deskName ? `${escapeHtml(deskName)} and the team` : "MKUYU's team for customers abroad"} · answers here and by e-mail</span></div>
+      </header>
+      <div class="chat-thread" data-thread role="log" aria-live="polite" tabindex="0"></div>
+      <button type="button" class="chat-jump" data-jump hidden aria-label="Go to the newest message">${icon("arrow")}<span>New messages</span></button>
+      <form class="chat-composer" data-send novalidate>
+        <label class="visually-hidden" for="msg-text">Your message</label>
+        <textarea id="msg-text" name="body" rows="1" maxlength="2000" placeholder="Write a message…" autocomplete="off"></textarea>
+        <button class="chat-send" type="submit" aria-label="Send message">${icon("send")}</button>
+      </form>
+      <p class="chat-error" data-error hidden role="alert"></p>
+    </section>`;
+  const thread = panel.querySelector("[data-thread]");
+  const jump = panel.querySelector("[data-jump]");
+  const form = panel.querySelector("[data-send]");
+  const field = form.body;
+  const error = panel.querySelector("[data-error]");
+  const nearBottom = () => thread.scrollHeight - thread.scrollTop - thread.clientHeight < 90;
+  const toBottom = () => { thread.scrollTop = thread.scrollHeight; jump.hidden = true; };
+  const paint = (stick = true) => {
+    const keep = nearBottom();
+    thread.innerHTML = chatThreadHtml(messages);
+    if (stick || keep) toBottom(); else jump.hidden = false;
   };
-  draw((await getMessages()).messages);
-  // New replies appear by themselves while this page is open; typing is never lost.
-  messagesTimer = setInterval(async () => {
-    const box = panel.querySelector("[data-messages]");
-    if (!box) { clearInterval(messagesTimer); return; }
+  paint(true);
+  thread.addEventListener("scroll", () => { if (nearBottom()) jump.hidden = true; });
+  jump.addEventListener("click", toBottom);
+
+  // The box grows with the text, up to a limit.
+  const grow = () => { field.style.height = "auto"; field.style.height = `${Math.min(field.scrollHeight, 140)}px`; };
+  field.addEventListener("input", grow);
+  // Enter sends; Shift+Enter makes a new line.
+  field.addEventListener("keydown", (event) => { if (event.key === "Enter" && !event.shiftKey && !event.isComposing) { event.preventDefault(); form.requestSubmit(); } });
+
+  let sending = false;
+  form.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const text = field.value.trim();
+    if (!text || sending) return;
+    sending = true;
+    error.hidden = true;
+    const temp = { id: `tmp${Date.now()}`, from: "customer", name: "You", body: text, at: new Date().toISOString(), read: false, pending: true };
+    messages = [...messages, temp];
+    field.value = ""; grow(); paint(true);
     try {
-      const text = panel.querySelector("#msg-text")?.value || "";
-      const fresh = (await getMessages()).messages;
-      if (fresh.length !== box.querySelectorAll(".msg").length) draw(fresh, text);
+      const saved = (await sendMessage(text)).message;
+      messages = messages.map((m) => (m === temp ? saved : m));
+    } catch (err) {
+      messages = messages.filter((m) => m !== temp);
+      field.value = text; grow();
+      error.hidden = false; error.textContent = err.message || "Could not send. Please try again.";
+    }
+    sending = false;
+    paint(true);
+    field.focus();
+  });
+
+  // New replies appear by themselves: the page asks for what is new every few seconds.
+  const tick = async () => {
+    if (!panel.querySelector("[data-messages]")) { clearInterval(messagesTimer); return; }
+    if (document.hidden) return;
+    try {
+      const last = messages.filter((m) => !String(m.id).startsWith("tmp")).at(-1)?.id || 0;
+      const got = await pollMessages(last);
+      let changed = false;
+      const have = new Set(messages.map((m) => m.id));
+      const fresh = (got.messages || []).filter((m) => !have.has(m.id));
+      if (fresh.length) { messages = [...messages, ...fresh]; changed = true; }
+      const seen = new Set(got.seen || []);
+      messages = messages.map((m) => (m.from !== "staff" && !m.read && seen.has(m.id) ? (changed = true, { ...m, read: true }) : m));
+      if (changed) paint(false);
     } catch { /* try again on the next tick */ }
-  }, 20000);
+  };
+  messagesTimer = setInterval(tick, 3000);
+  field.focus({ preventScroll: true });
 }
 
 /* ---------------- Browse & request (inside the portal) ---------------- */

@@ -273,6 +273,9 @@ export async function signAgreement(contractId, { fullName, password, confirmati
 export async function getMessages() {
   return request("/customer/messages");
 }
+export async function pollMessages(after = 0, peek = false) {
+  return request(`/customer/messages/poll?after=${Number(after) || 0}${peek ? "&peek=1" : ""}`);
+}
 export async function sendMessage(body) {
   return request("/customer/messages", { method: "POST", body: { body } });
 }
