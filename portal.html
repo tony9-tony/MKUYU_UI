@@ -31,33 +31,21 @@
   <meta property="og:image" content="assets/images/brand/mkuyu-logo.png" />
   <script type="module" src="assets/js/app.js"></script>
 </head>
-<body data-page="portal">
+<body data-page="portal" class="is-portal">
   <a class="skip-link" href="#main">Skip to content</a>
 
-  <header class="site-header">
+  <header class="site-header portal-header">
     <div class="wrap header-inner">
-      <a class="brand" href="index.html" aria-label="MKUYU Africa, home">
+      <a class="brand" href="portal.html#overview" aria-label="MKUYU Diaspora Portal, overview">
         <img class="logo" src="assets/images/brand/mkuyu-logo-192.png" alt="" width="46" height="46" />
-        <span class="brand-text"><span class="brand-name">MKUYU AFRICA</span><span class="brand-sub">Property · Tanzania</span></span>
+        <span class="brand-text"><span class="brand-name">MKUYU AFRICA</span><span class="brand-sub">Diaspora Portal</span></span>
       </a>
-      <nav class="nav" id="primary-nav" aria-label="Primary">
-        <a href="index.html">Home</a>
-        <a href="rent.html" class="nav-service">Rent</a>
-        <a href="buy.html" class="nav-service">Buy</a>
-        <a href="sell.html" class="nav-service">Sell</a>
-        <span class="nav-divider" aria-hidden="true"></span>
-        <a href="projects.html">Projects</a>
-        <a href="about.html">About</a>
-        <a href="contact.html">Contact</a>
-      </nav>
-      <div class="header-cta">
-        <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="primary-nav" aria-label="Open navigation"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
-      </div>
+      <div class="header-cta portal-header-user" data-portal-user></div>
     </div>
   </header>
 
   <main id="main">
-    <section class="section" style="padding-top:2.5rem">
+    <section class="section portal-section">
       <div class="wrap">
         <div id="portal-host" aria-live="polite"></div>
         <noscript><p class="notice"><strong>Note:</strong>&nbsp;the customer portal needs JavaScript.</p></noscript>
@@ -65,36 +53,10 @@
     </section>
   </main>
 
-  <footer class="site-footer">
+  <footer class="portal-footer">
     <div class="wrap">
-      <div class="footer-grid">
-        <div>
-          <img class="logo" src="assets/images/brand/mkuyu-logo-192.png" alt="MKUYU" width="64" height="64" loading="lazy" />
-          <p class="brand-name" style="margin:0 0 .6rem">MKUYU AFRICA</p>
-          <p>Quality homes, clear titles and instalment plans that make ownership genuinely reachable across Tanzania.</p>
-        </div>
-        <div>
-          <h4>Services</h4>
-          <ul>
-            <li><a href="rent.html">Rent a property</a></li>
-            <li><a href="buy.html">Buy a property</a></li>
-            <li><a href="sell.html">Sell your property</a></li>
-          </ul>
-        </div>
-        <div>
-          <h4>Company</h4>
-          <ul>
-            <li><a href="projects.html">Projects</a></li>
-            <li><a href="about.html">About us</a></li>
-            <li><a href="contact.html">Contact</a></li>
-          </ul>
-        </div>
-      </div>
-      <div class="footer-bottom">
-        <span>© <span data-year>2026</span> MKUYU Africa. All rights reserved.</span>
-        <span>Dar es Salaam, Tanzania</span>
-      </div>
-      <p class="disclaimer"><strong>Preview build.</strong> Properties and projects shown here are sample records used to demonstrate the design, not genuine MKUYU listings. Always verify ownership documents, contract terms and payment conditions before committing to any property.</p>
+      <span>© <span data-year>2026</span> MKUYU Africa · Dar es Salaam, Tanzania</span>
+      <span>Your information is private: only you and MKUYU's Diaspora Desk can see it.</span>
     </div>
   </footer>
 </body>

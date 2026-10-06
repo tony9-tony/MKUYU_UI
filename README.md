@@ -47,8 +47,9 @@ points it at the internal system (`API_BASE`, locally
 | Contact enquiries | **Live**: become Leads (`ONLINE_ENQUIRIES = true`) |
 | Sell submissions (no account: property type, location, size, asking price, contact) | **Live**: `POST /public/sell`; each arrives under **Requests** as a Sell request |
 | Seller portal | Not needed: a seller's agreement is a **Sell contract** made by Sales in the internal system. `portal.html?demo=...` is only a preview |
+| **Diaspora customer portal** | **Live**: only diaspora clients that Sales invited (internal system → client → *Diaspora client* → *Invite to the portal*). They sign in on `login.html` ("Diaspora login" in the menu) with a 6-digit code e-mailed to them, and see their contracts, payments, receipts, signed agreement and construction photos |
 
-There is **no Log in button**: renting, buying and selling need no account.
+Renting, buying and selling need no account. The only login is **Diaspora login**, for diaspora customers MKUYU has invited; there is no self sign-up (`signup.html` sends people to `login.html`).
 
 Set `API_BASE = ""` to run on the clearly labelled sample catalogue in
 `assets/js/data.js` instead. For testing against another local server, a
@@ -149,8 +150,8 @@ The endpoints the internal system must provide are specified in
 | Sell | `sell.html` | Submit your own property for Sales review (no account; photos are collected by the team later) |
 | Property details | `property.html?p=<slug>` | Gallery, facts, features, live availability, Rent/Buy switch when both apply |
 | Request | `request.html?p=<slug>&service=rent\|buy` | No account: name, phone, email, budget and how to be contacted |
-| Log in / Sign up | `login.html`, `signup.html` | Not linked from the site (no accounts today); kept for a possible future customer account. Staff use the internal system |
-| Customer Portal | `portal.html` | Samples to review: `?demo=rent-sell`, `?demo=buy`, `?demo=new` |
+| Diaspora login | `login.html` | E-mail, then the 6-digit code sent there. `signup.html` redirects here. Staff use the internal system |
+| Customer Portal | `portal.html` | The signed-in diaspora customer's own contracts. Samples still open with `?demo=rent-sell`, `?demo=buy`, `?demo=new` |
 | Projects, About, Contact | `projects.html`, `about.html`, `contact.html` | |
 | (old link) | `properties.html` | Redirects to Buy |
 

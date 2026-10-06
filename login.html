@@ -49,6 +49,7 @@
         <a href="projects.html">Projects</a>
         <a href="about.html">About</a>
         <a href="contact.html">Contact</a>
+        <a href="login.html" class="nav-diaspora">Diaspora login</a>
       </nav>
       <div class="header-cta">
         <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="primary-nav" aria-label="Open navigation"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
@@ -58,36 +59,35 @@
 
   <main id="main">
     <div class="auth">
-      <aside class="auth-aside">
+      <aside class="auth-aside auth-aside--photo">
         <img class="logo" src="assets/images/brand/mkuyu-logo-192.png" alt="MKUYU" width="78" height="78" />
-        <span class="eyebrow">One MKUYU account</span>
-        <h2>Rent, buy and sell from one place</h2>
-        <p>Your portal adapts to what you do with MKUYU, and shows every step as our team moves it forward.</p>
+        <span class="eyebrow">Miliki Ardhi Diaspora</span>
+        <h2>Your MKUYU property, wherever you live</h2>
+        <p>For MKUYU customers living abroad. Follow every step yourself, without relying on anyone to check for you.</p>
         <ul>
-          <li><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="15" r="4"/><path d="M11 12l9-9M16 7l3 3M14 9l2 2"/></svg><span>Follow your rental and rent payments</span></li>
-          <li><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 11l8-7 8 7v9a1 1 0 0 1-1 1h-4v-6H9v6H5a1 1 0 0 1-1-1z"/></svg><span>Track your purchase, contract and instalments</span></li>
-          <li><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l4-4 5 2 5-2 4 4-8 8zM8 13l3 3M11 11l3 3"/></svg><span>See how the sale of your property is going</span></li>
+          <li><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 11l8-7 8 7v9a1 1 0 0 1-1 1h-4v-6H9v6H5a1 1 0 0 1-1-1z"/></svg><span>Your contract and its status</span></li>
+          <li><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7h18v10H3zM3 11h18"/></svg><span>Every payment, receipt, balance and next installment</span></li>
+          <li><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7h4l2-3h6l2 3h4v13H3z"/><circle cx="12" cy="13" r="4"/></svg><span>Photos of the construction progress</span></li>
         </ul>
       </aside>
       <div class="auth-main">
         <div class="auth-card">
           <img class="logo" src="assets/images/brand/mkuyu-logo-192.png" alt="MKUYU" width="56" height="56" />
-          <h1>Welcome back</h1>
-          <p class="lede">Log in to follow your requests, contracts and payments.</p>
+          <h1>Diaspora login</h1>
+          <p class="lede">For MKUYU customers living abroad.</p>
           <form id="login-form" class="panel" novalidate>
-            <div class="field">
-              <label for="login-email">Email</label>
-              <input id="login-email" name="email" type="email" required autocomplete="email" />
-            </div>
-            <div class="field">
-              <label for="login-password">Password</label>
-              <input id="login-password" name="password" type="password" required autocomplete="current-password" />
-            </div>
-            <button class="btn btn--primary btn--block" type="submit">Log in</button>
+            <div class="field"><label for="login-email" data-id-label>Username or e-mail</label><input id="login-email" name="email" required autocomplete="username" /></div>
+            <div class="field" data-mode="password"><label for="login-password">Password</label><input id="login-password" name="password" type="password" autocomplete="current-password" /></div>
+            <div class="field" data-mode="code" hidden><label for="login-code">6-digit code from your e-mail</label><input id="login-code" name="code" inputmode="numeric" maxlength="6" autocomplete="one-time-code" /></div>
+            <div class="field" data-mode="newpass" hidden><label for="login-newpass">New password</label><input id="login-newpass" name="newpass" type="password" autocomplete="new-password" /><p class="field-hint">At least 8 characters, with letters and numbers.</p></div>
+            <button class="btn btn--primary btn--block" type="submit">Sign in</button>
+            <p style="display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap;margin:.7rem 0 0;font-size:.88rem">
+              <a href="#" data-switch="forgot">Forgot password or first time here?</a><a href="#" data-switch="password" hidden>Back to sign in</a>
+            </p>
             <div id="login-result" hidden role="status" aria-live="polite"></div>
           </form>
-          <p class="auth-switch">New to MKUYU? <a href="signup.html" data-keep-next>Create a free account</a></p>
-          <p class="auth-switch" style="margin-top:.4rem;font-size:.82rem">MKUYU staff sign in through the internal system, not here.</p>
+          <p class="auth-switch">New here and living abroad? <a href="signup.html">Create a diaspora account</a></p>
+          <p class="auth-switch" style="margin-top:.4rem;font-size:.82rem">Customers in Tanzania do not need an account. MKUYU staff sign in through the internal system, not here.</p>
         </div>
       </div>
     </div>

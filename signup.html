@@ -49,6 +49,7 @@
         <a href="projects.html">Projects</a>
         <a href="about.html">About</a>
         <a href="contact.html">Contact</a>
+        <a href="login.html" class="nav-diaspora">Diaspora login</a>
       </nav>
       <div class="header-cta">
         <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="primary-nav" aria-label="Open navigation"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
@@ -58,48 +59,52 @@
 
   <main id="main">
     <div class="auth">
-      <aside class="auth-aside">
+      <aside class="auth-aside auth-aside--photo">
         <img class="logo" src="assets/images/brand/mkuyu-logo-192.png" alt="MKUYU" width="78" height="78" />
-        <span class="eyebrow">One MKUYU account</span>
-        <h2>Rent, buy and sell from one place</h2>
-        <p>Your portal adapts to what you do with MKUYU, and shows every step as our team moves it forward.</p>
+        <span class="eyebrow">Miliki Ardhi Diaspora</span>
+        <h2>Own property at home while you live abroad</h2>
+        <p>Browse and request any MKUYU property from abroad. Once verified, follow your contract, payments and construction here.</p>
         <ul>
-          <li><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="15" r="4"/><path d="M11 12l9-9M16 7l3 3M14 9l2 2"/></svg><span>Follow your rental and rent payments</span></li>
-          <li><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 11l8-7 8 7v9a1 1 0 0 1-1 1h-4v-6H9v6H5a1 1 0 0 1-1-1z"/></svg><span>Track your purchase, contract and instalments</span></li>
-          <li><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l4-4 5 2 5-2 4 4-8 8zM8 13l3 3M11 11l3 3"/></svg><span>See how the sale of your property is going</span></li>
+          <li><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg><span>A dedicated Diaspora Desk that answers by e-mail or WhatsApp</span></li>
+          <li><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg><span>Your money goes to MKUYU's bank account, never through relatives</span></li>
+          <li><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg><span>Receipts and construction photos in one place</span></li>
         </ul>
       </aside>
       <div class="auth-main">
         <div class="auth-card">
           <img class="logo" src="assets/images/brand/mkuyu-logo-192.png" alt="MKUYU" width="56" height="56" />
-          <h1>Create your account</h1>
-          <p class="lede">One free account for renting, buying and selling.</p>
-          <form id="signup-form" class="panel" novalidate>
-            <div class="field">
-              <label for="signup-name">Full name</label>
-              <input id="signup-name" name="full_name" required autocomplete="name" maxlength="80" />
+          <h1>Diaspora sign-up</h1>
+          <p class="lede">For people living outside Tanzania. Three short steps.</p>
+          <form id="signup-form" class="panel signup-wizard" method="post" novalidate>
+            <ol class="wizard-steps" aria-label="Sign-up steps">
+              <li data-dot="1" class="is-current"><span>1</span>You</li>
+              <li data-dot="2"><span>2</span>Country</li>
+              <li data-dot="3"><span>3</span>Password</li>
+            </ol>
+            <div data-step="1">
+              <div class="field"><label for="signup-name">Full name (as in your passport)</label><input id="signup-name" name="name" required autocomplete="name" maxlength="120" /></div>
+              <div class="field"><label for="signup-email">E-mail</label><input id="signup-email" name="email" type="email" required autocomplete="email" /></div>
+              <div class="field"><label for="signup-username">Username</label><input id="signup-username" name="username" required minlength="3" maxlength="30" autocomplete="username" pattern="[A-Za-z0-9][A-Za-z0-9._\-]{2,29}" /><p class="field-hint">You sign in with it (or your e-mail).</p></div>
             </div>
-            <div class="field">
-              <label for="signup-email">Email</label>
-              <input id="signup-email" name="email" type="email" required autocomplete="email" />
+            <div data-step="2" hidden>
+              <div class="field"><label for="signup-nationality">Nationality</label><select id="signup-nationality" name="nationality" required><option value="">Choose…</option></select>
+                <p class="field-hint">Legal confirms it from your documents.</p></div>
+              <div class="field"><label for="signup-residence">Country where you live</label><select id="signup-residence" name="residence" required><option value="">Choose…</option></select></div>
+              <div class="field"><label for="signup-phone">Phone / WhatsApp</label><input id="signup-phone" name="phone" type="tel" required autocomplete="tel" placeholder="Choose your country first" /><p class="field-hint" data-phone-hint>The country code is filled in from the country where you live.</p></div>
             </div>
-            <div class="field">
-              <label for="signup-phone">Phone</label>
-              <input id="signup-phone" name="phone" type="tel" required autocomplete="tel" />
+            <div data-step="3" hidden>
+              <div class="field"><label for="signup-password">Password</label><input id="signup-password" name="password" type="password" required minlength="8" autocomplete="new-password" /><p class="field-hint">At least 8 characters, with letters and numbers.</p></div>
+              <div class="field"><label for="signup-confirm">Confirm password</label><input id="signup-confirm" name="confirm" type="password" required autocomplete="new-password" /></div>
+              <label class="field" style="display:flex;gap:.5rem;align-items:flex-start"><input type="checkbox" name="accept" required style="margin-top:.3rem" /><span>I agree that MKUYU may contact me and check the identity documents I upload.</span></label>
             </div>
-            <div class="field">
-              <label for="signup-password">Password</label>
-              <input id="signup-password" name="password" type="password" required minlength="8" autocomplete="new-password" />
-              <p class="field-hint">At least 8 characters.</p>
+            <div class="field" data-step="code" hidden><label for="signup-code">6-digit code from your e-mail</label><input id="signup-code" name="code" inputmode="numeric" maxlength="6" autocomplete="one-time-code" /></div>
+            <div class="wizard-actions">
+              <button class="btn btn--soft" type="button" data-back hidden>Back</button>
+              <button class="btn btn--primary" type="submit">Continue</button>
             </div>
-            <div class="field">
-              <label for="signup-confirm">Confirm password</label>
-              <input id="signup-confirm" name="confirm" type="password" required autocomplete="new-password" />
-            </div>
-            <button class="btn btn--primary btn--block" type="submit">Create account</button>
             <div id="signup-result" hidden role="status" aria-live="polite"></div>
           </form>
-          <p class="auth-switch">Already have an account? <a href="login.html" data-keep-next>Log in</a></p>
+          <p class="auth-switch">Already have an account? <a href="login.html">Diaspora login</a></p>
         </div>
       </div>
     </div>

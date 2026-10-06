@@ -33,11 +33,12 @@ function devOverride() {
   } catch { return null; }
 }
 
-/* No customer accounts: Rent, Buy and Sell all work without logging in.
-   A Rent/Buy request or a Sell submission goes straight to Sales in the
-   internal system; a seller's agreement is a Sell contract made there.
-   The sample portal (portal.html?demo=...) is a preview only. */
-export const CUSTOMER_ACCOUNTS = false;
+/* Customer accounts are for DIASPORA customers only (Miliki Ardhi Diaspora).
+   Sales marks a client as diaspora in the internal system and invites them;
+   they sign in on login.html with a one-time code sent to their e-mail, no
+   password. Everyone else still rents, buys and sells without an account.
+   There is no self sign-up. The sample portal (portal.html?demo=...) remains. */
+export const CUSTOMER_ACCOUNTS = true;
 
 /* Rent/Buy requests and Contact enquiries: live, as Leads for Sales. */
 export const ONLINE_ENQUIRIES = true;

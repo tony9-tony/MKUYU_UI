@@ -6,7 +6,7 @@
    navigation is real links and every form is a real <form>.
    ========================================================================== */
 
-import { CONNECTED } from "./api.js";
+import { ACCOUNTS_LIVE, CONNECTED, currentCustomer } from "./api.js";
 import { icon, initChrome } from "./ui.js";
 import { initChatbot } from "./chatbot.js";
 
@@ -39,8 +39,11 @@ function previewBar() {
 document.addEventListener("DOMContentLoaded", async () => {
   previewBar();
   initChrome();
-  // The public assistant is on every page; it only reads public information.
-  initChatbot();
+  // The public assistant is on every public page; it only reads public
+  // information. The customer portal has its own Diaspora Desk instead, and
+  // nothing there should lead the customer back out to the public site.
+  if (document.body.dataset.page !== "portal") initChatbot();
+  markSignedIn();
   const page = document.body.dataset.page;
   if (!page) return;
   try {
@@ -50,3 +53,14 @@ document.addEventListener("DOMContentLoaded", async () => {
     console.error(`[mkuyu] the "${page}" page failed to start`, error);
   }
 });
+
+/* A signed-in diaspora customer sees "My portal" in the menu instead of
+   "Diaspora login", so they always find their way back. */
+async function markSignedIn() {
+  if (!ACCOUNTS_LIVE) return;
+  const links = document.querySelectorAll("a.nav-diaspora");
+  if (!links.length) return;
+  const me = await currentCustomer().catch(() => null);
+  if (!me) return;
+  links.forEach((link) => { link.textContent = "My portal"; link.href = "portal.html"; link.classList.add("is-signed-in"); });
+}

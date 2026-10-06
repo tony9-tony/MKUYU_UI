@@ -42,18 +42,35 @@ export class ApiError extends Error {
   }
 }
 
+const REQUEST_TIMEOUT_MS = 30000;
+
 async function request(path, { method = "GET", body } = {}) {
   // Public data is read without cookies; only customer calls carry the session.
-  const init = { method, credentials: path.startsWith("/customer/") ? "include" : "omit", headers: { Accept: "application/json" } };
+  const customer = path.startsWith("/customer/");
+  const init = { method, credentials: customer ? "include" : "omit", headers: { Accept: "application/json" } };
+  // The customer API refuses a state-changing call without this header (CSRF).
+  if (customer) init.headers["X-MKUYU-Customer"] = "1";
   if (body instanceof FormData) init.body = body;
   else if (body !== undefined) {
     init.headers["Content-Type"] = "application/json";
     init.body = JSON.stringify(body);
   }
+  // Never leave a button spinning for ever: if the MKUYU system has not
+  // answered within REQUEST_TIMEOUT_MS, stop and say so.
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+  init.signal = controller.signal;
   let response;
-  try { response = await fetch(`${API_BASE}${path}`, init); }
-  catch { throw new ApiError(0, "The MKUYU system could not be reached. Please check your connection and try again."); }
-  const payload = await response.json().catch(() => ({}));
+  let payload;
+  try {
+    response = await fetch(`${API_BASE}${path}`, init);
+    payload = await response.json().catch(() => ({}));
+  } catch (error) {
+    if (error?.name === "AbortError") throw new ApiError(0, "The MKUYU system is taking too long to answer. Please try again in a moment.");
+    throw new ApiError(0, "The MKUYU system could not be reached. Please check your connection and try again.");
+  } finally {
+    clearTimeout(timer);
+  }
   if (!response.ok) throw new ApiError(response.status, payload.error);
   return payload;
 }
@@ -221,14 +238,76 @@ export async function submitSellRequest({ name, phone, email, preferredContact, 
   } });
 }
 
-export async function signUp(details) {
-  if (!ACCOUNTS_LIVE) throw new NotConnectedError("Creating an account");
+/** Countries for the sign-up form (code, name, dialling code). */
+export async function getCountries() {
+  return request("/customer/countries");
+}
+/** Sign-up step 1: details; a 6-digit code goes to the e-mail. */
+export async function signUpStart(details) {
+  if (!ACCOUNTS_LIVE) throw new NotConnectedError("Signing up");
   return request("/customer/auth/signup", { method: "POST", body: details });
 }
+/** Sign-up step 2: the code. Abroad -> signed in to the portal; Tanzania -> Sales will call. */
+export async function signUpVerify(email, code) {
+  return request("/customer/auth/signup/verify", { method: "POST", body: { email, code } });
+}
+export const signUp = signUpStart;
+/** Sign in with e-mail and password. */
+export async function passwordLogin(identifier, password) {
+  if (!ACCOUNTS_LIVE) throw new NotConnectedError("Signing in");
+  return request("/customer/auth/login", { method: "POST", body: { identifier, password } });
+}
+/** Forgot password: the code from requestCode() plus a new password. */
+export async function resetPassword(email, code, password) {
+  return request("/customer/auth/reset-password", { method: "POST", body: { email, code, password } });
+}
+/** A diaspora agreement to read (text + fingerprint), and its electronic signature. */
+export async function getAgreement(contractId) {
+  return request(`/customer/contracts/${encodeURIComponent(contractId)}/agreement`);
+}
+export async function signAgreement(contractId, { fullName, password, confirmations, fingerprint }) {
+  return request(`/customer/contracts/${encodeURIComponent(contractId)}/sign`, { method: "POST", body: { full_name: fullName, password, confirmations, fingerprint } });
+}
 
-export async function logIn(credentials) {
-  if (!ACCOUNTS_LIVE) throw new NotConnectedError("Logging in");
-  return request("/customer/auth/login", { method: "POST", body: credentials });
+/** Identity check status and uploaded documents. */
+export async function getVerification() {
+  return request("/customer/verification");
+}
+export async function uploadVerificationDocument(kind, file) {
+  const form = new FormData();
+  form.append("kind", kind);
+  form.append("file", file);
+  return request("/customer/verification/documents", { method: "POST", body: form });
+}
+
+/** Step 1 of sign-in: e-mails a 6-digit code (the answer is the same for any address). */
+export async function requestCode(email) {
+  if (!ACCOUNTS_LIVE) throw new NotConnectedError("Signing in");
+  return request("/customer/auth/request-code", { method: "POST", body: { email } });
+}
+
+/** Step 2 of sign-in: the code from the e-mail opens a session (an HttpOnly cookie). */
+export async function verifyCode(email, code) {
+  if (!ACCOUNTS_LIVE) throw new NotConnectedError("Signing in");
+  return request("/customer/auth/verify", { method: "POST", body: { email, code } });
+}
+export const logIn = ({ email, code }) => verifyCode(email, code);
+
+/** A signed-in diaspora customer asks to buy or rent, without re-entering their details. */
+export async function submitPortalRequest({ propertyId, service, budget, preferredContact, message }) {
+  if (!ACCOUNTS_LIVE) throw new NotConnectedError("Sending a request");
+  return request("/customer/requests", { method: "POST", body: { property_id: propertyId, service, budget: budget || null, preferred_contact: preferredContact, message } });
+}
+
+/** The signed-in customer's own requests and where each one stands. */
+export async function getPortalRequests() {
+  if (!ACCOUNTS_LIVE) return [];
+  return request("/customer/requests");
+}
+
+/** Full address of a portal file (receipt, signed agreement, construction photo). */
+export function customerFileUrl(path) {
+  return path && path.startsWith("/customer/") ? `${API_BASE}${path}` : null;
 }
 
 export async function logOut() {
