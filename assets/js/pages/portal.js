@@ -5,7 +5,7 @@
    Every stage, amount and document comes from the internal system; the portal
    only presents it. Where a business rule is still undecided, the data says
    so (see DEMO_PORTALS in data.js) instead of the portal inventing detail. */
-import { ACCOUNTS_LIVE, DEMO_PORTAL_KEYS, canRequest, currentCustomer, getAgreement, signAgreement, customerFileUrl, demoPortal, getPortal, getPortalRequests, getVerification, listProperties, logOut, requestCode, resetPassword, submitPortalRequest, uploadVerificationDocument } from "../api.js";
+import { ACCOUNTS_LIVE, DEMO_PORTAL_KEYS, canRequest, currentCustomer, getAgreement, signAgreement, customerFileUrl, demoPortal, getPortal, getMessages, getPortalRequests, getVerification, sendMessage, listProperties, logOut, requestCode, resetPassword, submitPortalRequest, uploadVerificationDocument } from "../api.js";
 import { escapeHtml, formatMoney, icon, initReveal, photoPlaceholder } from "../ui.js";
 
 const SECTIONS = {
@@ -48,7 +48,7 @@ export default async function portal() {
 /* Everything a customer does happens on this one page. Sections are kept in
    the address (#overview, #buy, #browse…) so the browser's Back button moves
    between sections instead of leaving the portal. */
-const PANEL_SECTIONS = ["browse", "requests", "verify", "account"];
+const PANEL_SECTIONS = ["browse", "requests", "messages", "verify", "account"];
 
 let currentVerification = { verified: true, nationality_confirmed: true };
 /** The tick shown next to a verified customer's name. */
@@ -63,7 +63,8 @@ function render(host, data, demoKey) {
       ...services.map((key) => ({ key, label: SECTIONS[key].label, icon: SECTIONS[key].icon, count: data.services[key].length }))] },
     { label: "Find a property", tabs: [{ key: "browse", label: "Browse & request", icon: "search" },
       { key: "requests", label: "My requests", icon: "file", count: data.requests_open || 0 }] },
-    { label: "Account", tabs: [...(needsVerify ? [{ key: "verify", label: "Verify my identity", icon: "shield", alert: true }] : []),
+    { label: "Account", tabs: [{ key: "messages", label: "Messages", icon: "chat", count: data.messages_unread || 0 },
+      ...(needsVerify ? [{ key: "verify", label: "Verify my identity", icon: "shield", alert: true }] : []),
       { key: "account", label: "My account", icon: "user" }] },
   ];
   const tabs = groups.flatMap((g) => g.tabs);
@@ -106,7 +107,7 @@ function render(host, data, demoKey) {
     };
     if (PANEL_SECTIONS.includes(key)) {
       panel.innerHTML = `<div class="portal-loading" role="status"><span class="spinner" aria-hidden="true"></span>Loading…</div>`;
-      const loaders = { browse: () => browse(panel, demoKey, go, data), verify: () => verifyPanel(panel, go), requests: () => myRequests(panel, demoKey), account: () => accountPanel(panel, data, demoKey, go) };
+      const loaders = { browse: () => browse(panel, demoKey, go, data), verify: () => verifyPanel(panel, go), requests: () => myRequests(panel, demoKey), messages: () => messagesPanel(panel, data, demoKey), account: () => accountPanel(panel, data, demoKey, go) };
       loaders[key]().then(wire).catch((error) => {
         panel.innerHTML = `<div class="empty"><h3>This could not be loaded</h3><p>${escapeHtml(error.message || "Please try again in a moment.")}</p><p><button type="button" class="btn btn--soft btn--small" data-retry>Try again</button></p></div>`;
         panel.querySelector("[data-retry]").addEventListener("click", () => show(key));
@@ -144,7 +145,7 @@ function fillHeader(data, demoKey) {
 }
 
 const initials = (name) => String(name || "").trim().split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0].toUpperCase()).join("") || "M";
-const shortLabel = (tab) => ({ browse: "Browse", requests: "Requests", verify: "Verify", account: "Account" }[tab.key] || tab.label);
+const shortLabel = (tab) => ({ browse: "Browse", requests: "Requests", messages: "Messages", verify: "Verify", account: "Account" }[tab.key] || tab.label);
 
 /** Who to talk to. Always beside the content, so help is never more than a glance away. */
 function deskCard(data) {
@@ -425,6 +426,61 @@ async function verifyPanel(panel, show, { uploaded = null } = {}) {
     }
     catch (error) { out.hidden = false; out.innerHTML = `<p class="notice">${icon("info")}<span>${escapeHtml(error.message || "Upload failed.")}</span></p>`; button.disabled = false; button.textContent = "Upload"; }
   });
+}
+
+/* ---------------- Messages with the Diaspora Desk ---------------- */
+let messagesTimer = null;
+async function messagesPanel(panel, data, demoKey) {
+  clearInterval(messagesTimer);
+  const deskName = data.desk?.name;
+  if (demoKey) {
+    panel.innerHTML = `<div class="portal-greeting"><span class="eyebrow">Messages</span><h1>Talk to the Diaspora Desk</h1>
+      <p class="lede" style="margin:0">In a real account you write here and the desk answers in the same place.</p></div>`;
+    return;
+  }
+  const draw = (messages, keepText = "") => {
+    panel.innerHTML = `
+      <div class="portal-greeting"><span class="eyebrow">Messages</span><h1>Talk to the Diaspora Desk</h1>
+        <p class="lede" style="margin:0">Ask anything about a property, your documents or your agreement${deskName ? `. ${escapeHtml(deskName)} and the team` : ". The team"} will answer here, and we e-mail you when they do.</p></div>
+      <section class="msg-box" data-messages>
+        <div class="msg-thread" data-thread role="log" aria-live="polite">${messages.length ? messages.map((m) => `<div class="msg ${m.from === "staff" ? "msg--desk" : "msg--me"}"><div class="msg-bubble">${escapeHtml(m.body).replace(/\n/g, "<br>")}</div><span class="msg-meta">${escapeHtml(m.name)} · ${escapeHtml(new Date(m.at).toLocaleString([], { dateStyle: "medium", timeStyle: "short" }))}</span></div>`).join("") : `<p class="field-hint">No messages yet. Write your first question below.</p>`}</div>
+        <form class="msg-form" data-send novalidate>
+          <label class="visually-hidden" for="msg-text">Your message</label>
+          <textarea id="msg-text" name="body" rows="3" maxlength="2000" placeholder="Write to the Diaspora Desk…"></textarea>
+          <button class="btn btn--primary" type="submit">Send</button>
+          <div data-result hidden role="status" aria-live="polite"></div>
+        </form>
+      </section>`;
+    const thread = panel.querySelector("[data-thread]");
+    thread.scrollTop = thread.scrollHeight;
+    const form = panel.querySelector("[data-send]");
+    form.body.value = keepText;
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const text = form.body.value.trim();
+      if (!text) return;
+      const button = form.querySelector("button");
+      button.disabled = true;
+      try { await sendMessage(text); draw((await getMessages()).messages); panel.querySelector("#msg-text")?.focus(); }
+      catch (error) {
+        const out = form.querySelector("[data-result]");
+        out.hidden = false;
+        out.innerHTML = `<p class="notice">${icon("info")}<span>${escapeHtml(error.message || "Could not send. Try again.")}</span></p>`;
+        button.disabled = false;
+      }
+    });
+  };
+  draw((await getMessages()).messages);
+  // New replies appear by themselves while this page is open; typing is never lost.
+  messagesTimer = setInterval(async () => {
+    const box = panel.querySelector("[data-messages]");
+    if (!box) { clearInterval(messagesTimer); return; }
+    try {
+      const text = panel.querySelector("#msg-text")?.value || "";
+      const fresh = (await getMessages()).messages;
+      if (fresh.length !== box.querySelectorAll(".msg").length) draw(fresh, text);
+    } catch { /* try again on the next tick */ }
+  }, 20000);
 }
 
 /* ---------------- Browse & request (inside the portal) ---------------- */

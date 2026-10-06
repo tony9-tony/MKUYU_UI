@@ -270,6 +270,12 @@ export async function signAgreement(contractId, { fullName, password, confirmati
 }
 
 /** Identity check status and uploaded documents. */
+export async function getMessages() {
+  return request("/customer/messages");
+}
+export async function sendMessage(body) {
+  return request("/customer/messages", { method: "POST", body: JSON.stringify({ body }) });
+}
 export async function getVerification() {
   return request("/customer/verification");
 }
