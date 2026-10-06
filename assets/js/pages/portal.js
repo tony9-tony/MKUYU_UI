@@ -5,7 +5,7 @@
    Every stage, amount and document comes from the internal system; the portal
    only presents it. Where a business rule is still undecided, the data says
    so (see DEMO_PORTALS in data.js) instead of the portal inventing detail. */
-import { ACCOUNTS_LIVE, DEMO_PORTAL_KEYS, canRequest, currentCustomer, getAgreement, signAgreement, customerFileUrl, demoPortal, getPortal, deleteMessage, editMessage, getMessages, getPortalRequests, getVerification, pollMessages, reactToMessage, sendMessage, sendTyping, listProperties, logOut, requestCode, resetPassword, submitPortalRequest, uploadVerificationDocument } from "../api.js";
+import { setNotifyEmail, ACCOUNTS_LIVE, DEMO_PORTAL_KEYS, canRequest, currentCustomer, getAgreement, signAgreement, customerFileUrl, demoPortal, getPortal, deleteMessage, editMessage, getMessages, getPortalRequests, getVerification, pollMessages, reactToMessage, sendMessage, sendTyping, listProperties, logOut, requestCode, resetPassword, submitPortalRequest, uploadVerificationDocument } from "../api.js";
 import { escapeHtml, formatMoney, icon, initReveal, photoPlaceholder } from "../ui.js";
 
 const SECTIONS = {
@@ -345,6 +345,28 @@ async function openAgreement(section, contractId, refresh) {
 
 /* ---------------- The diaspora journey (overview) ---------------- */
 function diasporaJourney(data, cases) {
+  if (data.journey?.steps?.length) return serverJourney(data, cases);
+  return legacyJourney(data, cases);
+}
+/** The seven steps from verification to keys, worked out by the server from the customer's real records. */
+function serverJourney(data, cases) {
+  const go = {
+    1: ["verify", "Upload documents"], 2: ["browse", "Browse properties"], 3: ["requests", "My requests"],
+    4: [cases.find(({ item }) => item.signing?.required)?.key || null, "Read and sign"], 5: [cases.find(({ item }) => item.payments)?.key || null, "See payments"],
+    6: [cases[0]?.key || null, "Follow the transfer"], 7: [null, ""],
+  };
+  const total = data.journey.steps.length, doneCount = data.journey.steps.filter((s) => s.state === "done").length;
+  return `<section class="journey-steps">
+      <h2 class="panel-subhead">Your way to your property · ${doneCount} of ${total} steps done</h2>
+      <p class="card-meta journey-next">${escapeHtml(data.journey.next)}</p>
+      <ol>${data.journey.steps.map((s) => { const [target, cta] = go[s.key] || []; return `<li class="js-${s.state}">
+        <span class="js-dot">${s.state === "done" ? icon("check") : s.key}</span>
+        <div><strong>${escapeHtml(s.label)}</strong></div>
+        ${s.state === "current" && target ? `<a href="#${target}" class="btn btn--small btn--primary" data-goto="${target}">${escapeHtml(cta)}</a>` : ""}
+      </li>`; }).join("")}</ol>
+    </section>`;
+}
+function legacyJourney(data, cases) {
   const v = data.verification || { status: "verified", verified: true };
   const signing = cases.map(({ item }) => item.signing).filter(Boolean);
   const signed = signing.some((s) => s.signed_at);
@@ -387,9 +409,10 @@ async function verifyPanel(panel, show, { uploaded = null } = {}) {
         .map(([label, state]) => `<li class="tl-${state}"><span class="tl-dot">${state === "done" ? icon("check") : ""}</span><strong>${escapeHtml(label)}</strong></li>`).join("")}
     </ol>
     <section style="margin-top:1.4rem"><h3>Your documents</h3>
-      <ul class="doc-list">${["passport", "residence"].map((kind) => `<li>${icon(have(kind) ? "check" : "file")}<span>${escapeHtml(kinds[kind] || kind)}</span><small>${have(kind) ? `Uploaded${expiryOf(kind) ? ` · expires ${escapeHtml(expiryOf(kind))}` : ""}` : "Needed"}</small></li>`).join("")}
+      <ul class="doc-list">${["passport", "selfie", "residence"].filter((kind) => kinds[kind]).map((kind) => `<li>${icon(have(kind) ? "check" : "file")}<span>${escapeHtml(kinds[kind] || kind)}</span><small>${have(kind) ? `Uploaded${expiryOf(kind) ? ` · expires ${escapeHtml(expiryOf(kind))}` : ""}` : kind === "selfie" ? "Recommended" : "Needed"}</small></li>`).join("")}
         ${(v.documents || []).filter((d) => d.kind === "other").map((d) => `<li>${icon("file")}<span>${escapeHtml(d.name)}</span><small>Other</small></li>`).join("")}</ul>
     </section>
+    ${v.history?.length ? `<section style="margin-top:1.4rem"><h3>History</h3><ol class="history-feed">${v.history.map((h) => `<li><strong>${escapeHtml(h.text)}</strong><small>${escapeHtml(h.date || "")}</small>${h.note ? `<span>${escapeHtml(h.note)}</span>` : ""}</li>`).join("")}</ol></section>` : ""}
     ${uploaded ? `<p class="notice notice--ok" data-uploaded tabindex="-1" style="margin-top:1rem">${icon("check")}<span><strong>${escapeHtml(uploaded)} uploaded.</strong> ${have("passport") && have("residence") ? "All documents are in: our Diaspora Desk will check them and e-mail you." : `Our Diaspora Desk has it. Please also upload your ${have("passport") ? "proof of residence abroad" : "passport (photo page)"} below.`}</span></p>` : ""}
     ${canUpload ? `<form class="panel listing-form" data-upload novalidate style="margin-top:1rem">
       <div class="field"><label>Which document?<select name="kind">${Object.entries(kinds).map(([k, label]) => `<option value="${k}" ${!have("passport") && k === "passport" ? "selected" : !have("residence") && have("passport") && k === "residence" ? "selected" : ""}>${escapeHtml(label)}</option>`).join("")}</select></label></div>
@@ -405,7 +428,7 @@ async function verifyPanel(panel, show, { uploaded = null } = {}) {
     const box = form?.querySelector("[data-expiry]");
     if (!box) return;
     const kind = form.kind.value;
-    box.hidden = kind === "other";
+    box.hidden = kind === "other" || kind === "selfie";
     form.expires_on.required = kind === "passport";
     box.querySelector("label").firstChild.textContent = kind === "residence" ? "Expiry date, if it has one " : "Expiry date shown on the document";
   };
@@ -414,7 +437,7 @@ async function verifyPanel(panel, show, { uploaded = null } = {}) {
   form?.addEventListener("submit", async (event) => {
     event.preventDefault();
     const file = form.file.files[0];
-    if (form.kind.value !== "other" && form.kind.value !== "residence" && !form.expires_on.value) { form.expires_on.focus(); return; }
+    if (form.kind.value === "passport" && !form.expires_on.value) { form.expires_on.focus(); return; }
     const out = form.querySelector("[data-result]");
     if (!file) { out.hidden = false; out.innerHTML = `<p class="notice">${icon("info")}<span>Choose a file first.</span></p>`; return; }
     const button = form.querySelector("button");
@@ -857,6 +880,11 @@ async function accountPanel(panel, data, demoKey, go) {
       <p class="field-hint">To change your name, e-mail or phone, write to your Diaspora Desk: these details are on your contracts, so MKUYU updates them for you.</p>
     </section>
     <section class="account-card">
+      <h2 class="panel-subhead">E-mail notices</h2>
+      <label class="check-row"><input type="checkbox" data-notify ${data.prefs?.notify_email === false ? "" : "checked"}> <span>E-mail me when the Desk replies, a document is checked, Legal updates my property, or a construction update is posted.</span></label>
+      <p class="field-hint" data-notify-result role="status" aria-live="polite"></p>
+    </section>
+    <section class="account-card">
       <h2 class="panel-subhead">Password</h2>
       <p>We send a 6-digit code to <strong>${escapeHtml(c.email || "your e-mail")}</strong>. Enter it here with your new password.</p>
       <div data-pw>
@@ -864,6 +892,12 @@ async function accountPanel(panel, data, demoKey, go) {
       </div>
       <div data-result hidden role="status" aria-live="polite"></div>
     </section>`;
+  panel.querySelector("[data-notify]")?.addEventListener("change", async (event) => {
+    const note = panel.querySelector("[data-notify-result]");
+    if (demoKey) { note.textContent = "Sample portal: nothing is saved."; return; }
+    try { await setNotifyEmail(event.target.checked); note.textContent = event.target.checked ? "You will receive e-mail notices." : "E-mail notices are off. You will still see everything in your portal."; }
+    catch (error) { event.target.checked = !event.target.checked; note.textContent = error.message || "Could not save."; }
+  });
   const box = panel.querySelector("[data-pw]");
   const out = panel.querySelector("[data-result]");
   const say = (kind, text) => { out.hidden = false; out.innerHTML = `<p class="notice ${kind === "ok" ? "notice--ok" : ""}">${icon(kind === "ok" ? "check" : "info")}<span>${escapeHtml(text)}</span></p>`; };
@@ -916,11 +950,44 @@ function caseCard(key, item) {
         <section>${details(key, item)}</section>
       </div>
       ${signingBlock(item.signing)}
+      ${legalBlock(item.legal)}
+      ${transferBlock(item.transfer)}
       ${item.payments ? payments(item.payments) : ""}
+      ${projectBlock(item.project)}
       ${progress(item.updates)}
       ${documents(item.documents)}
     </div>
   </article>`;
+}
+
+/** What MKUYU Legal has checked on this property. */
+function legalBlock(legal) {
+  if (!legal) return "";
+  const tone = { verified: "ok", issues: "alert" }[legal.status] || "pending";
+  return `<section class="legal-card legal-card--${tone}"><h3>Legal status</h3>
+    <p class="legal-line"><span class="legal-ic">${icon(legal.status === "verified" ? "shield" : "info")}</span><strong>${escapeHtml(legal.label)}</strong></p>
+    ${legal.deed_no || legal.deed_kind ? `<dl class="kv">${legal.deed_no ? `<dt>Title deed no.</dt><dd>${escapeHtml(legal.deed_no)}</dd>` : ""}${legal.deed_kind ? `<dt>Kind of title</dt><dd>${escapeHtml(legal.deed_kind)}</dd>` : ""}${legal.checked ? `<dt>Checked</dt><dd>${escapeHtml(legal.checked)}</dd>` : ""}</dl>` : ""}
+    ${legal.note ? `<p class="card-meta">${escapeHtml(legal.note)}</p>` : ""}
+    ${legal.status === "not_checked" ? `<p class="card-meta">Our Legal team records the title here once they have checked it.</p>` : ""}</section>`;
+}
+/** The four steps from a signed purchase to the title in the buyer's name. */
+function transferBlock(transfer) {
+  if (!transfer) return "";
+  const done = transfer.stage === "transferred";
+  return `<section><h3>Ownership transfer</h3>
+    ${transfer.stage === "not_started" ? `<p class="card-meta">Transfer begins once your payments allow it, as set out in your agreement. MKUYU Legal will update these steps.</p>` : ""}
+    ${timeline(transfer.steps)}
+    ${transfer.note ? `<p class="notice" style="margin-top:.6rem">${icon("info")}<span>${escapeHtml(transfer.note)}${transfer.updated ? ` · ${escapeHtml(transfer.updated)}` : ""}</span></p>` : ""}
+    ${done ? `<p class="notice notice--ok" style="margin-top:.6rem">${icon("check")}<span>The title has been transferred to you.</span></p>` : ""}</section>`;
+}
+/** Building stages and overall progress of the project. */
+function projectBlock(project) {
+  if (!project) return "";
+  const pct = project.progress_pct;
+  return `<section><h3>${escapeHtml(project.name || "Project")} · building progress</h3>
+    ${pct !== null && pct !== undefined ? `<div class="progress-line"><div class="progress" role="progressbar" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100" aria-label="Building progress"><span style="width:${pct}%"></span></div><strong>${pct}%</strong></div>` : ""}
+    ${project.expected ? `<p class="card-meta">Expected completion: ${escapeHtml(project.expected)}</p>` : ""}
+    ${project.stages?.length ? timeline(project.stages.map((s) => ({ label: s.title, state: s.state, date: s.date }))) : ""}</section>`;
 }
 
 function timeline(stages = []) {

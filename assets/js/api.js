@@ -285,6 +285,9 @@ export async function sendTyping() {
 export async function reactToMessage(messageId, emoji) {
   return request("/customer/messages/react", { method: "POST", body: { message_id: messageId, emoji: emoji || null } });
 }
+export async function setNotifyEmail(on) {
+  return request("/customer/preferences", { method: "POST", body: { notify_email: Boolean(on) } });
+}
 export async function editMessage(id, body) {
   return request(`/customer/messages/${Number(id)}/edit`, { method: "POST", body: { body } });
 }
