@@ -285,6 +285,12 @@ export async function sendTyping() {
 export async function reactToMessage(messageId, emoji) {
   return request("/customer/messages/react", { method: "POST", body: { message_id: messageId, emoji: emoji || null } });
 }
+export async function editMessage(id, body) {
+  return request(`/customer/messages/${Number(id)}/edit`, { method: "POST", body: { body } });
+}
+export async function deleteMessage(id, scope = "me") {
+  return request(`/customer/messages/${Number(id)}/delete`, { method: "POST", body: { scope } });
+}
 export async function getVerification() {
   return request("/customer/verification");
 }

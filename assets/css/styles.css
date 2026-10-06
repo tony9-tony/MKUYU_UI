@@ -1334,3 +1334,12 @@ strong > .verified-badge, .portal-user > .verified-badge { margin-left: .3rem; f
 .chat-row.is-me .chat-time { opacity: 1; color: rgba(255,255,255,.78); }
 .chat-row.is-desk .chat-time { color: #8a9097; }
 .chat-tick.is-seen { color: #5fd0ff; font-weight: 700; }
+
+/* Portal chat: message menu (edit / delete) */
+.chat-menu { position: absolute; top: 14px; z-index: 6; display: grid; min-width: 168px; padding: 4px; border-radius: 12px; background: #fff; border: 1px solid #e3e6ea; box-shadow: 0 8px 24px rgba(0,0,0,.2); }
+.chat-row.is-me .chat-menu { right: 0; }
+.chat-row.is-desk .chat-menu { left: 0; }
+.chat-menu button { border: 0; background: transparent; text-align: left; padding: .5rem .75rem; border-radius: 8px; font: inherit; font-size: .85rem; cursor: pointer; color: #1d2024; }
+.chat-menu button:hover { background: #f1f2f4; }
+.chat-menu button.is-danger { color: #b3261e; }
+.chat-deleted { font-style: italic; opacity: .75; font-size: .88rem !important; }

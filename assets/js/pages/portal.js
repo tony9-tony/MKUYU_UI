@@ -5,7 +5,7 @@
    Every stage, amount and document comes from the internal system; the portal
    only presents it. Where a business rule is still undecided, the data says
    so (see DEMO_PORTALS in data.js) instead of the portal inventing detail. */
-import { ACCOUNTS_LIVE, DEMO_PORTAL_KEYS, canRequest, currentCustomer, getAgreement, signAgreement, customerFileUrl, demoPortal, getPortal, getMessages, getPortalRequests, getVerification, pollMessages, reactToMessage, sendMessage, sendTyping, listProperties, logOut, requestCode, resetPassword, submitPortalRequest, uploadVerificationDocument } from "../api.js";
+import { ACCOUNTS_LIVE, DEMO_PORTAL_KEYS, canRequest, currentCustomer, getAgreement, signAgreement, customerFileUrl, demoPortal, getPortal, deleteMessage, editMessage, getMessages, getPortalRequests, getVerification, pollMessages, reactToMessage, sendMessage, sendTyping, listProperties, logOut, requestCode, resetPassword, submitPortalRequest, uploadVerificationDocument } from "../api.js";
 import { escapeHtml, formatMoney, icon, initReveal, photoPlaceholder } from "../ui.js";
 
 const SECTIONS = {
@@ -460,15 +460,16 @@ function chatBubble(m, prev, next, typingOnly = false) {
   const mine = m.from !== "staff";
   const groupedWithPrev = prev && prev.from === m.from && sameDay(prev.at, m.at) && new Date(m.at) - new Date(prev.at) < 5 * 60000;
   const groupedWithNext = next && next.from === m.from && sameDay(next.at, m.at) && new Date(next.at) - new Date(m.at) < 5 * 60000;
-  const reactions = [m.reactions?.me, m.reactions?.desk].filter(Boolean);
-  const quote = m.reply ? `<button type="button" class="chat-quote" data-act="quote" data-id="${m.reply.id}"><strong>${escapeHtml(m.reply.from === "staff" ? m.reply.name : "You")}</strong><span>${escapeHtml(m.reply.body)}</span></button>` : "";
+  const reactions = m.deleted ? [] : [m.reactions?.me, m.reactions?.desk].filter(Boolean);
+  const quote = m.reply ? `<button type="button" class="chat-quote" data-act="quote" data-id="${m.reply.id}"><strong>${escapeHtml(m.reply.from === "staff" ? m.reply.name : "You")}</strong><span>${m.reply.deleted ? "This message was deleted" : escapeHtml(m.reply.body)}</span></button>` : "";
+  const text = m.deleted ? `<span class="chat-text chat-deleted">🚫 This message was deleted</span>` : `<span class="chat-text">${escapeHtml(m.body).replace(/\n/g, "<br>")}</span>`;
   const real = !String(m.id).startsWith("tmp");
   return `<div class="chat-row ${mine ? "is-me" : "is-desk"}${groupedWithPrev ? " is-grouped" : ""}${groupedWithNext ? " is-chained" : ""}" data-mid="${m.id}">
     ${!mine ? `<span class="chat-avatar${groupedWithNext ? " is-hidden" : ""}" aria-hidden="true">${escapeHtml(initials(m.name || "Desk"))}</span>` : ""}
     <div class="chat-stack">
-      <div class="chat-bubble" tabindex="-1">${!mine && !groupedWithPrev ? `<span class="chat-who">${escapeHtml(m.name || "Diaspora Desk")}</span>` : ""}${quote}<span class="chat-text">${escapeHtml(m.body).replace(/\n/g, "<br>")}</span>
-        <span class="chat-time">${escapeHtml(clock(m.at))}${mine ? tickHtml(m) : ""}</span></div>
-      ${real ? `<div class="chat-tools" role="group" aria-label="Message actions"><button type="button" data-act="reply" data-id="${m.id}" aria-label="Reply" title="Reply">↩</button><button type="button" data-act="picker" data-id="${m.id}" aria-label="React" title="React">☺</button></div>` : ""}
+      <div class="chat-bubble" tabindex="-1">${!mine && !groupedWithPrev ? `<span class="chat-who">${escapeHtml(m.name || "Diaspora Desk")}</span>` : ""}${quote}${text}
+        <span class="chat-time">${m.edited ? "edited · " : ""}${escapeHtml(clock(m.at))}${mine ? tickHtml(m) : ""}</span></div>
+      ${real ? `<div class="chat-tools" role="group" aria-label="Message actions">${m.deleted ? "" : `<button type="button" data-act="reply" data-id="${m.id}" aria-label="Reply" title="Reply">↩</button><button type="button" data-act="picker" data-id="${m.id}" aria-label="React" title="React">☺</button>`}<button type="button" data-act="menu" data-id="${m.id}" aria-label="More" title="More">⋯</button></div>` : ""}
       ${reactions.length ? `<div class="chat-reacts">${reactions.map((r) => `<span>${escapeHtml(r)}</span>`).join("")}</div>` : ""}
     </div></div>`;
 }
@@ -554,11 +555,15 @@ async function messagesPanel(panel, data, demoKey) {
   thread.addEventListener("scroll", () => { if (nearBottom()) jump.hidden = true; });
   jump.addEventListener("click", toBottom);
 
-  const setReply = (m) => {
-    replyTarget = m || null;
+  let editTarget = null;
+  const setReply = (m, { editing = false } = {}) => {
+    const wasEditing = Boolean(editTarget);
+    replyTarget = editing ? null : (m || null);
+    editTarget = editing && m ? m : null;
     replyBar.hidden = !m;
+    if (wasEditing && !editTarget) { field.value = ""; grow(); }
     if (m) {
-      replyBar.querySelector("[data-reply-name]").textContent = m.from === "staff" ? (m.name || "Diaspora Desk") : "You";
+      replyBar.querySelector("[data-reply-name]").textContent = editing ? "Editing message" : m.from === "staff" ? (m.name || "Diaspora Desk") : "You";
       replyBar.querySelector("[data-reply-text]").textContent = m.body.slice(0, 120);
       field.focus();
     }
@@ -566,7 +571,7 @@ async function messagesPanel(panel, data, demoKey) {
   panel.querySelector("[data-reply-cancel]").addEventListener("click", () => setReply(null));
 
   // Reply, react, jump to a quoted message. One listener for the whole thread.
-  const closePickers = () => thread.querySelectorAll(".chat-picker").forEach((el) => el.remove());
+  const closePickers = () => thread.querySelectorAll(".chat-picker, .chat-menu").forEach((el) => el.remove());
   thread.addEventListener("click", async (event) => {
     const button = event.target.closest("[data-act]");
     const bubble = event.target.closest(".chat-bubble");
@@ -596,6 +601,38 @@ async function messagesPanel(panel, data, demoKey) {
       picker.innerHTML = REACTION_SET.map((e) => `<button type="button" role="menuitem" data-act="react" data-id="${id}" data-emoji="${e}"${m.reactions?.me === e ? ' class="is-on"' : ""}>${e}</button>`).join("");
       button.closest(".chat-stack").appendChild(picker);
     }
+    if (button.dataset.act === "menu" && m) {
+      const had = button.closest(".chat-stack").querySelector(".chat-menu");
+      closePickers();
+      if (had) return;
+      const mine = m.from !== "staff";
+      const age = Date.now() - new Date(m.at).getTime();
+      const items = [];
+      if (mine && !m.deleted && age < 15 * 60 * 1000) items.push(["edit", "Edit"]);
+      items.push(["del-me", "Delete for me"]);
+      if (mine && !m.deleted && age < 48 * 60 * 60 * 1000) items.push(["del-all", "Delete for everyone"]);
+      const menu = document.createElement("div");
+      menu.className = "chat-menu";
+      menu.setAttribute("role", "menu");
+      menu.innerHTML = items.map(([act, label]) => `<button type="button" role="menuitem" data-act="${act}" data-id="${id}"${act.startsWith("del") ? ' class="is-danger"' : ""}>${label}</button>`).join("");
+      button.closest(".chat-stack").appendChild(menu);
+    }
+    if (button.dataset.act === "edit" && m) {
+      closePickers();
+      setReply(m, { editing: true });
+      field.value = m.body; grow(); field.focus();
+    }
+    if ((button.dataset.act === "del-me" || button.dataset.act === "del-all") && m) {
+      closePickers();
+      const scope = button.dataset.act === "del-all" ? "all" : "me";
+      if (scope === "all" && !window.confirm("Delete this message for everyone? The Diaspora Desk will see “This message was deleted”.")) return;
+      try {
+        await deleteMessage(id, scope);
+        messages = scope === "me" ? messages.filter((x) => x.id !== id) : messages.map((x) => (x.id === id ? { ...x, body: "", deleted: true, reactions: {} } : x));
+        if (editTarget?.id === id) setReply(null);
+        paint(false);
+      } catch (err) { error.hidden = false; error.textContent = err.message || "Could not delete the message."; }
+    }
     if (button.dataset.act === "react" && m) {
       closePickers();
       const next = m.reactions?.me === button.dataset.emoji ? null : button.dataset.emoji;
@@ -623,6 +660,17 @@ async function messagesPanel(panel, data, demoKey) {
     if (!text || sending) return;
     sending = true;
     error.hidden = true;
+    if (editTarget) {
+      const target = editTarget;
+      sending = true; error.hidden = true;
+      try {
+        const saved = (await editMessage(target.id, text)).message;
+        messages = messages.map((x) => (x.id === target.id ? { ...x, body: saved.body, edited: true } : x));
+        setReply(null); paint(false);
+      } catch (err) { error.hidden = false; error.textContent = err.message || "Could not edit the message."; }
+      sending = false; field.focus();
+      return;
+    }
     const quoted = replyTarget;
     const temp = { id: `tmp${Date.now()}`, from: "customer", name: "You", body: text, at: new Date().toISOString(), read: false, delivered: false, pending: true, reactions: {},
       reply: quoted ? { id: quoted.id, from: quoted.from, name: quoted.name, body: quoted.body.slice(0, 140) } : null };
@@ -657,10 +705,10 @@ async function messagesPanel(panel, data, demoKey) {
       messages = messages.map((m) => {
         const s = state.get(m.id);
         if (!s) return m;
-        const same = s.read === Boolean(m.read) && s.delivered === Boolean(m.delivered) && (s.reactions?.me || null) === (m.reactions?.me || null) && (s.reactions?.desk || null) === (m.reactions?.desk || null);
+        const same = (s.body ?? m.body) === m.body && Boolean(s.deleted) === Boolean(m.deleted) && Boolean(s.edited) === Boolean(m.edited) && s.read === Boolean(m.read) && s.delivered === Boolean(m.delivered) && (s.reactions?.me || null) === (m.reactions?.me || null) && (s.reactions?.desk || null) === (m.reactions?.desk || null);
         if (same) return m;
         changed = true;
-        return { ...m, read: s.read, delivered: s.delivered, reactions: s.reactions };
+        return { ...m, body: s.body ?? m.body, deleted: Boolean(s.deleted), edited: Boolean(s.edited), read: s.read, delivered: s.delivered, reactions: s.reactions };
       });
       if (Boolean(got.typing) !== deskTyping) { deskTyping = Boolean(got.typing); changed = true; }
       if (changed) paint(false);
