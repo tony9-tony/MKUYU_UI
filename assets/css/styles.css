@@ -1361,3 +1361,14 @@ strong > .verified-badge, .portal-user > .verified-badge { margin-left: .3rem; f
 .history-feed small { color: var(--muted, #6b7280); }
 .check-row { display: flex; gap: .6rem; align-items: flex-start; cursor: pointer; }
 .check-row input { margin-top: .25rem; }
+
+/* Video call */
+.chat-call { margin-left: auto; display: inline-flex; align-items: center; gap: .4rem; border: 1px solid #cfe3d8; background: #f1f8f4; color: #2f6f4f; border-radius: 999px; padding: .4rem .85rem; font: 600 .82rem var(--font, inherit); cursor: pointer; }
+.chat-call:hover { background: #e3f1e9; }
+.chat-call svg { width: 16px; height: 16px; }
+.call-banner { position: fixed; left: 50%; top: 14px; transform: translateX(-50%); z-index: 90; display: flex; align-items: center; gap: .75rem; padding: .6rem .8rem .6rem 1rem; border-radius: 999px; background: #1d2024; color: #fff; box-shadow: 0 10px 30px rgba(0,0,0,.35); max-width: calc(100vw - 24px); flex-wrap: wrap; justify-content: center; }
+.call-banner.is-ringing { background: #2f6f4f; animation: call-pulse 1.2s infinite; }
+.call-banner .call-ic { display: inline-grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; background: rgba(255,255,255,.16); }
+.call-banner .call-ic svg { width: 16px; height: 16px; }
+.call-actions { display: inline-flex; gap: .4rem; }
+@keyframes call-pulse { 0%, 100% { box-shadow: 0 10px 30px rgba(0,0,0,.35), 0 0 0 0 rgba(47,111,79,.6); } 50% { box-shadow: 0 10px 30px rgba(0,0,0,.35), 0 0 0 10px rgba(47,111,79,0); } }

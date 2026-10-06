@@ -285,6 +285,15 @@ export async function sendTyping() {
 export async function reactToMessage(messageId, emoji) {
   return request("/customer/messages/react", { method: "POST", body: { message_id: messageId, emoji: emoji || null } });
 }
+export async function startCall() {
+  return request("/customer/calls", { method: "POST", body: {} });
+}
+export async function answerCall(id) {
+  return request(`/customer/calls/${Number(id)}/answer`, { method: "POST", body: {} });
+}
+export async function endCall(id, decline = false) {
+  return request(`/customer/calls/${Number(id)}/end`, { method: "POST", body: { decline } });
+}
 export async function setNotifyEmail(on) {
   return request("/customer/preferences", { method: "POST", body: { notify_email: Boolean(on) } });
 }

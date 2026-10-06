@@ -5,7 +5,7 @@
    Every stage, amount and document comes from the internal system; the portal
    only presents it. Where a business rule is still undecided, the data says
    so (see DEMO_PORTALS in data.js) instead of the portal inventing detail. */
-import { setNotifyEmail, ACCOUNTS_LIVE, DEMO_PORTAL_KEYS, canRequest, currentCustomer, getAgreement, signAgreement, customerFileUrl, demoPortal, getPortal, deleteMessage, editMessage, getMessages, getPortalRequests, getVerification, pollMessages, reactToMessage, sendMessage, sendTyping, listProperties, logOut, requestCode, resetPassword, submitPortalRequest, uploadVerificationDocument } from "../api.js";
+import { answerCall, endCall, startCall, setNotifyEmail, ACCOUNTS_LIVE, DEMO_PORTAL_KEYS, canRequest, currentCustomer, getAgreement, signAgreement, customerFileUrl, demoPortal, getPortal, deleteMessage, editMessage, getMessages, getPortalRequests, getVerification, pollMessages, reactToMessage, sendMessage, sendTyping, listProperties, logOut, requestCode, resetPassword, submitPortalRequest, uploadVerificationDocument } from "../api.js";
 import { escapeHtml, formatMoney, icon, initReveal, photoPlaceholder } from "../ui.js";
 
 const SECTIONS = {
@@ -508,6 +508,36 @@ function chatThreadHtml(messages, desk) {
   return html;
 }
 
+/** The video call banner: someone is calling, you are calling, or a call is going on. */
+let currentCallId = null;
+function renderCallBanner(call) {
+  let bar = document.getElementById("call-banner");
+  if (!call) { bar?.remove(); currentCallId = null; return; }
+  const ringingForMe = call.status === "ringing" && !call.mine;
+  const key = `${call.id}:${call.status}`;
+  if (bar && bar.dataset.key === key) return;
+  if (!bar) { bar = document.createElement("div"); bar.id = "call-banner"; bar.setAttribute("role", "alert"); document.body.appendChild(bar); }
+  bar.dataset.key = key;
+  bar.className = `call-banner${ringingForMe ? " is-ringing" : ""}`;
+  const text = ringingForMe ? `${call.who} is calling you` : call.status === "ringing" ? "Calling the Diaspora Desk… waiting for them to answer" : "Video call in progress";
+  bar.innerHTML = `<span class="call-ic">${icon("chat")}</span><strong>${escapeHtml(text)}</strong>
+    <span class="call-actions">${call.status === "ringing" && call.mine ? "" : `<button type="button" class="btn btn--small btn--primary" data-call="join">${ringingForMe ? "Join" : "Join again"}</button>`}
+    <button type="button" class="btn btn--small btn--soft" data-call="${ringingForMe ? "decline" : "end"}">${ringingForMe ? "Decline" : call.status === "ringing" ? "Cancel" : "End"}</button></span>`;
+  bar.onclick = async (event) => {
+    const act = event.target.closest("[data-call]")?.dataset.call;
+    if (!act) return;
+    if (act === "join") {
+      window.open(call.url, "_blank", "noopener");
+      if (call.status === "ringing") { try { await answerCall(call.id); } catch { /* the next check shows it */ } }
+    } else { try { await endCall(call.id, act === "decline"); } catch { /* ignore */ } renderCallBanner(null); }
+  };
+}
+async function callDesk(button) {
+  button.disabled = true;
+  try { renderCallBanner((await startCall()).call); } catch (error) { window.alert(error.message || "Could not start the call."); }
+  button.disabled = false;
+}
+
 /** The unread count on the Messages tab, kept fresh while the portal is open. */
 function setMessagesBadge(n) {
   document.querySelectorAll('[data-tab="messages"]').forEach((a) => {
@@ -523,8 +553,8 @@ function watchMessagesBadge(demoKey) {
   if (demoKey) return;
   badgeTimer = setInterval(async () => {
     if (document.hidden || window.location.hash === "#messages") return;
-    try { setMessagesBadge((await pollMessages(0, true)).unread || 0); } catch { /* next time */ }
-  }, 10000);
+    try { const got = await pollMessages(0, true); setMessagesBadge(got.unread || 0); renderCallBanner(got.call); } catch { /* next time */ }
+  }, 4000);
 }
 
 async function messagesPanel(panel, data, demoKey) {
@@ -544,6 +574,7 @@ async function messagesPanel(panel, data, demoKey) {
       <header class="chat-head">
         <span class="chat-avatar chat-avatar--lg" aria-hidden="true">${escapeHtml(initials(deskName || "Diaspora Desk"))}</span>
         <div><strong>Diaspora Desk</strong><span data-status>${deskName ? `${escapeHtml(deskName)} and the team` : "MKUYU's team for customers abroad"} · answers here and by e-mail</span></div>
+        <button type="button" class="chat-call" data-start-call title="Talk to the Diaspora Desk by video">${icon("chat")}<span>Video call</span></button>
       </header>
       <div class="chat-thread" data-thread role="log" aria-live="polite" tabindex="0"></div>
       <button type="button" class="chat-jump" data-jump hidden aria-label="Go to the newest message">${icon("arrow")}<span>New messages</span></button>
@@ -555,6 +586,7 @@ async function messagesPanel(panel, data, demoKey) {
       </form>
       <p class="chat-error" data-error hidden role="alert"></p>
     </section>`;
+  panel.querySelector("[data-start-call]").addEventListener("click", (event) => callDesk(event.currentTarget));
   const thread = panel.querySelector("[data-thread]");
   const jump = panel.querySelector("[data-jump]");
   const form = panel.querySelector("[data-send]");
@@ -733,6 +765,7 @@ async function messagesPanel(panel, data, demoKey) {
         changed = true;
         return { ...m, body: s.body ?? m.body, deleted: Boolean(s.deleted), edited: Boolean(s.edited), read: s.read, delivered: s.delivered, reactions: s.reactions };
       });
+      renderCallBanner(got.call);
       if (Boolean(got.typing) !== deskTyping) { deskTyping = Boolean(got.typing); changed = true; }
       if (changed) paint(false);
     } catch { /* try again on the next tick */ }
