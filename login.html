@@ -75,7 +75,7 @@
           <img class="logo" src="assets/images/brand/mkuyu-logo-192.png" alt="MKUYU" width="56" height="56" />
           <h1>Diaspora login</h1>
           <p class="lede">For MKUYU customers living abroad.</p>
-          <form id="login-form" class="panel" novalidate>
+          <form id="login-form" class="panel" method="post" action="login.html" novalidate>
             <div class="field"><label for="login-email" data-id-label>Username or e-mail</label><input id="login-email" name="email" required autocomplete="username" /></div>
             <div class="field" data-mode="password"><label for="login-password">Password</label><input id="login-password" name="password" type="password" autocomplete="current-password" /></div>
             <div class="field" data-mode="code" hidden><label for="login-code">6-digit code from your e-mail</label><input id="login-code" name="code" inputmode="numeric" maxlength="6" autocomplete="one-time-code" /></div>

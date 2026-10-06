@@ -36,11 +36,16 @@ function proxy(req, res) {
 http.createServer((req, res) => {
   const url = new URL(req.url, "http://localhost");
   if (url.pathname.startsWith("/api/")) { proxy(req, res); return; }
-  let file = path.normalize(path.join(root, decodeURIComponent(url.pathname)));
-  if (!file.startsWith(root)) { res.writeHead(403).end("Forbidden"); return; }
+  let file;
+  try { file = path.normalize(path.join(root, decodeURIComponent(url.pathname))); } catch { res.writeHead(400).end("Bad request"); return; }
+  // Stay inside this folder (the trailing separator stops a sibling like "mkuyu_ui2"), and
+  // never hand out dot-files, the server itself, scripts for Windows, or working folders.
+  const relative = path.relative(root, file);
+  const hidden = relative.split(path.sep).some((part) => part.startsWith(".") || ["node_modules", "design-source", "docs"].includes(part));
+  if (relative.startsWith("..") || path.isAbsolute(relative) || hidden || /\.(mjs|bat|cmd|md|jfif)$/i.test(relative) && !/^assets[\\/]/.test(relative)) { res.writeHead(403, { "Content-Type": "text/plain" }).end("Forbidden"); return; }
   if (fs.existsSync(file) && fs.statSync(file).isDirectory()) file = path.join(file, "index.html");
   fs.readFile(file, (error, body) => {
     if (error) { res.writeHead(404, { "Content-Type": "text/plain" }).end("Not found"); return; }
-    res.writeHead(200, { "Content-Type": types[path.extname(file).toLowerCase()] || "application/octet-stream", "Cache-Control": "no-store" }).end(body);
+    res.writeHead(200, { "Content-Type": types[path.extname(file).toLowerCase()] || "application/octet-stream", "Cache-Control": "no-store", "X-Content-Type-Options": "nosniff", "Referrer-Policy": "same-origin", "X-Frame-Options": "SAMEORIGIN" }).end(body);
   });
 }).listen(port, () => console.log(`MKUYU public site: http://localhost:${port}`));
