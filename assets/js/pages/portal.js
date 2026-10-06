@@ -5,7 +5,7 @@
    Every stage, amount and document comes from the internal system; the portal
    only presents it. Where a business rule is still undecided, the data says
    so (see DEMO_PORTALS in data.js) instead of the portal inventing detail. */
-import { ACCOUNTS_LIVE, DEMO_PORTAL_KEYS, canRequest, currentCustomer, getAgreement, signAgreement, customerFileUrl, demoPortal, getPortal, getMessages, getPortalRequests, getVerification, pollMessages, sendMessage, listProperties, logOut, requestCode, resetPassword, submitPortalRequest, uploadVerificationDocument } from "../api.js";
+import { ACCOUNTS_LIVE, DEMO_PORTAL_KEYS, canRequest, currentCustomer, getAgreement, signAgreement, customerFileUrl, demoPortal, getPortal, getMessages, getPortalRequests, getVerification, pollMessages, reactToMessage, sendMessage, sendTyping, listProperties, logOut, requestCode, resetPassword, submitPortalRequest, uploadVerificationDocument } from "../api.js";
 import { escapeHtml, formatMoney, icon, initReveal, photoPlaceholder } from "../ui.js";
 
 const SECTIONS = {
@@ -436,6 +436,7 @@ async function verifyPanel(panel, show, { uploaded = null } = {}) {
 /* ---------------- Messages with the Diaspora Desk ---------------- */
 let messagesTimer = null;
 let badgeTimer = null;
+const REACTION_SET = ["👍", "❤️", "😂", "😮", "🙏", "✅"];
 
 const dayLabel = (iso) => {
   const d = new Date(iso);
@@ -446,25 +447,40 @@ const dayLabel = (iso) => {
 const clock = (iso) => new Date(iso).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 const sameDay = (a, b) => new Date(a).toDateString() === new Date(b).toDateString();
 
+/** ✓ sent · ✓✓ delivered · blue ✓✓ read. */
+function tickHtml(m) {
+  if (m.pending) return `<span class="chat-tick" title="Sending">…</span>`;
+  if (m.read) return `<span class="chat-tick is-seen" title="Read by the desk">✓✓</span>`;
+  if (m.delivered) return `<span class="chat-tick" title="Delivered">✓✓</span>`;
+  return `<span class="chat-tick" title="Sent">✓</span>`;
+}
+
 /** One message bubble. Consecutive messages from the same side are grouped. */
-function chatBubble(m, prev, next) {
+function chatBubble(m, prev, next, typingOnly = false) {
   const mine = m.from !== "staff";
   const groupedWithPrev = prev && prev.from === m.from && sameDay(prev.at, m.at) && new Date(m.at) - new Date(prev.at) < 5 * 60000;
   const groupedWithNext = next && next.from === m.from && sameDay(next.at, m.at) && new Date(next.at) - new Date(m.at) < 5 * 60000;
-  const tick = mine ? `<span class="chat-tick${m.read ? " is-seen" : ""}" title="${m.read ? "Seen by the desk" : "Sent"}">${m.pending ? "…" : m.read ? "✓✓" : "✓"}</span>` : "";
+  const reactions = [m.reactions?.me, m.reactions?.desk].filter(Boolean);
+  const quote = m.reply ? `<button type="button" class="chat-quote" data-act="quote" data-id="${m.reply.id}"><strong>${escapeHtml(m.reply.from === "staff" ? m.reply.name : "You")}</strong><span>${escapeHtml(m.reply.body)}</span></button>` : "";
+  const real = !String(m.id).startsWith("tmp");
   return `<div class="chat-row ${mine ? "is-me" : "is-desk"}${groupedWithPrev ? " is-grouped" : ""}${groupedWithNext ? " is-chained" : ""}" data-mid="${m.id}">
     ${!mine ? `<span class="chat-avatar${groupedWithNext ? " is-hidden" : ""}" aria-hidden="true">${escapeHtml(initials(m.name || "Desk"))}</span>` : ""}
-    <div class="chat-bubble">${!mine && !groupedWithPrev ? `<span class="chat-who">${escapeHtml(m.name || "Diaspora Desk")}</span>` : ""}<span class="chat-text">${escapeHtml(m.body).replace(/\n/g, "<br>")}</span>
-      <span class="chat-time">${escapeHtml(clock(m.at))}${tick}</span></div></div>`;
+    <div class="chat-stack">
+      <div class="chat-bubble" tabindex="-1">${!mine && !groupedWithPrev ? `<span class="chat-who">${escapeHtml(m.name || "Diaspora Desk")}</span>` : ""}${quote}<span class="chat-text">${escapeHtml(m.body).replace(/\n/g, "<br>")}</span>
+        <span class="chat-time">${escapeHtml(clock(m.at))}${mine ? tickHtml(m) : ""}</span></div>
+      ${real ? `<div class="chat-tools" role="group" aria-label="Message actions"><button type="button" data-act="reply" data-id="${m.id}" aria-label="Reply" title="Reply">↩</button><button type="button" data-act="picker" data-id="${m.id}" aria-label="React" title="React">☺</button></div>` : ""}
+      ${reactions.length ? `<div class="chat-reacts">${reactions.map((r) => `<span>${escapeHtml(r)}</span>`).join("")}</div>` : ""}
+    </div></div>`;
 }
 
-function chatThreadHtml(messages) {
-  if (!messages.length) return `<div class="chat-empty"><span class="chat-empty-ic">${icon("chat")}</span><strong>Start the conversation</strong><span>Ask about a property, your documents or your agreement. The Diaspora Desk answers here.</span></div>`;
+function chatThreadHtml(messages, desk) {
   let html = "";
+  if (!messages.length) html = `<div class="chat-empty"><span class="chat-empty-ic">${icon("chat")}</span><strong>Start the conversation</strong><span>Ask about a property, your documents or your agreement. The Diaspora Desk answers here.</span></div>`;
   messages.forEach((m, i) => {
     if (!i || !sameDay(messages[i - 1].at, m.at)) html += `<div class="chat-day"><span>${escapeHtml(dayLabel(m.at))}</span></div>`;
     html += chatBubble(m, messages[i - 1], messages[i + 1]);
   });
+  if (desk?.typing) html += `<div class="chat-row is-desk chat-typing" aria-live="polite"><span class="chat-avatar" aria-hidden="true">${escapeHtml(initials(desk.name || "Desk"))}</span><div class="chat-stack"><div class="chat-bubble"><span class="chat-dots" aria-label="The Diaspora Desk is typing"><i></i><i></i><i></i></span></div></div></div>`;
   return html;
 }
 
@@ -496,15 +512,18 @@ async function messagesPanel(panel, data, demoKey) {
     return;
   }
   let messages = (await getMessages()).messages;
+  let deskTyping = false;
+  let replyTarget = null;
   setMessagesBadge(0);
   panel.innerHTML = `
     <section class="chat" data-messages>
       <header class="chat-head">
         <span class="chat-avatar chat-avatar--lg" aria-hidden="true">${escapeHtml(initials(deskName || "Diaspora Desk"))}</span>
-        <div><strong>Diaspora Desk</strong><span>${deskName ? `${escapeHtml(deskName)} and the team` : "MKUYU's team for customers abroad"} · answers here and by e-mail</span></div>
+        <div><strong>Diaspora Desk</strong><span data-status>${deskName ? `${escapeHtml(deskName)} and the team` : "MKUYU's team for customers abroad"} · answers here and by e-mail</span></div>
       </header>
       <div class="chat-thread" data-thread role="log" aria-live="polite" tabindex="0"></div>
       <button type="button" class="chat-jump" data-jump hidden aria-label="Go to the newest message">${icon("arrow")}<span>New messages</span></button>
+      <div class="chat-replying" data-replying hidden><div><strong data-reply-name></strong><span data-reply-text></span></div><button type="button" data-reply-cancel aria-label="Cancel reply">✕</button></div>
       <form class="chat-composer" data-send novalidate>
         <label class="visually-hidden" for="msg-text">Your message</label>
         <textarea id="msg-text" name="body" rows="1" maxlength="2000" placeholder="Write a message…" autocomplete="off"></textarea>
@@ -517,20 +536,83 @@ async function messagesPanel(panel, data, demoKey) {
   const form = panel.querySelector("[data-send]");
   const field = form.body;
   const error = panel.querySelector("[data-error]");
+  const status = panel.querySelector("[data-status]");
+  const replyBar = panel.querySelector("[data-replying]");
   const nearBottom = () => thread.scrollHeight - thread.scrollTop - thread.clientHeight < 90;
   const toBottom = () => { thread.scrollTop = thread.scrollHeight; jump.hidden = true; };
+  const deskInfo = () => ({ typing: deskTyping, name: deskName || "Diaspora Desk" });
   const paint = (stick = true) => {
     const keep = nearBottom();
-    thread.innerHTML = chatThreadHtml(messages);
+    const open = thread.querySelector(".chat-row.is-open")?.dataset.mid;
+    thread.innerHTML = chatThreadHtml(messages, deskInfo());
+    if (open) thread.querySelector(`.chat-row[data-mid="${open}"]`)?.classList.add("is-open");
     if (stick || keep) toBottom(); else jump.hidden = false;
+    status.textContent = deskTyping ? "typing…" : `${deskName ? `${deskName} and the team` : "MKUYU's team for customers abroad"} · answers here and by e-mail`;
+    status.classList.toggle("is-typing", deskTyping);
   };
   paint(true);
   thread.addEventListener("scroll", () => { if (nearBottom()) jump.hidden = true; });
   jump.addEventListener("click", toBottom);
 
+  const setReply = (m) => {
+    replyTarget = m || null;
+    replyBar.hidden = !m;
+    if (m) {
+      replyBar.querySelector("[data-reply-name]").textContent = m.from === "staff" ? (m.name || "Diaspora Desk") : "You";
+      replyBar.querySelector("[data-reply-text]").textContent = m.body.slice(0, 120);
+      field.focus();
+    }
+  };
+  panel.querySelector("[data-reply-cancel]").addEventListener("click", () => setReply(null));
+
+  // Reply, react, jump to a quoted message. One listener for the whole thread.
+  const closePickers = () => thread.querySelectorAll(".chat-picker").forEach((el) => el.remove());
+  thread.addEventListener("click", async (event) => {
+    const button = event.target.closest("[data-act]");
+    const bubble = event.target.closest(".chat-bubble");
+    if (!button) {
+      closePickers();
+      // On a touch screen a tap on a bubble shows its actions.
+      const row = bubble?.closest(".chat-row");
+      thread.querySelectorAll(".chat-row.is-open").forEach((el) => { if (el !== row) el.classList.remove("is-open"); });
+      if (row) row.classList.toggle("is-open");
+      return;
+    }
+    const id = Number(button.dataset.id);
+    const m = messages.find((x) => x.id === id);
+    if (button.dataset.act === "reply" && m) setReply(m);
+    if (button.dataset.act === "quote") {
+      const target = thread.querySelector(`.chat-row[data-mid="${id}"] .chat-bubble`);
+      target?.scrollIntoView({ block: "center", behavior: "smooth" });
+      target?.classList.add("is-flash"); setTimeout(() => target?.classList.remove("is-flash"), 1200);
+    }
+    if (button.dataset.act === "picker" && m) {
+      const had = button.closest(".chat-stack").querySelector(".chat-picker");
+      closePickers();
+      if (had) return;
+      const picker = document.createElement("div");
+      picker.className = "chat-picker";
+      picker.setAttribute("role", "menu");
+      picker.innerHTML = REACTION_SET.map((e) => `<button type="button" role="menuitem" data-act="react" data-id="${id}" data-emoji="${e}"${m.reactions?.me === e ? ' class="is-on"' : ""}>${e}</button>`).join("");
+      button.closest(".chat-stack").appendChild(picker);
+    }
+    if (button.dataset.act === "react" && m) {
+      closePickers();
+      const next = m.reactions?.me === button.dataset.emoji ? null : button.dataset.emoji;
+      messages = messages.map((x) => (x.id === id ? { ...x, reactions: { ...x.reactions, me: next } } : x));
+      paint(false);
+      try { await reactToMessage(id, next); } catch { /* the next poll shows the real state */ }
+    }
+  });
+
   // The box grows with the text, up to a limit.
   const grow = () => { field.style.height = "auto"; field.style.height = `${Math.min(field.scrollHeight, 140)}px`; };
-  field.addEventListener("input", grow);
+  let lastTyping = 0;
+  field.addEventListener("input", () => {
+    grow();
+    // "typing…" is sent at most every 2.5 seconds while there is text.
+    if (field.value.trim() && Date.now() - lastTyping > 2500) { lastTyping = Date.now(); sendTyping().catch(() => {}); }
+  });
   // Enter sends; Shift+Enter makes a new line.
   field.addEventListener("keydown", (event) => { if (event.key === "Enter" && !event.shiftKey && !event.isComposing) { event.preventDefault(); form.requestSubmit(); } });
 
@@ -541,15 +623,17 @@ async function messagesPanel(panel, data, demoKey) {
     if (!text || sending) return;
     sending = true;
     error.hidden = true;
-    const temp = { id: `tmp${Date.now()}`, from: "customer", name: "You", body: text, at: new Date().toISOString(), read: false, pending: true };
+    const quoted = replyTarget;
+    const temp = { id: `tmp${Date.now()}`, from: "customer", name: "You", body: text, at: new Date().toISOString(), read: false, delivered: false, pending: true, reactions: {},
+      reply: quoted ? { id: quoted.id, from: quoted.from, name: quoted.name, body: quoted.body.slice(0, 140) } : null };
     messages = [...messages, temp];
-    field.value = ""; grow(); paint(true);
+    field.value = ""; grow(); setReply(null); paint(true);
     try {
-      const saved = (await sendMessage(text)).message;
+      const saved = (await sendMessage(text, quoted?.id)).message;
       messages = messages.map((m) => (m === temp ? saved : m));
     } catch (err) {
       messages = messages.filter((m) => m !== temp);
-      field.value = text; grow();
+      field.value = text; grow(); if (quoted) setReply(quoted);
       error.hidden = false; error.textContent = err.message || "Could not send. Please try again.";
     }
     sending = false;
@@ -568,12 +652,21 @@ async function messagesPanel(panel, data, demoKey) {
       const have = new Set(messages.map((m) => m.id));
       const fresh = (got.messages || []).filter((m) => !have.has(m.id));
       if (fresh.length) { messages = [...messages, ...fresh]; changed = true; }
-      const seen = new Set(got.seen || []);
-      messages = messages.map((m) => (m.from !== "staff" && !m.read && seen.has(m.id) ? (changed = true, { ...m, read: true }) : m));
+      // Seen / delivered / reactions of what is already on screen.
+      const state = new Map((got.state || []).map((s) => [s.id, s]));
+      messages = messages.map((m) => {
+        const s = state.get(m.id);
+        if (!s) return m;
+        const same = s.read === Boolean(m.read) && s.delivered === Boolean(m.delivered) && (s.reactions?.me || null) === (m.reactions?.me || null) && (s.reactions?.desk || null) === (m.reactions?.desk || null);
+        if (same) return m;
+        changed = true;
+        return { ...m, read: s.read, delivered: s.delivered, reactions: s.reactions };
+      });
+      if (Boolean(got.typing) !== deskTyping) { deskTyping = Boolean(got.typing); changed = true; }
       if (changed) paint(false);
     } catch { /* try again on the next tick */ }
   };
-  messagesTimer = setInterval(tick, 3000);
+  messagesTimer = setInterval(tick, 2000);
   field.focus({ preventScroll: true });
 }
 

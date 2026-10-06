@@ -276,8 +276,14 @@ export async function getMessages() {
 export async function pollMessages(after = 0, peek = false) {
   return request(`/customer/messages/poll?after=${Number(after) || 0}${peek ? "&peek=1" : ""}`);
 }
-export async function sendMessage(body) {
-  return request("/customer/messages", { method: "POST", body: { body } });
+export async function sendMessage(body, replyTo = null) {
+  return request("/customer/messages", { method: "POST", body: { body, reply_to: replyTo || undefined } });
+}
+export async function sendTyping() {
+  return request("/customer/messages/typing", { method: "POST", body: {} });
+}
+export async function reactToMessage(messageId, emoji) {
+  return request("/customer/messages/react", { method: "POST", body: { message_id: messageId, emoji: emoji || null } });
 }
 export async function getVerification() {
   return request("/customer/verification");
