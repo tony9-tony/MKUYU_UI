@@ -274,7 +274,7 @@ export async function getMessages() {
   return request("/customer/messages");
 }
 export async function sendMessage(body) {
-  return request("/customer/messages", { method: "POST", body: JSON.stringify({ body }) });
+  return request("/customer/messages", { method: "POST", body: { body } });
 }
 export async function getVerification() {
   return request("/customer/verification");
