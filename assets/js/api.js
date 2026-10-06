@@ -273,9 +273,10 @@ export async function signAgreement(contractId, { fullName, password, confirmati
 export async function getVerification() {
   return request("/customer/verification");
 }
-export async function uploadVerificationDocument(kind, file) {
+export async function uploadVerificationDocument(kind, file, expiresOn = "") {
   const form = new FormData();
   form.append("kind", kind);
+  if (expiresOn) form.append("expires_on", expiresOn);
   form.append("file", file);
   return request("/customer/verification/documents", { method: "POST", body: form });
 }

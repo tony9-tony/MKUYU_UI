@@ -367,6 +367,7 @@ async function verifyPanel(panel, show, { uploaded = null } = {}) {
   const v = await getVerification();
   const kinds = v.kinds || {};
   const have = (kind) => (v.documents || []).some((d) => d.kind === kind);
+  const expiryOf = (kind) => (v.documents || []).find((d) => d.kind === kind)?.expires_on || "";
   const canUpload = ["unverified", "rejected", "submitted"].includes(v.status);
   panel.innerHTML = `
     <div class="portal-greeting"><span class="eyebrow">Verify my identity</span><h1>${v.verified ? "You are verified" : "Prove who you are, once"}</h1>${verifiedTick(v)}
@@ -380,21 +381,34 @@ async function verifyPanel(panel, show, { uploaded = null } = {}) {
         .map(([label, state]) => `<li class="tl-${state}"><span class="tl-dot">${state === "done" ? icon("check") : ""}</span><strong>${escapeHtml(label)}</strong></li>`).join("")}
     </ol>
     <section style="margin-top:1.4rem"><h3>Your documents</h3>
-      <ul class="doc-list">${["passport", "residence"].map((kind) => `<li>${icon(have(kind) ? "check" : "file")}<span>${escapeHtml(kinds[kind] || kind)}</span><small>${have(kind) ? "Uploaded" : "Needed"}</small></li>`).join("")}
+      <ul class="doc-list">${["passport", "residence"].map((kind) => `<li>${icon(have(kind) ? "check" : "file")}<span>${escapeHtml(kinds[kind] || kind)}</span><small>${have(kind) ? `Uploaded${expiryOf(kind) ? ` · expires ${escapeHtml(expiryOf(kind))}` : ""}` : "Needed"}</small></li>`).join("")}
         ${(v.documents || []).filter((d) => d.kind === "other").map((d) => `<li>${icon("file")}<span>${escapeHtml(d.name)}</span><small>Other</small></li>`).join("")}</ul>
     </section>
     ${uploaded ? `<p class="notice notice--ok" data-uploaded tabindex="-1" style="margin-top:1rem">${icon("check")}<span><strong>${escapeHtml(uploaded)} uploaded.</strong> ${have("passport") && have("residence") ? "All documents are in: our Diaspora Desk will check them and e-mail you." : `Our Diaspora Desk has it. Please also upload your ${have("passport") ? "proof of residence abroad" : "passport (photo page)"} below.`}</span></p>` : ""}
     ${canUpload ? `<form class="panel listing-form" data-upload novalidate style="margin-top:1rem">
       <div class="field"><label>Which document?<select name="kind">${Object.entries(kinds).map(([k, label]) => `<option value="${k}" ${!have("passport") && k === "passport" ? "selected" : !have("residence") && have("passport") && k === "residence" ? "selected" : ""}>${escapeHtml(label)}</option>`).join("")}</select></label></div>
+      <div class="field" data-expiry><label>Expiry date shown on the document<input name="expires_on" type="date" min="${new Date().toISOString().slice(0, 10)}" required></label></div>
       <div class="field"><label>File (photo or PDF, up to 15 MB)<input name="file" type="file" accept=".pdf,.jpg,.jpeg,.png,.webp" required></label></div>
       <button class="btn btn--primary" type="submit">Upload</button>
       <p class="field-hint">Only MKUYU's Diaspora Desk and Legal team can see these files.</p>
       <div data-result hidden role="status" aria-live="polite"></div>
     </form>` : ""}`;
   const form = panel.querySelector("[data-upload]");
+  // Passport needs an expiry date; proof of residence may have one; other documents none.
+  const syncExpiry = () => {
+    const box = form?.querySelector("[data-expiry]");
+    if (!box) return;
+    const kind = form.kind.value;
+    box.hidden = kind === "other";
+    form.expires_on.required = kind === "passport";
+    box.querySelector("label").firstChild.textContent = kind === "residence" ? "Expiry date, if it has one " : "Expiry date shown on the document";
+  };
+  form?.kind.addEventListener("change", syncExpiry);
+  syncExpiry();
   form?.addEventListener("submit", async (event) => {
     event.preventDefault();
     const file = form.file.files[0];
+    if (form.kind.value !== "other" && form.kind.value !== "residence" && !form.expires_on.value) { form.expires_on.focus(); return; }
     const out = form.querySelector("[data-result]");
     if (!file) { out.hidden = false; out.innerHTML = `<p class="notice">${icon("info")}<span>Choose a file first.</span></p>`; return; }
     const button = form.querySelector("button");
@@ -402,7 +416,7 @@ async function verifyPanel(panel, show, { uploaded = null } = {}) {
     button.textContent = "Uploading…";
     try {
       const label = (kinds[form.kind.value] || "Document").split(" (")[0];
-      await uploadVerificationDocument(form.kind.value, file);
+      await uploadVerificationDocument(form.kind.value, file, form.expires_on.value);
       // Redraw this section in place: no jump to the top of the page.
       const top = window.scrollY;
       await verifyPanel(panel, show, { uploaded: label });
