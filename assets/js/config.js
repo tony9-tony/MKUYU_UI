@@ -33,6 +33,11 @@ function devOverride() {
   } catch { return null; }
 }
 
+/* Where the separate MKUYU Diaspora Portal lives (its own website: sign up, sign in
+   and the customer portal). This site only links to it. Locally it runs on port 5600;
+   online set the real address, e.g. "https://diaspora.example.co.tz/". Empty hides the link. */
+export const DIASPORA_URL = LOCAL ? "http://localhost:5600/" : "";
+
 /* Customer accounts are for DIASPORA customers only (Miliki Ardhi Diaspora).
    Sales marks a client as diaspora in the internal system and invites them;
    they sign in on login.html with a one-time code sent to their e-mail, no

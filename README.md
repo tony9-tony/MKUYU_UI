@@ -265,3 +265,10 @@ JavaScript.
 5. Remove the "Preview build" disclaimer from the page footers.
 6. Host the site and API on a real server with a domain (not a PC through
    ngrok).
+
+
+## Diaspora customers have their own website
+
+Sign up, sign in and the customer portal moved to the separate **MKUYU Diaspora Portal** site (`mkuyu_diaspora`, port 5600).
+This public site only shows a "Diaspora Portal" link to it (`DIASPORA_URL` in `assets/js/config.js`).
+Mentions of `login.html`, `signup.html` and `portal.html` above describe the old arrangement.

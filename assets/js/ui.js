@@ -5,7 +5,8 @@
    innerHTML, so catalogue text can never inject markup.
    ========================================================================== */
 
-import { STATUS_LABELS, currentCustomer, stateFor } from "./api.js";
+import { STATUS_LABELS, stateFor } from "./api.js";
+import { DIASPORA_URL } from "./config.js";
 
 export function escapeHtml(value) {
   return String(value ?? "").replace(/[&<>"']/g, (char) => ({
@@ -335,16 +336,11 @@ export function initReveal(root = document) {
 }
 
 /** Header account link: "Log in" for visitors, "My portal" once signed in. */
-async function initAccountLink() {
-  const link = document.querySelector("[data-account-link]");
-  if (!link) return;
-  try {
-    const customer = await currentCustomer();
-    if (customer) {
-      link.href = "portal.html";
-      link.innerHTML = `${icon("user")}<span>My portal</span>`;
-    }
-  } catch { /* the visitor simply stays on "Log in" */ }
+/** The "Diaspora Portal" link points at the separate Diaspora Portal site. */
+function initAccountLink() {
+  document.querySelectorAll("[data-diaspora-link]").forEach((link) => {
+    if (DIASPORA_URL) link.href = DIASPORA_URL; else link.hidden = true;
+  });
 }
 
 function initYear() {
@@ -360,7 +356,7 @@ export function initChrome() {
 }
 
 /** The `next` page to return to after login, restricted to this site. */
-export function safeNext(fallback = "portal.html") {
+export function safeNext(fallback = "index.html") {
   const next = new URLSearchParams(window.location.search).get("next") || "";
   return /^[a-z-]+\.html(\?[^#]*)?$/i.test(next) ? next : fallback;
 }
