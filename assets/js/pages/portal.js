@@ -82,7 +82,7 @@ function render(host, data, demoKey) {
     <div class="portal">
       <aside class="portal-side">
         <nav class="portal-nav" aria-label="Portal sections">
-          <div class="portal-brand"><span class="avatar" aria-hidden="true">${escapeHtml(initials(name))}</span><div><strong>${escapeHtml(name)}${verifiedTick(data.verification || { verified: true }, { label: false })}</strong><span>${data.diaspora ? "Diaspora customer" : "Customer"}${data.customer?.country ? ` · ${escapeHtml(data.customer.country)}` : ""}</span></div></div>
+          <div class="portal-brand"><span class="avatar" aria-hidden="true">${escapeHtml(initials(name))}</span><div><strong>${verifiedTick(data.verification || { verified: true }, { label: false })}${escapeHtml(name)}</strong><span>${data.diaspora ? "Diaspora customer" : "Customer"}${data.customer?.country ? ` · ${escapeHtml(data.customer.country)}` : ""}</span></div></div>
           ${groups.filter((g) => g.tabs.length).map((g) => `<div class="portal-nav-group"><span class="portal-nav-label">${escapeHtml(g.label)}</span>
             ${g.tabs.map((tab) => `<a href="#${tab.key}" id="tab-${tab.key}" data-tab="${tab.key}" class="${tab.alert ? "is-alert" : ""}">
               ${icon(tab.icon)}<span>${escapeHtml(tab.label)}</span>${tab.count ? `<span class="count">${tab.count}</span>` : tab.alert ? `<span class="dot" aria-label="Action needed"></span>` : ""}</a>`).join("")}</div>`).join("")}
@@ -139,7 +139,7 @@ function fillHeader(data, demoKey) {
   const slot = document.querySelector("[data-portal-user]");
   if (!slot) return;
   const name = data.customer?.name || "";
-  slot.innerHTML = `${name ? `<span class="portal-user"><span class="avatar avatar--small" aria-hidden="true">${escapeHtml(initials(name))}</span><span class="portal-user-name">${escapeHtml(name)}</span>${verifiedTick(data.verification || { verified: true }, { label: false })}</span>` : ""}
+  slot.innerHTML = `${name ? `<span class="portal-user"><span class="avatar avatar--small" aria-hidden="true">${escapeHtml(initials(name))}</span>${verifiedTick(data.verification || { verified: true }, { label: false })}<span class="portal-user-name">${escapeHtml(name)}</span></span>` : ""}
     ${ACCOUNTS_LIVE && !demoKey ? `<button type="button" class="btn btn--soft btn--small" data-logout>${icon("lock")}<span>Log out</span></button>` : ""}`;
   slot.querySelector("[data-logout]")?.addEventListener("click", async (event) => {
     event.currentTarget.disabled = true;
