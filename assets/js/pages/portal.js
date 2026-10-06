@@ -888,9 +888,11 @@ async function myRequests(panel, demoKey) {
   const rows = demoKey ? [] : await getPortalRequests();
   panel.innerHTML = `<div class="portal-greeting"><span class="eyebrow">My requests</span><h1>What you asked for</h1>
     <p class="lede" style="margin:0">Each request goes straight to the MKUYU Diaspora Desk. Its status updates here.</p></div>
-    ${rows.length ? `<div class="table-wrap"><table><thead><tr><th>Reference</th><th>Property</th><th>Service</th><th>Sent</th><th>Status</th></tr></thead><tbody>
-      ${rows.map((r) => `<tr><td>${escapeHtml(r.reference)}</td><td>${escapeHtml(r.property)}${r.location ? `<br><small>${escapeHtml(r.location)}</small>` : ""}</td><td>${r.service === "rent" ? "Rent" : "Buy"}</td><td>${escapeHtml(r.date || "")}</td><td>${escapeHtml(r.status)}</td></tr>`).join("")}
-    </tbody></table></div>` : `<div class="empty"><h3>No request yet</h3><p>Browse MKUYU's properties and press Request on any of them.</p><p><a class="btn btn--primary btn--small" href="#browse" data-goto="browse">Browse properties ${icon("arrow")}</a></p></div>`}`;
+    ${rows.length ? `<ul class="request-list">${rows.map((r) => `<li class="request-card">
+        <div class="request-top"><strong>${escapeHtml(r.property)}</strong><span class="pill pill--pending">${r.service === "rent" ? "Rent" : "Buy"}</span></div>
+        ${r.location ? `<small>${escapeHtml(r.location)}</small>` : ""}
+        <p class="request-status">${escapeHtml(r.status)}</p>
+        <small class="request-meta">Ref ${escapeHtml(r.reference)} · sent ${escapeHtml(r.date || "")}</small></li>`).join("")}</ul>` : `<div class="empty"><h3>No request yet</h3><p>Browse MKUYU's properties and press Request on any of them.</p><p><a class="btn btn--primary btn--small" href="#browse" data-goto="browse">Browse properties ${icon("arrow")}</a></p></div>`}`;
 }
 
 /* ---------------- My account ---------------- */
